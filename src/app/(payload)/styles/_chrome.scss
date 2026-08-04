@@ -1,0 +1,292 @@
+/**
+ * SIWS admin — canvas, header, buttons, cards, list and edit views.
+ *
+ * Also raises the font sizes Payload hard-codes in `px`, which do not scale
+ * with the root size set in `_tokens.scss`.
+ */
+
+/* --- Canvas ------------------------------------------------------------- */
+
+body {
+  background: var(--siws-canvas);
+  color: var(--siws-ink);
+}
+
+.template-default__wrap {
+  background: var(--siws-canvas);
+}
+
+/* --- App header --------------------------------------------------------- */
+
+.app-header {
+  background: transparent;
+
+  &__bg {
+    background: var(--siws-canvas);
+  }
+}
+
+.step-nav {
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  a {
+    color: var(--siws-purple);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  .step-nav__last {
+    color: var(--siws-ink-2);
+  }
+}
+
+/* --- Buttons ------------------------------------------------------------ */
+
+/* Payload exposes per-variant custom properties, so setting those is enough
+   and no rule needs overriding. */
+.btn--style-primary {
+  --color: #ffffff;
+  --bg-color: var(--siws-purple);
+  --hover-bg: var(--siws-purple-deep);
+  --hover-color: #ffffff;
+
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(97, 62, 151, 0.24);
+}
+
+.btn--style-secondary {
+  --color: var(--siws-purple);
+  --hover-bg: var(--siws-purple);
+  --hover-color: #ffffff;
+
+  border-radius: 999px;
+  border-color: var(--siws-line-strong);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btn {
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.12s ease;
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+/* --- Cards (collection tiles) ------------------------------------------- */
+
+.card {
+  border: 1px solid var(--siws-line);
+  border-radius: var(--siws-radius);
+  background: var(--siws-card);
+  box-shadow: var(--siws-shadow-sm);
+  padding: 1.25rem 1.35rem;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
+
+  &--has-onclick:hover {
+    transform: translateY(-3px);
+    border-color: var(--siws-purple-tint-2);
+    box-shadow: var(--siws-shadow);
+  }
+
+  /* Payload hard-codes 13px here. */
+  &__title {
+    color: var(--siws-ink);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.collections__label {
+  color: var(--siws-ink-3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* --- Pills -------------------------------------------------------------- */
+
+.pill {
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+/* Payload hard-codes 12px on the rounded variant. */
+.pill--rounded {
+  font-size: 0.78rem;
+}
+
+/* --- List view ---------------------------------------------------------- */
+
+.list-header__title {
+  color: var(--siws-ink);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.table-wrap {
+  border: 1px solid var(--siws-line);
+  border-radius: var(--siws-radius);
+  background: var(--siws-card);
+  box-shadow: var(--siws-shadow-sm);
+  overflow: hidden;
+}
+
+.table {
+  font-size: 0.92rem;
+
+  thead th {
+    background: #fbfaff;
+    color: var(--siws-ink-3);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding-block: 1rem;
+  }
+
+  /* Payload zebra-stripes odd rows; hairline separators on a flat surface read
+     cleaner against the lavender canvas. */
+  tbody tr {
+    background: transparent;
+    border-bottom: 1px solid var(--siws-line);
+
+    &:nth-child(odd) {
+      background: transparent;
+    }
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &:hover {
+      background: #fbfaff;
+    }
+  }
+
+  tbody td {
+    padding-block: 0.9rem;
+  }
+
+  .cell-title a,
+  .cell-name a,
+  .cell-filename a {
+    color: var(--siws-purple);
+    font-weight: 600;
+  }
+}
+
+.list-controls {
+  border-radius: var(--siws-radius);
+}
+
+/* --- Document edit view -------------------------------------------------- */
+
+/* Payload renders edit fields straight onto the page background. Lifting them
+   onto a white card is what makes the edit screen share the dashboard's
+   design language. */
+.collection-edit__form,
+.global-edit__form {
+  .document-fields__main {
+    background: var(--siws-card);
+    border: 1px solid var(--siws-line);
+    border-radius: var(--siws-radius);
+    box-shadow: var(--siws-shadow-sm);
+    padding-block: 1.6rem;
+  }
+
+  .document-fields__sidebar {
+    background: var(--siws-card);
+    border: 1px solid var(--siws-line);
+    border-radius: var(--siws-radius);
+    box-shadow: var(--siws-shadow-sm);
+    padding: 1.35rem;
+  }
+}
+
+.doc-controls {
+  background: var(--siws-card);
+  border: 1px solid var(--siws-line);
+  border-radius: var(--siws-radius);
+  box-shadow: var(--siws-shadow-sm);
+  margin-block-end: 1.35rem;
+}
+
+.doc-tab__label {
+  font-size: 0.92rem;
+}
+
+.doc-tab--active .doc-tab__label {
+  color: var(--siws-purple);
+  font-weight: 700;
+}
+
+/* Payload hard-codes 13px. */
+.collapsible__toggle {
+  font-size: 0.92rem;
+}
+
+/* --- Toasts -------------------------------------------------------------- */
+
+.payload-toast-item {
+  border-radius: var(--siws-radius-sm);
+  box-shadow: var(--siws-shadow);
+  font-size: 0.92rem;
+}
+
+/* --- Login / minimal template -------------------------------------------- */
+
+.template-minimal {
+  background:
+    radial-gradient(1200px 560px at 50% -10%, rgba(97, 62, 151, 0.14), transparent 62%),
+    var(--siws-canvas);
+
+  &__wrap {
+    background: var(--siws-card);
+    border: 1px solid var(--siws-line);
+    border-radius: var(--siws-radius-lg);
+    box-shadow: var(--siws-shadow-lg);
+    padding: 2.6rem 2.35rem;
+  }
+}
+
+.login__brand {
+  display: flex;
+  justify-content: center;
+  margin-block-end: 0.35rem;
+}
+
+.siws-login-intro {
+  margin-block-end: 1.6rem;
+  text-align: center;
+
+  h1 {
+    color: var(--siws-ink);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.4rem;
+  }
+
+  p {
+    color: var(--siws-ink-2);
+    font-size: 0.94rem;
+    margin: 0;
+  }
+}

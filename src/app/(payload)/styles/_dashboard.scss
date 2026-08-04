@@ -1,0 +1,500 @@
+/**
+ * SIWS admin — the dashboard.
+ *
+ * Layout transcribed from the two approved reference dashboards: a title row
+ * with the date and a user chip, a four-across row of statistic cards (one
+ * filled in the brand colour, the rest white) each with a solid circular icon
+ * chip and a delta badge, then a wide/narrow split of panels.
+ */
+
+.siws-dash {
+  padding-block: 0.25rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Title row ----------------------------------------------------------- */
+
+.siws-dash__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.siws-dash__title {
+  margin: 0;
+  color: var(--siws-ink);
+  /* Fluid so the heading stays proportionate from tablet to wide desktop
+     without a stack of breakpoints. */
+  font-size: clamp(1.7rem, 1.4rem + 1.1vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.siws-dash__date {
+  margin: 0.3rem 0 0;
+  color: var(--siws-ink-3);
+  font-size: 0.94rem;
+  font-weight: 500;
+}
+
+.siws-dash__topright {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.siws-userchip {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 1rem 0.45rem 0.5rem;
+  border: 1px solid var(--siws-line);
+  border-radius: 999px;
+  background: var(--siws-card);
+  box-shadow: var(--siws-shadow-sm);
+}
+
+.siws-userchip__avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--siws-purple);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.siws-userchip__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.siws-userchip__name {
+  color: var(--siws-ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.siws-userchip__role {
+  color: var(--siws-ink-3);
+  font-size: 0.76rem;
+  font-weight: 500;
+}
+
+.siws-iconbtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--siws-line);
+  border-radius: 50%;
+  background: var(--siws-card);
+  color: var(--siws-ink-2);
+  box-shadow: var(--siws-shadow-sm);
+  text-decoration: none;
+  transition:
+    color 0.16s ease,
+    border-color 0.16s ease;
+
+  &:hover {
+    color: var(--siws-purple);
+    border-color: var(--siws-purple-tint-2);
+  }
+}
+
+/* --- Statistic cards ----------------------------------------------------- */
+
+.siws-stats {
+  display: grid;
+  gap: 1.15rem;
+  /* auto-fit rather than fixed columns, so the row reflows correctly whichever
+     set of cards the viewer's permissions produce. */
+  grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.siws-stat {
+  display: block;
+  position: relative;
+  padding: 1.35rem 1.4rem;
+  border: 1px solid var(--siws-line);
+  border-radius: var(--siws-radius);
+  background: var(--siws-card);
+  box-shadow: var(--siws-shadow-sm);
+  text-decoration: none;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--siws-shadow);
+    text-decoration: none;
+  }
+
+  /* The single filled card, as in the references' lead metric. */
+  &--filled {
+    border-color: transparent;
+    background: linear-gradient(150deg, var(--siws-purple-mid) 0%, var(--siws-purple-deep) 100%);
+    box-shadow: 0 12px 30px rgba(97, 62, 151, 0.32);
+
+    .siws-stat__value,
+    .siws-stat__label {
+      color: #ffffff;
+    }
+
+    .siws-stat__label {
+      opacity: 0.82;
+    }
+
+    .siws-stat__chip {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+  }
+}
+
+.siws-stat__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-block-end: 1.15rem;
+}
+
+.siws-stat__chip {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  color: #ffffff;
+
+  /* Solid fills with white glyphs. Ratios are verified in `_tokens.scss`. */
+  &--purple {
+    background: var(--chip-purple);
+  }
+  &--blue {
+    background: var(--chip-blue);
+  }
+  &--teal {
+    background: var(--chip-teal);
+  }
+  &--coral {
+    background: var(--chip-coral);
+  }
+  &--amber {
+    background: var(--chip-amber);
+  }
+}
+
+.siws-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+
+  &--pos {
+    background: var(--siws-pos-bg);
+    color: var(--siws-pos-ink);
+  }
+  &--neg {
+    background: var(--siws-neg-bg);
+    color: var(--siws-neg-ink);
+  }
+  &--warn {
+    background: var(--siws-warn-bg);
+    color: var(--siws-warn-ink);
+  }
+  &--flat {
+    background: #f0eef7;
+    color: var(--siws-ink-2);
+  }
+}
+
+.siws-stat__value {
+  display: block;
+  color: var(--siws-ink);
+  font-size: 2.05rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.siws-stat__label {
+  display: block;
+  margin-block-start: 0.45rem;
+  color: var(--siws-ink-3);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+/* --- Panels -------------------------------------------------------------- */
+
+.siws-cols {
+  display: grid;
+  gap: 1.15rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 1100px) {
+    /* The review queue is the actionable column, so it takes the larger share. */
+    grid-template-columns: 1.45fr 1fr;
+  }
+}
+
+.siws-panel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--siws-line);
+  border-radius: var(--siws-radius);
+  background: var(--siws-card);
+  box-shadow: var(--siws-shadow-sm);
+  overflow: hidden;
+}
+
+.siws-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 1.25rem 1.4rem 0.9rem;
+}
+
+.siws-panel__heading {
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    color: var(--siws-ink);
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  p {
+    margin: 0.22rem 0 0;
+    color: var(--siws-ink-3);
+    font-size: 0.84rem;
+  }
+}
+
+.siws-panel__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.85rem;
+  height: 1.85rem;
+  padding-inline: 0.55rem;
+  border-radius: 999px;
+  background: var(--chip-coral);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.siws-panel__body {
+  padding: 0 0.7rem 1rem;
+}
+
+.siws-panel__empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  padding: 2.25rem 1.4rem 2.5rem;
+  color: var(--siws-ink-3);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.siws-panel__empty-mark {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--siws-purple-tint);
+  color: var(--siws-purple);
+}
+
+/* --- Rows ---------------------------------------------------------------- */
+
+.siws-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.siws-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.8rem 0.7rem;
+  border-radius: var(--siws-radius-sm);
+  text-decoration: none;
+  transition: background-color 0.14s ease;
+
+  &:hover {
+    background: #fbfaff;
+    text-decoration: none;
+  }
+}
+
+.siws-row__mark {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--siws-purple-tint);
+  color: var(--siws-purple);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.siws-row__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.siws-row__title {
+  display: block;
+  color: var(--siws-ink);
+  font-size: 0.94rem;
+  font-weight: 600;
+  /* Titles are author-supplied and can run long; one clean line keeps the
+     list rhythm intact. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.siws-row__meta {
+  display: block;
+  margin-block-start: 0.15rem;
+  color: var(--siws-ink-3);
+  font-size: 0.82rem;
+}
+
+.siws-badge {
+  flex-shrink: 0;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  &--review {
+    background: var(--siws-warn-bg);
+    color: var(--siws-warn-ink);
+  }
+  &--changes {
+    background: var(--siws-neg-bg);
+    color: var(--siws-neg-ink);
+  }
+  &--draft {
+    background: #f0eef7;
+    color: var(--siws-ink-2);
+  }
+  &--published {
+    background: var(--siws-pos-bg);
+    color: var(--siws-pos-ink);
+  }
+}
+
+/* --- Manage tiles -------------------------------------------------------- */
+
+.siws-section-title {
+  margin: 0.5rem 0 0;
+  color: var(--siws-ink);
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.siws-tiles {
+  display: grid;
+  gap: 1.15rem;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+}
+
+.siws-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--siws-line);
+  border-radius: var(--siws-radius);
+  background: var(--siws-card);
+  box-shadow: var(--siws-shadow-sm);
+  text-decoration: none;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: var(--siws-purple-tint-2);
+    box-shadow: var(--siws-shadow);
+    text-decoration: none;
+  }
+}
+
+.siws-tile__chip {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--siws-purple-tint);
+  color: var(--siws-purple);
+}
+
+.siws-tile__label {
+  display: block;
+  color: var(--siws-ink);
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.siws-tile__count {
+  display: block;
+  margin-block-start: 0.1rem;
+  color: var(--siws-ink-3);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* --- Scope note ---------------------------------------------------------- */
+
+.siws-scopenote {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--siws-radius-sm);
+  background: var(--siws-purple-tint);
+  color: var(--siws-purple);
+  font-size: 0.88rem;
+  font-weight: 500;
+}

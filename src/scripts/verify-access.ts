@@ -1,0 +1,469 @@
+import { loadEnv } from '@/utilities/load-env'
+
+loadEnv()
+
+const { getPayload } = await import('payload')
+const { default: config } = await import('@payload-config')
+
+/**
+ * Integration check for the access-control and workflow rules.
+ *
+ * These are the rules where a silent failure is most costly — a Content Manager
+ * able to self-publish, or one unit able to write into another's site, would
+ * not surface as an error anywhere. Each case exercises the Local API with
+ * `overrideAccess: false` and a real user, which is the same path the admin
+ * panel and REST API take.
+ *
+ * Everything created here is torn down in the `finally` block, so the script is
+ * safe to run repeatedly against a development database.
+ *
+ * Run with:  npm run verify:access
+ */
+
+const PASSWORD = 'Tr4nquil-Harbour-92!'
+
+interface Case {
+  name: string
+  run: () => Promise<void>
+}
+
+let passed = 0
+let failed = 0
+
+const check = async ({ name, run }: Case): Promise<void> => {
+  try {
+    await run()
+    passed += 1
+    console.log(`  PASS  ${name}`)
+  } catch (error) {
+    failed += 1
+    console.log(`  FAIL  ${name}`)
+    console.log(`        ${error instanceof Error ? error.message : String(error)}`)
+  }
+}
+
+/** Asserts that an operation is refused. A success here is the failure. */
+const expectRejection = async (operation: () => Promise<unknown>, because: string) => {
+  try {
+    await operation()
+  } catch {
+    return
+  }
+  throw new Error(`Expected the operation to be refused: ${because}`)
+}
+
+const main = async () => {
+  const payload = await getPayload({ config })
+
+  const createdUsers: number[] = []
+  const createdPages: number[] = []
+
+  try {
+    const { docs: units } = await payload.find({
+      collection: 'units',
+      sort: 'order',
+      limit: 4,
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    const kg = units.find((unit) => unit.slug === 'kindergarten')
+    const primary = units.find((unit) => unit.slug === 'primary')
+
+    if (!kg || !primary) {
+      throw new Error('Seed the units first: npm run seed')
+    }
+
+    // ---- Fixtures -------------------------------------------------------
+    const makeUser = async (
+      suffix: string,
+      roles: string[],
+      extra: Record<string, unknown> = {},
+    ) => {
+      const user = await payload.create({
+        collection: 'users',
+        data: {
+          name: `Test ${suffix}`,
+          email: `verify.${suffix}.${Date.now()}@siws.test`,
+          password: PASSWORD,
+          roles,
+          ...extra,
+        } as never,
+        overrideAccess: true,
+      })
+      createdUsers.push(user.id as number)
+      return user
+    }
+
+    const contentManager = await makeUser('cm', ['contentManager'], { units: [kg.id] })
+    const unitHead = await makeUser('head', ['unitHead'], { units: [kg.id] })
+    const galleryEditor = await makeUser('editor', ['editor'], {
+      units: [kg.id],
+      editableSections: ['gallery'],
+    })
+    const suspended = await makeUser('suspended', ['contentManager'], {
+      units: [kg.id],
+      isActive: false,
+    })
+
+    const stamp = Date.now()
+    console.log('\nAccess control — SRS 8.2 / BR-PUB\n')
+
+    // ---- 1. Content Manager may author within their own unit ------------
+    let draftId: number | null = null
+
+    await check({
+      name: 'Content Manager can create a draft in their own unit',
+      run: async () => {
+        const page = await payload.create({
+          collection: 'pages',
+          data: {
+            title: 'Verify draft page',
+            slug: `verify-draft-${stamp}`,
+            unit: kg.id,
+            layout: [],
+          } as never,
+          user: contentManager,
+          overrideAccess: false,
+        })
+        draftId = page.id as number
+        createdPages.push(page.id as number)
+      },
+    })
+
+    // ---- 2. BR-PUB-02 — publishing is an approver's act -----------------
+    await check({
+      name: 'Content Manager CANNOT publish (BR-PUB-02)',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.update({
+              collection: 'pages',
+              id: draftId as number,
+              data: { _status: 'published' } as never,
+              user: contentManager,
+              overrideAccess: false,
+            }),
+          'a Content Manager must not be able to self-publish',
+        ),
+    })
+
+    await check({
+      name: 'Unit Head CAN publish their unit’s content',
+      run: async () => {
+        await payload.update({
+          collection: 'pages',
+          id: draftId as number,
+          data: { _status: 'published' } as never,
+          user: unitHead,
+          overrideAccess: false,
+        })
+      },
+    })
+
+    // ---- 3. Unit isolation ----------------------------------------------
+    await check({
+      name: 'Content Manager CANNOT create content in another unit',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.create({
+              collection: 'pages',
+              data: {
+                title: 'Cross unit attempt',
+                slug: `cross-unit-${stamp}`,
+                unit: primary.id,
+                layout: [],
+              } as never,
+              user: contentManager,
+              overrideAccess: false,
+            }),
+          'a Kindergarten manager must not write into Primary',
+        ),
+    })
+
+    await check({
+      name: 'Content Manager CANNOT create institution-wide content (SRS 3.4)',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.create({
+              collection: 'pages',
+              data: {
+                title: 'Institution attempt',
+                slug: `institution-attempt-${stamp}`,
+                layout: [],
+              } as never,
+              user: contentManager,
+              overrideAccess: false,
+            }),
+          'institution-wide content is reserved to Administrators',
+        ),
+    })
+
+    // ---- 4. Editor section limits (SRS 8.1) ------------------------------
+    await check({
+      name: 'Editor limited to Gallery CANNOT create a page',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.create({
+              collection: 'pages',
+              data: {
+                title: 'Editor attempt',
+                slug: `editor-attempt-${stamp}`,
+                unit: kg.id,
+                layout: [],
+              } as never,
+              user: galleryEditor,
+              overrideAccess: false,
+            }),
+          'an Editor assigned only to Gallery must not touch Pages',
+        ),
+    })
+
+    // ---- 5. BR-USER-04 — deactivation revokes access ---------------------
+    await check({
+      name: 'Deactivated user CANNOT create content (BR-USER-04)',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.create({
+              collection: 'pages',
+              data: {
+                title: 'Suspended attempt',
+                slug: `suspended-attempt-${stamp}`,
+                unit: kg.id,
+                layout: [],
+              } as never,
+              user: suspended,
+              overrideAccess: false,
+            }),
+          'a deactivated account must not retain write access',
+        ),
+    })
+
+    // ---- 6. Slug namespacing --------------------------------------------
+    await check({
+      name: 'Duplicate slug within the same unit is refused',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.create({
+              collection: 'pages',
+              data: {
+                title: 'Duplicate',
+                slug: `verify-draft-${stamp}`,
+                unit: kg.id,
+                layout: [],
+              } as never,
+              user: contentManager,
+              overrideAccess: false,
+            }),
+          'two pages in one unit must not share a slug',
+        ),
+    })
+
+    await check({
+      name: 'The same slug IS allowed in a different unit',
+      run: async () => {
+        const page = await payload.create({
+          collection: 'pages',
+          data: {
+            title: 'Same slug, other unit',
+            slug: `verify-draft-${stamp}`,
+            unit: primary.id,
+            layout: [],
+          } as never,
+          overrideAccess: true,
+        })
+        createdPages.push(page.id as number)
+      },
+    })
+
+    // ---- 7. Public visibility -------------------------------------------
+    const hiddenPage = await payload.create({
+      collection: 'pages',
+      data: {
+        title: 'Unpublished page',
+        slug: `verify-hidden-${stamp}`,
+        unit: kg.id,
+        layout: [],
+        _status: 'draft',
+      } as never,
+      overrideAccess: true,
+    })
+    createdPages.push(hiddenPage.id as number)
+
+    await check({
+      name: 'An anonymous visitor cannot read a draft page',
+      run: async () => {
+        const { docs } = await payload.find({
+          collection: 'pages',
+          where: { slug: { equals: `verify-hidden-${stamp}` } },
+          overrideAccess: false,
+        })
+        if (docs.length !== 0) throw new Error('A draft page was returned to the public.')
+      },
+    })
+
+    await check({
+      name: 'An anonymous visitor can read a published page',
+      run: async () => {
+        const { docs } = await payload.find({
+          collection: 'pages',
+          where: { slug: { equals: `verify-draft-${stamp}` } },
+          overrideAccess: false,
+        })
+        if (docs.length === 0) throw new Error('A published page was hidden from the public.')
+      },
+    })
+
+    // ---- 8. FR-CMS-06 — scheduling is enforced at read time --------------
+    const futurePage = await payload.create({
+      collection: 'pages',
+      data: {
+        title: 'Scheduled page',
+        slug: `verify-scheduled-${stamp}`,
+        unit: kg.id,
+        layout: [],
+        _status: 'published',
+        publishAt: new Date(Date.now() + 86_400_000).toISOString(),
+      } as never,
+      overrideAccess: true,
+    })
+    createdPages.push(futurePage.id as number)
+
+    await check({
+      name: 'A page scheduled for tomorrow is not yet public (FR-CMS-06)',
+      run: async () => {
+        const { docs } = await payload.find({
+          collection: 'pages',
+          where: { slug: { equals: `verify-scheduled-${stamp}` } },
+          overrideAccess: false,
+        })
+        if (docs.length !== 0) {
+          throw new Error('A page with a future publish date was served to the public.')
+        }
+      },
+    })
+
+    const expiredPage = await payload.create({
+      collection: 'pages',
+      data: {
+        title: 'Expired page',
+        slug: `verify-expired-${stamp}`,
+        unit: kg.id,
+        layout: [],
+        _status: 'published',
+        unpublishAt: new Date(Date.now() - 3_600_000).toISOString(),
+      } as never,
+      overrideAccess: true,
+    })
+    createdPages.push(expiredPage.id as number)
+
+    await check({
+      name: 'A page past its unpublish date is withdrawn (FR-CMS-06)',
+      run: async () => {
+        const { docs } = await payload.find({
+          collection: 'pages',
+          where: { slug: { equals: `verify-expired-${stamp}` } },
+          overrideAccess: false,
+        })
+        if (docs.length !== 0) {
+          throw new Error('An expired page was still being served.')
+        }
+      },
+    })
+
+    // ---- 9. FR-CMS-07 — version history ---------------------------------
+    await check({
+      name: 'Edits accumulate a version history that can be reverted to',
+      run: async () => {
+        await payload.update({
+          collection: 'pages',
+          id: draftId as number,
+          data: { title: 'Verify draft page (edited)' } as never,
+          overrideAccess: true,
+        })
+
+        const { docs } = await payload.findVersions({
+          collection: 'pages',
+          where: { parent: { equals: draftId } },
+          limit: 10,
+          overrideAccess: true,
+        })
+
+        if (docs.length < 2) {
+          throw new Error(`Expected at least 2 versions, found ${docs.length}.`)
+        }
+      },
+    })
+
+    // ---- 9b. Every public collection actually answers --------------------
+    /**
+     * `readPublishedOrScoped` filters on `publishAt` / `unpublishAt`. A
+     * collection that uses it without declaring those fields produces a query
+     * against columns that do not exist, and the request fails outright.
+     *
+     * That is invisible from the page: the caller catches the error, renders an
+     * empty section, and the page still returns 200. Faculty shipped exactly
+     * that way — a teachers page with no teachers on it. So each publicly
+     * readable collection is asked, as an anonymous visitor, to actually return.
+     */
+    for (const collection of ['pages', 'faculty', 'media', 'units'] as const) {
+      await check({
+        name: `An anonymous visitor can query "${collection}" without error`,
+        run: async () => {
+          await payload.find({ collection, overrideAccess: false, limit: 1, depth: 0 })
+        },
+      })
+    }
+
+    // ---- 10. Privilege escalation ---------------------------------------
+    await check({
+      name: 'A Unit Head cannot grant themselves the Administrator role',
+      run: async () => {
+        await payload.update({
+          collection: 'users',
+          id: unitHead.id,
+          data: { roles: ['unitHead', 'admin'] } as never,
+          user: unitHead,
+          overrideAccess: false,
+        })
+
+        const after = await payload.findByID({
+          collection: 'users',
+          id: unitHead.id,
+          overrideAccess: true,
+          depth: 0,
+        })
+
+        // Payload silently drops fields the user may not write, so the check is
+        // on the stored result rather than on whether the call threw.
+        if (after.roles?.includes('admin')) {
+          throw new Error('A Unit Head escalated themselves to Administrator.')
+        }
+      },
+    })
+  } finally {
+    for (const id of createdPages) {
+      await payload
+        .delete({ collection: 'pages', id, overrideAccess: true })
+        .catch(() => undefined)
+    }
+    for (const id of createdUsers) {
+      await payload
+        .delete({ collection: 'users', id, overrideAccess: true })
+        .catch(() => undefined)
+    }
+  }
+
+  console.log(`\n${passed} passed, ${failed} failed\n`)
+  process.exit(failed > 0 ? 1 : 0)
+}
+
+main().catch((error: unknown) => {
+  console.error('Verification could not run:', error)
+  process.exit(1)
+})

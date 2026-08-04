@@ -1,0 +1,956 @@
+import { loadEnv } from '@/utilities/load-env'
+
+loadEnv()
+
+const { getPayload } = await import('payload')
+const { default: config } = await import('@payload-config')
+const { richText } = await import('./lexical')
+
+/**
+ * Seeds the Kindergarten website.
+ *
+ * Two sources, and where they disagree the school wins:
+ *  - the approved landing page, which supplied the layout and the marketing copy;
+ *  - SIWS's own KG requirement document, which supplies the curriculum, the
+ *    teaching team, the timings, the age criteria, the fee, the achievements and
+ *    the one real parent testimonial.
+ *
+ * Everything created here is ordinary editable content — nothing is hard-coded
+ * into a template — so staff can change any of it afterwards. Re-running the
+ * script updates the same pages rather than duplicating them, matched by slug.
+ *
+ * Run with:  npm run seed:kg
+ */
+
+/**
+ * The five KG teachers, head teacher first.
+ *
+ * NO CAMPUS IS RECORDED. SIWS's endowment register names a "K.G. Section,
+ * Wadala" and a "K.G. Section, Matunga" separately, but this document does not
+ * say which campus its teachers or its timings belong to. Guessing would put
+ * five named people at a location nobody has confirmed, so the field is left
+ * blank and the question is raised at the end of the run.
+ */
+const FACULTY = [
+  {
+    name: 'Mrs. Nagkumari V. Seelam',
+    designation: 'Head Teacher',
+    qualifications: 'B.Com., B.Ed., E.C.C.Ed.',
+  },
+  {
+    name: 'Mrs. Ulina James Fernandes',
+    designation: 'Asst. Teacher',
+    qualifications: 'S.S.C., Montessori',
+  },
+  {
+    name: 'Mrs. Preethi Mahesh',
+    designation: 'Asst. Teacher',
+    qualifications: 'S.S.C., E.C.C.Ed.',
+  },
+  {
+    name: 'Mrs. Kaladevi Nadar',
+    designation: 'Asst. Teacher',
+    qualifications: 'B.A., E.C.C.Ed.',
+  },
+  {
+    name: 'Mrs. Meena Murugan Thevar',
+    designation: 'Asst. Teacher',
+    qualifications: 'H.S.C., E.C.C.Ed.',
+  },
+]
+
+/** Why play-based learning works — SIWS's own seven points. */
+const PLAY_BASED = [
+  {
+    title: 'Sparks natural curiosity',
+    description: 'Children explore concepts deeply through hands-on, self-directed discovery.',
+  },
+  {
+    title: 'Builds social intelligence',
+    description: 'Group play teaches sharing, empathy and collaborative problem-solving.',
+  },
+  {
+    title: 'Develops critical thinking',
+    description: 'Open-ended activities challenge children to experiment and evaluate outcomes.',
+  },
+  {
+    title: 'Boosts language skills',
+    description: 'Interactive storytelling and role play rapidly expand vocabulary.',
+  },
+  {
+    title: 'Strengthens motor skills',
+    description: 'Active physical games refine both fine and gross coordination.',
+  },
+  {
+    title: 'Fosters emotional resilience',
+    description: 'Navigating peer play builds confidence and emotional self-regulation.',
+  },
+  {
+    title: 'Nurtures lifelong joy',
+    description: 'Learning feels like an adventure, preventing early school burnout.',
+  },
+]
+
+const ACTIVITIES = [
+  { title: 'Drawing and colouring' },
+  { title: 'Finger, thumb and palm painting' },
+  { title: 'Festival celebrations' },
+  { title: 'Fancy dress' },
+  { title: 'Dance and movement' },
+  { title: 'Sports' },
+]
+
+/**
+ * Looks up a media item by filename so page content can reference the images
+ * uploaded by `seed:media`. Returns null when the image is missing, and the
+ * caller then omits it — a page must still seed correctly on an installation
+ * where the photographs have not been uploaded.
+ */
+const mediaByFilename = async (
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  filename: string,
+): Promise<number | null> => {
+  const { docs } = await payload.find({
+    collection: 'media',
+    where: { filename: { equals: filename } },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  return (docs[0]?.id as number | undefined) ?? null
+}
+
+const main = async () => {
+  const payload = await getPayload({ config })
+
+  const { docs: units } = await payload.find({
+    collection: 'units',
+    where: { slug: { equals: 'kindergarten' } },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+
+  const kg = units[0]
+  if (!kg) throw new Error('Kindergarten unit not found. Run `npm run seed` first.')
+
+  // Photographs uploaded by `npm run seed:media`.
+  const img = {
+    classroomActivity: await mediaByFilename(payload, 'kg-classroom-activity.jpg'),
+    classroomGroup: await mediaByFilename(payload, 'kg-classroom-group.jpg'),
+    classroomSeated: await mediaByFilename(payload, 'kg-classroom-seated.jpg'),
+    playArea: await mediaByFilename(payload, 'kg-play-area.jpg'),
+    teacherWithChildren: await mediaByFilename(payload, 'kg-teacher-with-children.jpg'),
+    childrenTogether: await mediaByFilename(payload, 'kg-children-together.jpg'),
+    canteen: await mediaByFilename(payload, 'kg-canteen-meal.jpg'),
+    handwashing: await mediaByFilename(payload, 'kg-handwashing.jpg'),
+  }
+
+  const missing = Object.entries(img).filter(([, id]) => id === null).map(([name]) => name)
+  if (missing.length > 0) {
+    payload.logger.warn(
+      `Some photographs are not in the media library yet (${missing.join(', ')}). Run \`npm run seed:media\` first for the full page.`,
+    )
+  }
+
+  /** Gallery entry, skipped entirely when the image is absent. */
+  const shot = (id: number | null, caption: string) =>
+    id === null ? [] : [{ image: id, caption }]
+
+  // -- Fill in the unit's own details, so the footer and contact page work ---
+  await payload.update({
+    collection: 'units',
+    id: kg.id,
+    overrideAccess: true,
+    data: {
+      addressLine1: 'South Indians’ Welfare Society',
+      addressLine2: 'Sion–Wadala Estate Road, Wadala',
+      city: 'Mumbai',
+      postalCode: '400031',
+      email: 'info@siws.edu.in',
+      phone: '+91 98927 03893',
+      admissionsEmail: 'admissions@siws.edu.in',
+      contactEmail: 'info@siws.edu.in',
+      socialProfiles: [
+        { platform: 'whatsapp', url: 'https://wa.me/919892703893', showFeed: false },
+        {
+          platform: 'instagram',
+          url: 'https://www.instagram.com/siwsschoolwadala/',
+          showFeed: false,
+        },
+        {
+          platform: 'facebook',
+          url: 'https://www.facebook.com/profile.php?id=61585854647515',
+          showFeed: false,
+        },
+      ],
+    } as never,
+  })
+
+  // -----------------------------------------------------------------------
+  // The pages. `home` is the unit landing page; the rest are inner pages.
+  // -----------------------------------------------------------------------
+  const pages: {
+    slug: string
+    title: string
+    intro?: string
+    showInNav?: boolean
+    navLabel?: string
+    navOrder?: number
+    metaDescription?: string
+    layout: Record<string, unknown>[]
+  }[] = [
+    // ---------------------------------------------------------------- HOME
+    {
+      slug: 'home',
+      title: 'SIWS Kindergarten, Wadala',
+      metaDescription:
+        'Wadala’s most trusted kindergarten since 1934. SSC Board, safe and value-based early education for Jr. KG and Sr. KG. Admissions open for 2026–27.',
+      layout: [
+        {
+          blockType: 'heroEnquiry',
+          title: 'Wadala’s Most Trusted Kindergarten Since 1934',
+          subtitle: 'SSC Board | Safe | Value-Based Education',
+          benefitsIntro: 'At SIWS, your child benefits from:',
+          benefits: [
+            { text: 'Strong academic foundations (SSC Board)' },
+            { text: 'Structured early learning approach' },
+            { text: 'Focus on discipline, values and confidence' },
+            { text: 'Safe, nurturing and child-friendly campus' },
+          ],
+          badge: {
+            title: 'Admissions Open for 2026–27',
+            subtitle: 'Limited seats | Jr. KG & Sr. KG',
+          },
+          form: {
+            title: 'Book a Free Campus Tour',
+            subtitle: '(Limited seats available for Jr. KG & Sr. KG)',
+            classOptions: [{ label: 'Jr KG' }, { label: 'Sr KG' }],
+            trustPoints: [
+              { text: 'Over 92 years of educational legacy' },
+              { text: 'SSC / State Board curriculum' },
+              { text: 'Experienced and trained teachers' },
+              { text: 'Safe and disciplined campus' },
+            ],
+          },
+        },
+        {
+          blockType: 'richText',
+          heading: 'About South Indians’ Welfare Society (SIWS)',
+          accentWord: '(SIWS)',
+          headingLevel: 'h2',
+          width: 'normal',
+          background: 'white',
+          content: richText([
+            'Founded in 1934, South Indians’ Welfare Society (SIWS) is a trusted educational institution in Mumbai with a legacy spanning nearly a century. The institution is known for its commitment to discipline, values and structured academic learning, with a strong emphasis on nurturing young minds during their formative years.',
+          ]),
+        },
+        {
+          blockType: 'statistics',
+          heading: 'A legacy parents trust',
+          background: 'cream',
+          stats: [
+            { value: '1934', label: 'Serving Mumbai since' },
+            { value: '92+', label: 'Years of educational legacy' },
+            { value: 'SSC', label: 'State Board curriculum' },
+          ],
+        },
+        /**
+         * The campus section, matching the approved page: a scrolling row of
+         * photographs, followed by the facilities written out as text.
+         *
+         * Split into two blocks rather than one grid of captioned cards because
+         * the facilities list must stay readable when the photographs are not —
+         * a visitor on a slow connection, or one who cannot see the images, still
+         * gets the full list of what the campus has.
+         */
+        {
+          blockType: 'gallery',
+          heading: 'Campus and Facilities',
+          accentWord: 'Facilities',
+          headingLevel: 'h2',
+          layout: 'carousel',
+          background: 'white',
+          intro: richText(['A child-friendly campus in Wadala.']),
+          images: [
+            ...shot(img.classroomActivity, 'Spacious, well-ventilated classrooms'),
+            ...shot(img.playArea, 'Safe play and activity area'),
+            ...shot(img.classroomGroup, 'Group tables sized for young children'),
+            ...shot(img.teacherWithChildren, 'Supportive and trained school staff'),
+            ...shot(img.classroomSeated, 'Dedicated activity rooms'),
+            ...shot(img.canteen, 'Pure vegetarian canteen'),
+            ...shot(img.handwashing, 'Clean and hygienic washrooms'),
+          ],
+        },
+        {
+          blockType: 'featureList',
+          heading: 'What the campus offers',
+          headingLevel: 'h3',
+          marker: 'tick',
+          columns: '2',
+          background: 'white',
+          items: [
+            {
+              title: 'Spacious & Well-Ventilated Classrooms',
+              description: 'Bright, airy rooms designed for young learners.',
+            },
+            {
+              title: 'Safe Play & Activity Area',
+              description: 'Supervised space for games and structured play.',
+            },
+            {
+              title: 'Secure & Child-Friendly Campus',
+              description: 'Monitored entry and child-safe infrastructure throughout.',
+            },
+            {
+              title: 'Dedicated Activity Rooms',
+              description: 'Separate spaces for art, music and hands-on learning.',
+            },
+            {
+              title: 'Pure Veg Canteen',
+              description: 'Hygienic, purely vegetarian food prepared on campus.',
+            },
+            {
+              title: 'Clean & Hygienic Washrooms',
+              description: 'Child-height fittings, cleaned and checked through the day.',
+            },
+            {
+              title: 'Supportive & Trained School Staff',
+              description: 'Attentive staff experienced with early years children.',
+            },
+          ],
+        },
+        {
+          blockType: 'featureList',
+          heading: 'Kindergarten & Pre-Primary Programme at SIWS',
+          accentWord: 'Programme',
+          headingLevel: 'h2',
+          marker: 'number',
+          columns: '2',
+          background: 'tint',
+          intro: richText([
+            'SIWS follows the SSC (State Board) curriculum, with a structured approach to foundational learning at the kindergarten and pre-primary levels.',
+          ]),
+          items: [
+            {
+              title: 'Early Literacy and Numeracy',
+              description: 'Letters, numbers, reading readiness and writing skills.',
+            },
+            {
+              title: 'Creative Expression',
+              description: 'Art, music, storytelling and activity-based learning.',
+            },
+            {
+              title: 'Communication and Social Skills',
+              description: 'Speaking, listening, sharing and confidence building.',
+            },
+            {
+              title: 'Cognitive and Motor Development',
+              description: 'Hands-on activities supporting mental and physical growth.',
+            },
+            {
+              title: 'Physical Activity and Play',
+              description: 'Movement, games and structured playtime.',
+            },
+          ],
+        },
+        /**
+         * "Holistic Development" carries the photograph in the approved page.
+         * Falls back to a plain text section if the image is not in the library,
+         * so the copy is never lost to a missing asset.
+         */
+        img.childrenTogether === null
+          ? {
+              blockType: 'richText',
+              heading: 'Holistic Development Beyond the Classroom',
+              headingLevel: 'h2',
+              width: 'narrow',
+              background: 'white',
+              content: richText([
+                'SIWS promotes emotional, social and physical development through group activities, celebrations, play and guided interaction, supporting all-round growth during the formative years.',
+              ]),
+            }
+          : {
+              blockType: 'mediaText',
+              heading: 'Holistic Development Beyond the Classroom',
+              accentWord: 'Beyond the Classroom',
+              headingLevel: 'h2',
+              image: img.childrenTogether,
+              imagePosition: 'left',
+              imageShape: 'rounded',
+              background: 'white',
+              content: richText([
+                'SIWS promotes emotional, social and physical development through group activities, celebrations, play and guided interaction, supporting all-round growth during the formative years.',
+              ]),
+              cta: [],
+            },
+        {
+          blockType: 'featureList',
+          heading: 'Why Parents Choose SIWS for Kindergarten in Wadala',
+          accentWord: 'SIWS',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '2',
+          background: 'cream',
+          items: [
+            /**
+             * Rewritten against SIWS's own answers. The list previously offered
+             * general claims from the landing page; these are the specifics the
+             * school actually gave — a KG-to-PG pathway, Educom, the ground and
+             * garden, and staff with 15 to 25 years behind them.
+             */
+            {
+              title: 'A pathway from KG to PG',
+              description:
+                'One institution from Kindergarten through to postgraduate study, so a child need not change schools to move up.',
+            },
+            {
+              title: 'Digital board and Educom facility',
+              description: 'Technology-supported teaching in the early years classroom.',
+            },
+            {
+              title: 'Experienced staff',
+              description:
+                'Our teachers and staff have between 15 and 25 years of experience with young children.',
+            },
+            {
+              title: 'Sports ground and garden',
+              description: 'Open space for active play, games and outdoor learning.',
+            },
+            {
+              title: 'A safe and disciplined environment',
+              description:
+                'CCTV-monitored entry and exit, and female staff throughout the section.',
+            },
+            {
+              title: 'Strong early learning foundation',
+              description:
+                'Phonics, letter recognition, pre-writing skills, vocabulary, peer socialisation, motor skills and confidence building.',
+            },
+          ],
+        },
+        {
+          blockType: 'featureList',
+          heading: 'Why play-based learning works',
+          accentWord: 'play-based learning',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '2',
+          background: 'white',
+          items: PLAY_BASED,
+        },
+        {
+          blockType: 'featureList',
+          heading: 'Our children’s achievements',
+          accentWord: 'achievements',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '1',
+          background: 'tint',
+          intro: richText([
+            'Our children take part in interschool competitions and have won awards.',
+          ]),
+          items: [
+            {
+              title: 'Our Lady’s Garden, Auxilium Convent',
+              description: 'Four prizes.',
+            },
+            { title: 'Andhra Education Society', description: 'One prize.' },
+            { title: 'Natya Tarang', description: 'One prize.' },
+          ],
+        },
+        {
+          /**
+           * REPLACED, not extended.
+           *
+           * This block previously carried three quotes from the approved
+           * landing page, each attributed only to "Parent". Nobody said them —
+           * they were written as design copy — and an unattributed testimonial
+           * on a school site is fabricated social proof about real families.
+           * SIWS has now supplied one genuine testimonial, so the invented
+           * three are gone and the real one stands alone.
+           */
+          blockType: 'testimonials',
+          heading: 'What parents say',
+          accentWord: 'parents',
+          headingLevel: 'h2',
+          background: 'white',
+          quotes: [
+            {
+              quote:
+                'The curriculum perfectly balances fun with learning. The Pre-Primary team lays a rock-solid foundation for future grades. I’m happy to have enrolled my child here.',
+              // The name is published as SIWS supplied it. A parent's full name
+              // is their personal data, so SIWS should hold their permission —
+              // flagged at the end of the run.
+              attribution: 'Kaveri Rajbhansi',
+              detail: 'Parent',
+            },
+          ],
+        },
+        {
+          blockType: 'accordion',
+          heading: 'Frequently Asked Questions',
+          accentWord: 'Questions',
+          headingLevel: 'h2',
+          background: 'tint',
+          allowMultipleOpen: false,
+          items: [
+            {
+              question: 'Is SIWS a kindergarten school in Wadala?',
+              answer: richText([
+                'Yes. SIWS offers kindergarten and pre-primary education in Wadala, Mumbai.',
+              ]),
+            },
+            {
+              question: 'Which board does SIWS follow?',
+              answer: richText(['SIWS follows the SSC (State Board) curriculum.']),
+            },
+            {
+              question: 'What is the eligibility for kindergarten admission?',
+              answer: richText([
+                'Your child should be 4 years or above for Jr. KG, and 5 years or above for Sr. KG.',
+              ]),
+            },
+            {
+              question: 'How can parents apply for admission?',
+              answer: richText([
+                'The admission process starts in November each year, and forms are submitted in person at the school office. Send us an enquiry through this page and the admissions team will contact you and guide you through it.',
+              ]),
+            },
+            {
+              question: 'What are the school timings?',
+              answer: richText([
+                'Jr. KG runs from 11.00 a.m. to 1.00 p.m., and Sr. KG from 2.00 p.m. to 5.00 p.m.',
+              ]),
+            },
+            {
+              question: 'Is the campus safe for young children?',
+              answer: richText([
+                'Yes. The campus is supervised, secure and designed to be child-friendly throughout.',
+              ]),
+            },
+          ],
+        },
+        {
+          blockType: 'callToAction',
+          heading: 'Come and see the campus for yourself',
+          background: 'purple',
+          text: richText([
+            'Book a free campus tour and meet the teachers who will be looking after your child.',
+          ]),
+          links: [
+            {
+              link: {
+                label: 'Book a free campus tour',
+                type: 'external',
+                url: 'https://siws.edu.in/kindergarten#enquire',
+                appearance: 'primary',
+              },
+            },
+          ],
+        },
+      ],
+    },
+
+    // ------------------------------------------------------------- ACADEMICS
+    {
+      slug: 'academics',
+      title: 'What your child learns',
+      intro:
+        'Jr. KG and Sr. KG on the State Board curriculum — English, Mathematics, EVS, General Knowledge and Arts.',
+      showInNav: true,
+      navLabel: 'Academics',
+      navOrder: 5,
+      metaDescription:
+        'The Jr. KG and Sr. KG curriculum at SIWS Kindergarten — phonics, number work, EVS, general knowledge, arts and play-based learning.',
+      layout: [
+        {
+          blockType: 'featureList',
+          heading: 'Subjects',
+          accentWord: 'Subjects',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '2',
+          background: 'white',
+          items: [
+            { title: 'English' },
+            { title: 'Mathematics' },
+            { title: 'EVS' },
+            { title: 'General Knowledge' },
+            { title: 'Arts' },
+          ],
+        },
+        {
+          blockType: 'featureList',
+          heading: 'Jr. KG',
+          accentWord: 'Jr. KG',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '1',
+          background: 'cream',
+          items: [
+            {
+              title: 'English — alphabet and phonics',
+              description:
+                'Pre-writing strokes and basic curves. Identifying and writing capital letters A–Z, and pronouncing the correct phonic sounds.',
+            },
+            {
+              title: 'Mathematics',
+              description:
+                'Oral and written counting from 1 to 50. Pre-maths concepts: big and small, tall and short, heavy and light.',
+            },
+            {
+              title: 'EVS and General Knowledge',
+              description:
+                'Myself, parts of the body, family members, fruits, vegetables, domestic animals, the sounds animals make, and means of transport.',
+            },
+          ],
+        },
+        {
+          blockType: 'featureList',
+          heading: 'Sr. KG',
+          accentWord: 'Sr. KG',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '1',
+          background: 'white',
+          items: [
+            {
+              title: 'English — alphabet and phonics',
+              description:
+                'Mastering A–Z in both capital and small letters, and the phonic sounds needed for reading. Word building: reading and writing two- and three-letter words.',
+            },
+            {
+              title: 'Mathematics',
+              description:
+                'Number work, single-digit addition and subtraction, and number concepts. Shapes and colours.',
+            },
+            {
+              title: 'EVS',
+              description:
+                'The living world, our surroundings and safety, good manners and personal hygiene.',
+            },
+            {
+              title: 'Creative and physical activities',
+              description:
+                'Art, craft and co-curricular work: action rhymes, storytelling, indoor and outdoor play, and music.',
+            },
+          ],
+        },
+        {
+          blockType: 'featureList',
+          heading: 'Activities through the year',
+          accentWord: 'Activities',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '2',
+          background: 'tint',
+          items: ACTIVITIES,
+        },
+        {
+          blockType: 'richText',
+          heading: 'How the year is organised',
+          headingLevel: 'h2',
+          width: 'narrow',
+          background: 'white',
+          content: richText(['The academic year runs in two terms.']),
+        },
+      ],
+    },
+
+    // -------------------------------------------------------------- TEACHERS
+    {
+      slug: 'teachers',
+      title: 'Our teachers',
+      intro:
+        'Our teachers and staff have between 15 and 25 years of experience with young children.',
+      showInNav: true,
+      navLabel: 'Teachers',
+      navOrder: 8,
+      metaDescription:
+        'Meet the Kindergarten teaching team at SIWS — qualified early childhood educators with 15 to 25 years of experience.',
+      layout: [
+        {
+          blockType: 'faculty',
+          heading: 'Meet the team',
+          headingLevel: 'h2',
+          showQualifications: true,
+          background: 'white',
+          intro: richText([
+            'Patient, trained educators who understand early childhood development.',
+          ]),
+        },
+      ],
+    },
+
+    // ------------------------------------------------------------ ADMISSIONS
+    {
+      slug: 'admissions',
+      title: 'Admissions',
+      intro:
+        'Admissions for Jr. KG and Sr. KG are open for the 2026–27 academic year. Seats are limited.',
+      showInNav: true,
+      navLabel: 'Admissions',
+      navOrder: 10,
+      metaDescription:
+        'Kindergarten admissions at SIWS Wadala for 2026–27. Eligibility, the application process and how to enquire.',
+      layout: [
+        {
+          blockType: 'featureList',
+          heading: 'Who can apply',
+          accentWord: 'Who',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '2',
+          background: 'white',
+          items: [
+            { title: 'Jr. KG', description: 'Your child should be 4 years or above.' },
+            { title: 'Sr. KG', description: 'Your child should be 5 years or above.' },
+          ],
+        },
+        {
+          /**
+           * Corrected against SIWS's answer. The earlier version described an
+           * online-first flow ending in "the team will guide you through the
+           * forms". SIWS applies **in November, on paper, at the school** — a
+           * parent who took the old wording literally could have missed the
+           * window entirely.
+           */
+          blockType: 'featureList',
+          heading: 'How admission works',
+          headingLevel: 'h2',
+          marker: 'number',
+          columns: '1',
+          background: 'cream',
+          items: [
+            {
+              title: 'The process opens in November',
+              description:
+                'Admissions for the next academic year begin in November. It is worth contacting us before then so we can tell you when forms are available.',
+            },
+            {
+              title: 'Collect and submit the form at the school',
+              description:
+                'Admission forms are handled in person at the school office, not online.',
+            },
+            {
+              title: 'Send us an enquiry any time',
+              description:
+                'Fill in the enquiry form on this website and the admissions team will contact you and guide you through what is needed.',
+            },
+            {
+              title: 'Visit the campus',
+              description: 'Come and see the classrooms and play areas, and meet the teachers.',
+            },
+          ],
+        },
+        {
+          blockType: 'featureList',
+          heading: 'Timings and attendance',
+          accentWord: 'Timings',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '2',
+          background: 'white',
+          items: [
+            { title: 'Jr. KG', description: '11.00 a.m. to 1.00 p.m.' },
+            { title: 'Sr. KG', description: '2.00 p.m. to 5.00 p.m.' },
+            {
+              title: 'Attendance',
+              description: 'We ask for a minimum of 75% attendance across the year.',
+            },
+            {
+              title: 'Punctuality and regularity',
+              description:
+                'Coming in on time and every day matters a great deal at this age — routine is much of what the early years are teaching.',
+            },
+          ],
+        },
+        {
+          /**
+           * The first fee figure SIWS has given for any unit. Published as
+           * supplied, with the period left unstated because their document
+           * does not give one — see the warning at the end of this seed. A
+           * guessed "per year" on a fee page is the kind of error a family
+           * plans their finances around.
+           */
+          blockType: 'featureList',
+          heading: 'Fees',
+          accentWord: 'Fees',
+          headingLevel: 'h2',
+          marker: 'tick',
+          columns: '1',
+          background: 'cream',
+          items: [
+            {
+              title: 'Jr. KG and Sr. KG — ₹65,000',
+              description:
+                'Please confirm the current fee, what it covers and how it is paid with the school office before you apply.',
+            },
+          ],
+        },
+        {
+          blockType: 'accordion',
+          heading: 'Admissions questions',
+          headingLevel: 'h2',
+          background: 'cream',
+          allowMultipleOpen: true,
+          items: [
+            {
+              question: 'What age does my child need to be?',
+              answer: richText([
+                'Age criteria are set for each academic year in line with State Board rules. Please contact the admissions team for the exact dates that apply to your child.',
+              ]),
+            },
+            {
+              question: 'Which documents will I need?',
+              answer: richText([
+                'Usually your child’s birth certificate, recent photographs, proof of address and, where applicable, a transfer certificate. The admissions team will confirm the full list.',
+              ]),
+            },
+            {
+              question: 'Is there an entrance test for kindergarten?',
+              answer: richText([
+                'No. There is no entrance test at kindergarten level. Admission is based on age eligibility and seat availability.',
+              ]),
+            },
+          ],
+        },
+      ],
+    },
+
+    // -------------------------------------------------------------- CONTACT
+    {
+      slug: 'contact',
+      title: 'Contact us',
+      intro: 'We are on Sion–Wadala Estate Road in Wadala, Mumbai.',
+      showInNav: true,
+      navLabel: 'Contact',
+      navOrder: 40,
+      metaDescription:
+        'Contact SIWS Kindergarten, Wadala — address, phone number and email for admissions and general enquiries.',
+      layout: [
+        {
+          blockType: 'cardGrid',
+          heading: 'Who to contact',
+          headingLevel: 'h2',
+          columns: '2',
+          background: 'white',
+          cards: [
+            {
+              title: 'Admissions',
+              description:
+                'For enquiries about Jr. KG and Sr. KG admission — admissions@siws.edu.in',
+            },
+            {
+              title: 'General enquiries',
+              description: 'For anything else — info@siws.edu.in, +91 98927 03893',
+            },
+          ],
+        },
+      ],
+    },
+  ]
+
+  // -- Faculty (FR-FAC-01) -------------------------------------------------
+  let facultyCreated = 0
+  let facultyUpdated = 0
+
+  for (const [index, teacher] of FACULTY.entries()) {
+    const existing = await payload.find({
+      collection: 'faculty',
+      where: { and: [{ name: { equals: teacher.name } }, { unit: { equals: kg.id } }] },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    const data = {
+      ...teacher,
+      unit: kg.id,
+      order: index + 1,
+      _status: 'published',
+      reviewStatus: 'approved',
+    }
+
+    if (existing.docs[0]) {
+      await payload.update({
+        collection: 'faculty',
+        id: existing.docs[0].id,
+        data: data as never,
+        overrideAccess: true,
+      })
+      facultyUpdated += 1
+    } else {
+      await payload.create({ collection: 'faculty', data: data as never, overrideAccess: true })
+      facultyCreated += 1
+    }
+  }
+
+  payload.logger.info(`Faculty — ${facultyCreated} created, ${facultyUpdated} updated.`)
+
+  let created = 0
+  let updated = 0
+
+  for (const page of pages) {
+    const existing = await payload.find({
+      collection: 'pages',
+      where: { and: [{ slug: { equals: page.slug } }, { unit: { equals: kg.id } }] },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    const data = {
+      ...page,
+      unit: kg.id,
+      // Seeded content is published and pre-approved: it is the copy SIWS
+      // already signed off, so routing it back through review would leave the
+      // site empty until someone clicked approve.
+      _status: 'published',
+      reviewStatus: 'approved',
+    }
+
+    if (existing.docs[0]) {
+      await payload.update({
+        collection: 'pages',
+        id: existing.docs[0].id,
+        data: data as never,
+        overrideAccess: true,
+      })
+      updated += 1
+      payload.logger.info(`Updated page: ${page.title}`)
+    } else {
+      await payload.create({
+        collection: 'pages',
+        data: data as never,
+        overrideAccess: true,
+      })
+      created += 1
+      payload.logger.info(`Created page: ${page.title}`)
+    }
+  }
+
+  payload.logger.info(`Kindergarten seed complete — ${created} created, ${updated} updated.`)
+
+  payload.logger.warn('TO CONFIRM WITH SIWS (Kindergarten):')
+  for (const question of [
+    'FEE PERIOD — the fee is given as "Jr.KG & Sr.KG 65K" with no period. The page publishes ₹65,000 and asks families to confirm with the office, because a guessed "per year" is what a family plans around. Is it annual, per term, or something else? Does it include any other charge?',
+    'CAMPUS — the endowment register names a K.G. Section at Wadala and one at Matunga, but this document does not say which campus these five teachers and these timings belong to. No campus is recorded against any of them. Does Matunga have its own KG team and timings?',
+    'TESTIMONIAL — the parent’s full name is published as supplied. Please confirm SIWS holds that parent’s permission to publish it (DPDPA 2023), or we will shorten it to an initial.',
+    'DAY CARE — left blank in the document. Wadala Primary answered "Not applicable". Does the KG section offer after-school care?',
+  ]) {
+    payload.logger.warn(`  • ${question}`)
+  }
+
+  payload.logger.warn(
+    'STILL TO COME: classroom and facility photographs beyond those already uploaded, event videos, alumni achievements, press mentions, certifications, social media handles beyond WhatsApp/Instagram/Facebook, and the legal documents.',
+  )
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error: unknown) => {
+    console.error('Kindergarten seed failed:', error)
+    process.exit(1)
+  })

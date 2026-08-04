@@ -1,0 +1,248 @@
+/**
+ * SIWS admin — the left navigation.
+ *
+ * Reworked to the light-sidebar pattern in the approved reference dashboards:
+ * a white rail, muted uppercase section labels, and a single solid-purple pill
+ * marking the active item.
+ *
+ * Styled rather than replaced. Payload's `DefaultNav` also owns the
+ * `beforeNav`/`afterNavLinks` slots, the logout control, the settings menu, the
+ * mobile hamburger and nav-open persistence — a custom `Nav` component would
+ * have to reimplement all of that for a purely visual change.
+ *
+ * Class names verified against `@payloadcms/next/dist/elements/Nav/`.
+ */
+
+.nav {
+  background: var(--siws-card);
+  border-right: 1px solid var(--siws-line);
+
+  --nav-padding-inline-start: 1rem;
+  --nav-padding-inline-end: 1rem;
+}
+
+.nav__scroll {
+  scrollbar-color: var(--siws-line-strong) transparent;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--siws-line-strong);
+    border-radius: 3px;
+  }
+}
+
+.nav__wrap {
+  gap: 0.1rem;
+}
+
+/* --- Section labels ("CONTENT", "CONFIGURATION") ------------------------ */
+
+.nav-group__toggle {
+  color: var(--siws-ink-3);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-block: 0.45rem;
+  padding-inline-start: 0.9rem;
+  margin-block-start: 1.35rem;
+
+  &:hover {
+    color: var(--siws-ink-2);
+  }
+}
+
+.nav-group__indicator,
+.nav__label {
+  color: var(--siws-ink-3);
+}
+
+/* --- Links -------------------------------------------------------------- */
+
+.nav__link {
+  position: relative;
+  border-radius: var(--siws-radius-sm);
+  color: var(--siws-ink-2);
+  font-size: 0.94rem;
+  font-weight: 500;
+  padding-block: 0.7rem;
+  padding-inline: 0.9rem;
+  margin-block: 1px;
+  text-decoration: none;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+
+  &:hover {
+    background: var(--siws-purple-tint);
+    color: var(--siws-purple);
+    text-decoration: none;
+  }
+
+  /* The solid pill from both references. */
+  &.active {
+    background: var(--siws-purple);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 6px 16px rgba(97, 62, 151, 0.28);
+
+    &:hover {
+      background: var(--siws-purple-mid);
+      color: #ffffff;
+    }
+
+    /* Payload renders `.nav__link-indicator` only on the active item. The pill
+       itself now carries the emphasis, so the bar is redundant. */
+    .nav__link-indicator {
+      display: none;
+    }
+  }
+}
+
+.nav__link-label {
+  font-size: inherit;
+}
+
+/* Payload's nav icons inherit colour from the link, so the active pill flips
+   them to white along with the label. */
+.nav__link svg {
+  color: currentColor;
+}
+
+/* --- Footer controls ---------------------------------------------------- */
+
+.nav__controls {
+  border-top: 1px solid var(--siws-line);
+  margin-block-start: 1.1rem;
+  padding-block-start: 0.9rem;
+  gap: 0.4rem;
+}
+
+.nav__log-out,
+.settings-menu-button {
+  border-radius: var(--siws-radius-sm);
+  color: var(--siws-ink-2);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--siws-purple-tint);
+    color: var(--siws-purple);
+  }
+}
+
+/* --- Brand block (`beforeNavLinks`) ------------------------------------- */
+
+.siws-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding-block: 0.35rem 1.15rem;
+  margin-block-end: 0.35rem;
+  border-bottom: 1px solid var(--siws-line);
+}
+
+.siws-brand__mark {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: var(--siws-purple-tint);
+
+  img {
+    width: 30px;
+    height: auto;
+  }
+}
+
+.siws-brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.siws-brand__name {
+  color: var(--siws-ink);
+  font-size: 1.06rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.siws-brand__sub {
+  color: var(--siws-ink-3);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* --- Help card (`afterNavLinks`) ---------------------------------------- */
+
+/*
+ * Sits above `.nav__controls`, matching the "Help Center" / "Upgrade Pro" card
+ * position in the references. `afterNav` would place it below the logout row,
+ * which reads as detached from the menu.
+ */
+/* Kept compact: at the 17px type scale a taller card pushed its own button
+   below the fold on a laptop screen. */
+.siws-navcard {
+  margin-block-start: 1.15rem;
+  padding: 0.95rem 0.9rem;
+  border-radius: var(--siws-radius);
+  background: linear-gradient(160deg, var(--siws-purple-tint) 0%, var(--siws-purple-tint-2) 100%);
+  text-align: center;
+}
+
+.siws-navcard__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 0.5rem;
+  border-radius: 50%;
+  background: var(--siws-card);
+  color: var(--siws-purple);
+  box-shadow: var(--siws-shadow-sm);
+}
+
+.siws-navcard__title {
+  color: var(--siws-ink);
+  font-size: 0.94rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.siws-navcard__text {
+  color: var(--siws-ink-2);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 0.3rem 0 0.85rem;
+}
+
+.siws-navcard__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: var(--siws-purple);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.16s ease;
+
+  &:hover {
+    background: var(--siws-purple-deep);
+    color: #ffffff;
+    text-decoration: none;
+  }
+}

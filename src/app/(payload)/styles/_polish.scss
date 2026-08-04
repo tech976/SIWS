@@ -1,0 +1,500 @@
+/**
+ * SIWS admin — the remaining Payload surfaces.
+ *
+ * Theming the dashboard, nav and main form fields leaves a long tail of smaller
+ * components at Payload's defaults: pagination, popups, drawers, tooltips,
+ * checkboxes, date pickers, the filter builder. Individually each is minor;
+ * together they are what makes a themed panel feel half-finished — a visitor
+ * meets a 3px-radius grey pill immediately below a 12px-radius purple card.
+ *
+ * Class names below were read from the compiled `@payloadcms/next` stylesheet,
+ * not guessed, so they match what the panel actually renders.
+ */
+
+/* --- Pagination and per-page ---------------------------------------------- */
+
+.paginator {
+  gap: 0.2rem;
+
+  &__page {
+    min-width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 10px;
+    color: var(--siws-ink-2);
+    font-weight: 600;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background: var(--siws-purple-tint);
+      color: var(--siws-purple);
+    }
+
+    &--is-current {
+      background: var(--siws-purple);
+      color: #ffffff;
+
+      &:hover {
+        background: var(--siws-purple-deep);
+        color: #ffffff;
+      }
+    }
+  }
+}
+
+.per-page {
+  &__button {
+    border-radius: 10px;
+    color: var(--siws-ink-2);
+    font-weight: 600;
+  }
+
+  &__button-active {
+    color: var(--siws-purple);
+    font-weight: 700;
+  }
+}
+
+/* --- List search and filter builder --------------------------------------- */
+
+.search-filter__input {
+  border-radius: var(--siws-radius-sm);
+  border-color: var(--siws-line);
+  background: var(--siws-card);
+
+  &:focus {
+    border-color: var(--siws-purple);
+    box-shadow: 0 0 0 3px var(--siws-focus-ring);
+    outline: none;
+  }
+}
+
+.condition {
+  border-radius: var(--siws-radius-sm);
+
+  &__field,
+  &__operator,
+  &__value {
+    border-radius: var(--siws-radius-sm);
+  }
+}
+
+.where-builder {
+  &__and-filters,
+  &__or-filters {
+    border-radius: var(--siws-radius-sm);
+  }
+}
+
+/* --- Popups, drawers and tooltips ----------------------------------------- */
+
+.popup__content {
+  border: 1px solid var(--siws-line);
+  border-radius: var(--siws-radius);
+  box-shadow: var(--siws-shadow-lg);
+  overflow: hidden;
+}
+
+.popup-button {
+  border-radius: var(--siws-radius-sm);
+}
+
+.drawer__content {
+  border-radius: var(--siws-radius-lg) 0 0 var(--siws-radius-lg);
+}
+
+.tooltip {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* --- Document tabs -------------------------------------------------------- */
+
+.doc-tabs__tabs {
+  gap: 0.25rem;
+}
+
+.doc-tab {
+  border-radius: 10px 10px 0 0;
+
+  &__label {
+    color: var(--siws-ink-3);
+    font-weight: 600;
+  }
+
+  &--active {
+    background: var(--siws-card);
+
+    .doc-tab__label {
+      color: var(--siws-purple);
+      font-weight: 700;
+    }
+  }
+}
+
+/* --- Checkbox ------------------------------------------------------------- */
+
+.checkbox-input {
+  &__input {
+    border-radius: 6px;
+    border-color: var(--siws-line);
+  }
+
+  /*
+   * A 44px hit area around a 20px box. Payload's own target is smaller than the
+   * WCAG 2.5.8 minimum, which matters here because the consent tick boxes are
+   * exactly the controls that must not be mis-tapped.
+   */
+  &__input,
+  .styled-checkbox {
+    min-width: 1.25rem;
+    min-height: 1.25rem;
+  }
+
+  &--checked &__input {
+    background: var(--siws-purple);
+    border-color: var(--siws-purple);
+  }
+
+  &__icon {
+    color: #ffffff;
+  }
+}
+
+/* --- Date picker ---------------------------------------------------------- */
+
+/*
+ * The calendar popup lives inside `.document-fields__sidebar`, which carries
+ * `overflow-y: auto`. An absolutely-positioned popup inside a scrolling
+ * ancestor is clipped by it — which is why the calendar appeared cut off and
+ * turned the sidebar into a scrollable box.
+ *
+ * Two things caused it to overflow in the first place:
+ *
+ *  1. `.react-datepicker-popper` ships with `z-index: 1`, low enough for
+ *     neighbouring fields to sit on top of it.
+ *  2. react-datepicker sizes its grid in `rem`, so the 17px root font used here
+ *     inflated the whole calendar by ~6% over its design size — and Payload
+ *     widens the time column to 120px on top of that. Together they exceeded
+ *     the sidebar's inner width.
+ *
+ * The fix is to size the calendar in `px` so it is immune to the type scale,
+ * trim it to fit the sidebar, and lift it above its siblings. The time list
+ * keeps its own internal scroll, which is correct — a list of 48 half-hour
+ * slots has to scroll somewhere.
+ */
+
+.react-datepicker-popper {
+  /* Payload's own popup layer, rather than the library's `1`. */
+  z-index: var(--z-popup);
+}
+
+.date-time-picker {
+  input {
+    border-radius: var(--siws-radius-sm);
+  }
+
+  .react-datepicker {
+    /* Anchors the whole component to a px scale, so it no longer grows with
+       the root font size. */
+    font-size: 13px;
+    border-radius: var(--siws-radius);
+    border-color: var(--siws-line);
+    box-shadow: var(--siws-shadow-lg);
+    overflow: hidden;
+  }
+
+  .react-datepicker__header {
+    background: var(--siws-purple-tint);
+    border-bottom-color: var(--siws-line);
+    padding-block: 0.6rem;
+  }
+
+  /* 7 × 30px + padding keeps the month grid around 224px wide. */
+  .react-datepicker__day,
+  .react-datepicker__day-name {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    margin: 1px;
+    border-radius: 8px;
+  }
+
+  .react-datepicker__day-name {
+    color: var(--siws-ink-3);
+    font-weight: 600;
+  }
+
+  .react-datepicker__day:hover {
+    background: var(--siws-purple-tint-2);
+    border-radius: 8px;
+  }
+
+  .react-datepicker__day--selected,
+  .react-datepicker__day--keyboard-selected {
+    background: var(--siws-purple);
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .react-datepicker__day--today {
+    font-weight: 700;
+    color: var(--siws-purple);
+  }
+
+  .react-datepicker__day--outside-month {
+    color: var(--siws-ink-3);
+    opacity: 0.55;
+  }
+
+  /*
+   * Payload widens this to 120px. Trimmed so the calendar and the time list
+   * together fit the sidebar instead of being cut off at its edge — which is
+   * what clipped "13:30, 14:00…" in the first place.
+   */
+  .react-datepicker__time-container,
+  .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+    width: 88px;
+  }
+
+  .react-datepicker__time-container {
+    border-left-color: var(--siws-line);
+  }
+
+  .react-datepicker__time-list-item {
+    height: auto;
+    padding: 6px 8px;
+    border-radius: 6px;
+    margin-inline: 4px;
+  }
+
+  .react-datepicker__time-list-item:hover {
+    background: var(--siws-purple-tint-2);
+  }
+
+  .react-datepicker__time-list-item--selected {
+    background: var(--siws-purple);
+    color: #ffffff;
+    font-weight: 700;
+
+    &:hover {
+      background: var(--siws-purple-deep);
+    }
+  }
+
+  &__clear-button {
+    border-radius: 8px;
+  }
+}
+
+/* --- Publish status in the sidebar ---------------------------------------- */
+
+.status {
+  &__label {
+    color: var(--siws-ink-3);
+    font-weight: 600;
+  }
+
+  &__value {
+    color: var(--siws-ink);
+    font-weight: 700;
+  }
+
+  &__action {
+    color: var(--siws-purple);
+    font-weight: 600;
+  }
+}
+
+/* --- Uploaded-file panel -------------------------------------------------- */
+
+.file-details {
+  border-radius: var(--siws-radius);
+  border-color: var(--siws-line);
+
+  &__thumbnail,
+  .thumbnail {
+    border-radius: var(--siws-radius-sm);
+    overflow: hidden;
+  }
+}
+
+.file-details-draggable {
+  border-radius: var(--siws-radius-sm);
+
+  &__thumbnail {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+}
+
+/* --- Loading placeholders ------------------------------------------------- */
+
+.shimmer-effect {
+  border-radius: var(--siws-radius-sm);
+}
+
+/* --- Bulk selection bar --------------------------------------------------- */
+
+.list-selection {
+  border-radius: var(--siws-radius-sm);
+  background: var(--siws-purple-tint);
+  color: var(--siws-purple);
+  font-weight: 600;
+}
+
+/* --- Version history ------------------------------------------------------ */
+
+.versions {
+  .table-wrap {
+    border-radius: var(--siws-radius);
+  }
+}
+
+.restore-version {
+  &__chevron {
+    border-radius: var(--siws-radius-sm);
+  }
+}
+
+/* --- Enquiry export ------------------------------------------------------- */
+
+/*
+ * The "Download as CSV" control above the enquiries list (FR-ADM-04), with the
+ * BR-SUB-07 reminder that downloads carry personal data and are recorded.
+ */
+.siws-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block-end: 1rem;
+}
+
+.siws-export__button {
+  margin: 0;
+}
+
+.siws-export__note {
+  color: var(--siws-ink-3);
+  font-size: 0.82rem;
+}
+
+.siws-export__error {
+  color: var(--siws-neg-ink);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+/* --- Page-section row labels ---------------------------------------------- */
+
+/*
+ * The header of each collapsed section in "Page sections".
+ *
+ * Laid out as number · type · heading so a long page can be scanned down the
+ * left edge. The heading is allowed to truncate; the number and type never do,
+ * because they are what make the row identifiable at a glance.
+ */
+.siws-blocklabel {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+  text-align: start;
+}
+
+.siws-blocklabel__num {
+  flex-shrink: 0;
+  color: var(--siws-ink-3);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.siws-blocklabel__type {
+  flex-shrink: 0;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--siws-purple-tint);
+  color: var(--siws-purple);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.siws-blocklabel__summary {
+  min-width: 0;
+  color: var(--siws-ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.siws-blocklabel__empty {
+  color: var(--siws-ink-3);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* --- Live preview --------------------------------------------------------- */
+
+/*
+ * Payload splits the edit screen 40% form / 60% preview, and clips the preview
+ * with `overflow: hidden`.
+ *
+ * That combination hides content. When a device preset is chosen, the preview
+ * frame is sized to the device's own width — `Device/index.js` sets the iframe
+ * to `deviceWidth / zoom` and then applies `transform: scale(zoom)`, so the
+ * frame occupies the full device width on screen whatever the zoom is set to.
+ * Pick "Desktop" (1440px) in a pane narrower than that and the right-hand side
+ * of the page is simply unreachable — which is what it looked like was broken.
+ *
+ * Two changes: give the preview more of the screen, and let it scroll rather
+ * than clip, so a wide device can still be inspected in full.
+ */
+.live-preview-window {
+  width: 68%;
+  overflow: auto;
+}
+
+.collection-edit__main--is-live-previewing {
+  width: 32%;
+
+  /*
+   * Payload's 325px default, restored while previewing.
+   *
+   * The wider sidebar set in `_forms.scss` suits a full-width edit screen, but
+   * here the form column is roughly a third of the viewport and a 380px minimum
+   * would crowd the fields it sits beside.
+   */
+  --doc-sidebar-width: 325px;
+}
+
+/* Keeps the frame visually distinct from the panel behind it. */
+.live-preview-iframe {
+  border-color: var(--siws-line);
+  border-radius: var(--siws-radius-sm);
+  background: #ffffff;
+}
+
+.live-preview-toolbar {
+  border-radius: var(--siws-radius-sm);
+}
+
+/* --- Error summaries ------------------------------------------------------ */
+
+/*
+ * Payload surfaces validation failures in a banner. The consent guard and the
+ * approval rules both reject saves with multi-line explanations, so the banner
+ * has to keep those line breaks rather than running the bullet list together.
+ */
+.form-submit + .error-message,
+.errors-banner,
+.field-error {
+  border-radius: var(--siws-radius-sm);
+  white-space: pre-line;
+}

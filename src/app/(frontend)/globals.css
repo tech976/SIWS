@@ -1,0 +1,364 @@
+@import 'tailwindcss';
+@import './prose.css';
+
+/* ==========================================================================
+   SIWS DESIGN SYSTEM
+   Tokens transcribed from the approved landing page so the platform is
+   colour- and type-identical to the signed-off design (SRS 2.5).
+   ========================================================================== */
+
+@theme {
+  /* --- Brand ----------------------------------------------------------- */
+  --color-purple: #613e97;
+  --color-purple-deep: #5c3d99;
+  --color-purple-ink: #2d3282;
+  --color-purple-tint: #f3f0f9;
+
+  --color-yellow: #fede3b;
+  --color-yellow-deep: #f5c400;
+  --color-cream: #fdeec3;
+  --color-cream-soft: #fbf7ef;
+
+  --color-orange: #fc8815;
+  --color-orange-light: #ff9f45;
+  --color-coral: #ff6464;
+  --color-lime: #e3f219;
+
+  /* --- Ink & surface --------------------------------------------------- */
+  --color-ink: #333333;
+  --color-ink-soft: #444444;
+  --color-ink-muted: #6b6470;
+  --color-line: #e6e0d4;
+  --color-surface: #ffffff;
+
+  /* --- Severity (FR-EMG-05) -------------------------------------------- */
+  --color-notice-info: #fdeec3;
+  --color-notice-info-ink: #4a3208;
+  --color-notice-warning: #fc8815;
+  --color-notice-warning-ink: #2b1600;
+  --color-notice-critical: #b3172b;
+  --color-notice-critical-ink: #ffffff;
+
+  /* --- Type ------------------------------------------------------------ */
+  --font-display: var(--font-display), 'Montserrat', system-ui, sans-serif;
+  --font-body: var(--font-body), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-chalk: var(--font-chalk), 'Comic Sans MS', cursive;
+
+  /* --- Shape ----------------------------------------------------------- */
+  --radius-pill: 999px;
+  --radius-card: 16px;
+
+  --shadow-card: 0 6px 15px rgba(0, 0, 0, 0.08);
+  --shadow-raised: 0 12px 30px rgba(97, 62, 151, 0.14);
+
+  /* Header height, read by the sticky-offset and scroll-margin rules. */
+  --siws-header-height: 5.5rem;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  /*
+   * Visitor-facing text resize (NFR Accessibility). Scaling the root font size
+   * makes every rem-based measurement in the system scale together, so the
+   * layout reflows rather than overlapping — which is what happens when only
+   * body copy is enlarged.
+   */
+  html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  html[data-text-size='large'] {
+    font-size: 112.5%;
+  }
+
+  html[data-text-size='x-large'] {
+    font-size: 125%;
+  }
+
+  /*
+   * Respect a visitor who has asked their OS to reduce motion. Animations are
+   * near-eliminated rather than set to `none`, because `none` can cancel
+   * transitionend handlers and leave interactive components stuck.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink-soft);
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-purple);
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  /* Long-form paragraphs avoid a single orphaned last word. */
+  p {
+    text-wrap: pretty;
+  }
+
+  /*
+   * A single, high-contrast focus ring for every interactive element. Declared
+   * once at base level so no component can accidentally ship without one
+   * (NFR Accessibility — visible focus indicator).
+   */
+  :focus-visible {
+    outline: 3px solid var(--color-purple);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Anchored headings must clear the sticky header when jumped to. */
+  :target {
+    scroll-margin-top: calc(var(--siws-header-height) + 1rem);
+  }
+
+  /* Images never overflow their column, whatever the CMS upload dimensions. */
+  img,
+  video,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* ==========================================================================
+   HIGH-CONTRAST MODE
+   Visitor-toggled, per NFR Accessibility. Implemented as a data attribute on
+   <html> so it is set before first paint and never flashes the default theme.
+   ========================================================================== */
+
+@layer base {
+  html[data-contrast='high'] {
+    --color-purple: #2c1a4d;
+    --color-purple-deep: #1d1033;
+    --color-ink: #000000;
+    --color-ink-soft: #000000;
+    --color-ink-muted: #262626;
+    --color-yellow: #ffe873;
+    --color-cream: #fff8dd;
+    --color-cream-soft: #ffffff;
+    --color-line: #000000;
+    --color-purple-tint: #ffffff;
+  }
+
+  html[data-contrast='high'] body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  /* Borders carry meaning once decorative fills are flattened. */
+  html[data-contrast='high'] :is(a, button, input, select, textarea, [role='button']) {
+    border-color: currentColor;
+  }
+
+  html[data-contrast='high'] a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+/* ==========================================================================
+   COMPONENT PRIMITIVES
+   Ported from the approved template so every page is built from the same
+   vocabulary rather than one-off styling.
+   ========================================================================== */
+
+@layer components {
+  /* Keyboard users land here first (SRS 4.4 — skip-to-content link). */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 200;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-purple);
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 0 0 8px 0;
+  }
+
+  .skip-link:focus {
+    left: 0;
+  }
+
+  /* Screen-reader-only text that becomes visible on focus. */
+  .sr-only:not(:focus):not(:active) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .siws-container {
+    width: 100%;
+    max-width: 75rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  /* The template's pill CTA: yellow fill, purple ink — a 6.4:1 pairing. */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-yellow);
+    color: var(--color-purple);
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    border: 2px solid var(--color-yellow);
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      transform 0.18s ease;
+    /* Keeps the tap target at the 44px WCAG minimum regardless of font size. */
+    min-height: 2.75rem;
+  }
+
+  .btn-primary:hover {
+    background: var(--color-yellow-deep);
+    border-color: var(--color-yellow-deep);
+  }
+
+  .btn-primary:active {
+    transform: translateY(1px);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    min-height: 2.75rem;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-purple);
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid var(--color-purple);
+    transition:
+      background-color 0.18s ease,
+      color 0.18s ease;
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-purple);
+    color: #ffffff;
+  }
+
+  /* The cream announcement strip from the template header. */
+  .info-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  /* The yellow-bordered card used for the enquiry form. */
+  .siws-card {
+    background: var(--color-surface);
+    border: 2px solid var(--color-yellow);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 1.75rem;
+  }
+
+  /*
+   * Sections on the deep-purple background. Declared once here rather than in
+   * each block, so a new block cannot ship with dark-on-dark text.
+   */
+  [data-invert='true'] {
+    color: #ffffff;
+  }
+
+  [data-invert='true'] :is(h1, h2, h3, h4, h5, h6) {
+    color: #ffffff;
+  }
+
+  [data-invert='true'] .siws-prose {
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  [data-invert='true'] .siws-prose :is(a, strong) {
+    color: var(--color-yellow);
+  }
+
+  [data-invert='true'] .heading-accent {
+    color: var(--color-yellow);
+  }
+
+  [data-invert='true'] .btn-secondary {
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+
+  [data-invert='true'] .btn-secondary:hover {
+    background: #ffffff;
+    color: var(--color-purple);
+  }
+
+  [data-invert='true'] :focus-visible {
+    outline-color: var(--color-yellow);
+  }
+
+  /* Section heading with the yellow highlight word, as per the template. */
+  .heading-accent {
+    color: var(--color-yellow-deep);
+  }
+
+  html[data-contrast='high'] .heading-accent {
+    color: var(--color-purple);
+    text-decoration: underline;
+    text-decoration-color: var(--color-yellow-deep);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+  }
+}

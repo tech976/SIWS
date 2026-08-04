@@ -1,0 +1,25 @@
+/**
+ * SIWS admin panel theme.
+ *
+ * SRS 7 (Usability) requires the panel to be "usable by non-technical staff
+ * with minimal training". Carrying the school's own colours and a familiar
+ * dashboard layout into the back end makes it read as part of SIWS rather than
+ * as a developer tool, which measurably lowers hesitation for staff who use it
+ * only occasionally.
+ *
+ * Everything here is deliberately UNLAYERED. Payload ships its own CSS inside
+ * `@layer payload-default`, and unlayered author CSS outranks any cascade layer
+ * regardless of selector specificity — so none of these rules needs
+ * `!important`, and a Payload upgrade cannot be broken by a specificity war.
+ *
+ * Layout and interaction behaviour are left untouched throughout; only surface
+ * treatment is changed, so Payload's accessibility and keyboard handling
+ * survive intact.
+ */
+
+@use './styles/tokens';
+@use './styles/nav';
+@use './styles/chrome';
+@use './styles/forms';
+@use './styles/dashboard';
+@use './styles/polish';

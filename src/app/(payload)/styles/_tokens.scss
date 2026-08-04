@@ -1,0 +1,144 @@
+/**
+ * SIWS admin — design tokens.
+ *
+ * Payload ships all of its own CSS inside `@layer payload-default`, and
+ * unlayered author CSS outranks any cascade layer regardless of specificity.
+ * Everything in these partials is deliberately unlayered: no `!important` is
+ * needed anywhere, and a Payload upgrade cannot break into a specificity war.
+ */
+
+:root {
+  /* --- SIWS brand ------------------------------------------------------ */
+  --siws-purple: #613e97;
+  --siws-purple-mid: #7350ad;
+  --siws-purple-deep: #4e3179;
+  --siws-purple-tint: #f2eefa;
+  --siws-purple-tint-2: #e7dff7;
+
+  --siws-yellow: #fede3b;
+  --siws-yellow-deep: #f5c400;
+
+  /* --- Icon-chip palette ----------------------------------------------- */
+  /*
+   * Solid fills carrying white glyphs, as in both reference dashboards.
+   *
+   * A glyph is non-text content, so WCAG 2.1 SC 1.4.11 asks only for 3:1 — but
+   * these are set dark enough to clear the stricter 4.5:1 text threshold, so a
+   * count or label can be dropped into a chip later without silently making it
+   * inaccessible. Measured ratios against white:
+   *
+   *   purple 7.94   blue 5.99   teal 5.20   coral 5.31   amber 5.00
+   *
+   * The previous amber (#cf8500) measured exactly 3.00:1 — nominally passing for
+   * an icon, but with no margin at all, and failing outright for text.
+   */
+  --chip-purple: #613e97;
+  --chip-blue: #3557d8;
+  --chip-teal: #0d7a71;
+  --chip-coral: #c23848;
+  --chip-amber: #9a6400;
+
+  /* --- Neutrals --------------------------------------------------------- */
+  /* One focus ring, used by every input. Declared once so the emphasis is
+     identical across text fields, selects, the list search and the date picker
+     — three near-identical rgba() literals had drifted apart. */
+  --siws-focus-ring: rgba(97, 62, 151, 0.18);
+
+  --siws-canvas: #f6f6fb;
+  --siws-card: #ffffff;
+  --siws-line: #eceaf3;
+  --siws-line-strong: #ddd8ea;
+
+  --siws-ink: #241d38;
+  --siws-ink-2: #5f5872;
+  /*
+   * Muted text — labels, dates, field descriptions, empty states.
+   *
+   * The reference dashboards use a noticeably lighter grey here, but at this
+   * size that pairing fails WCAG AA: the previous #8b849c measured 3.57:1 on a
+   * card and 3.32:1 on the canvas, against the 4.5:1 small-text threshold. This
+   * value is the lightest that clears it on BOTH surfaces (4.91 and 4.55), so it
+   * stays as close to the reference look as accessibility allows.
+   *
+   * "Muted" must not mean "unreadable" — these labels carry the guidance
+   * non-technical staff depend on.
+   */
+  --siws-ink-3: #746d87;
+
+  /* --- Status ----------------------------------------------------------- */
+  --siws-pos-bg: #e3f7ea;
+  --siws-pos-ink: #17703b;
+  --siws-neg-bg: #ffe8ea;
+  --siws-neg-ink: #b02330;
+  --siws-warn-bg: #fff4d6;
+  --siws-warn-ink: #8a6300;
+
+  /* --- Shape ------------------------------------------------------------ */
+  --siws-radius-sm: 12px;
+  --siws-radius: 18px;
+  --siws-radius-lg: 24px;
+
+  /* Soft, wide, low-opacity — the detail that most separates the reference
+     designs from default admin chrome. Tinted purple, not neutral grey. */
+  --siws-shadow-sm: 0 1px 3px rgba(36, 29, 56, 0.04), 0 6px 16px rgba(36, 29, 56, 0.04);
+  --siws-shadow: 0 10px 30px rgba(36, 29, 56, 0.07);
+  --siws-shadow-lg: 0 20px 50px rgba(36, 29, 56, 0.12);
+
+  /* --- Payload overrides ------------------------------------------------ */
+
+  /* Rounds every input, button, popup and card Payload renders, from one
+     place. Payload's defaults are 3px / 4px / 8px. */
+  --style-radius-s: 10px;
+  --style-radius-m: 14px;
+  --style-radius-l: var(--siws-radius);
+
+  --font-body: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --nav-width: 292px;
+
+  --theme-bg: var(--siws-canvas);
+  --theme-text: var(--siws-ink);
+  --theme-border-color: var(--siws-line);
+
+  --theme-success-500: #17703b;
+  /* Kept in step with `--chip-amber`; the previous #cf8500 was the value found
+     to fail contrast, and leaving it here would have reintroduced it wherever
+     Payload uses the warning colour for text. */
+  --theme-warning-500: #9a6400;
+  --theme-error-500: #b02330;
+
+  --accessibility-outline: 2px solid var(--siws-purple);
+  --accessibility-outline-offset: 2px;
+}
+
+/**
+ * TYPE SCALE
+ *
+ * Payload sizes almost everything with its Sass `base()` helper, which resolves
+ * to `calc(var(--base) * n)` — and `--base` is expressed in `rem`. Raising the
+ * root font size therefore scales Payload's type AND its spacing together, in
+ * proportion, rather than enlarging text inside boxes that stay the same size.
+ *
+ * 17px was chosen over a larger jump because `--app-header-height`, input
+ * heights and the nav padding all derive from `--base` too; beyond roughly this
+ * point the header begins to crowd the content area.
+ *
+ * The handful of sizes Payload hard-codes in `px` do NOT scale with this, so
+ * they are raised individually in the partials that follow: `.field-label`,
+ * `.card__title`, `.collapsible__toggle` and `.rs__option` are all 13px by
+ * default, and `.pill--rounded` and `.multi-value-label` are 12px.
+ */
+html {
+  font-size: 17px;
+}
+
+/**
+ * The admin is pinned to the light theme in `payload.config.ts`. These
+ * declarations exist only so a manually-set `data-theme` cookie cannot produce
+ * an unreadable panel.
+ */
+html[data-theme='dark'] {
+  --theme-bg: var(--siws-canvas);
+  --theme-text: var(--siws-ink);
+  --theme-input-bg: #ffffff;
+}

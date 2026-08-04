@@ -1,0 +1,255 @@
+/**
+ * SIWS admin — form fields.
+ *
+ * Payload styles inputs through a Sass `@mixin formInput` rather than a shared
+ * class, so there is no single selector to override. These rules target the
+ * rendered elements inside `.field-type`, which is the stable public hook
+ * (`@payloadcms/ui/dist/fields/shared/index.js` → `fieldBaseClass = 'field-type'`).
+ */
+
+.field-type {
+  input[type='text'],
+  input[type='email'],
+  input[type='number'],
+  input[type='password'],
+  input[type='date'],
+  textarea,
+  .rs__control {
+    border-radius: var(--siws-radius-sm);
+    border-color: var(--siws-line-strong);
+    background: var(--siws-card);
+    color: var(--siws-ink);
+    font-size: 0.94rem;
+    transition:
+      border-color 0.16s ease,
+      box-shadow 0.16s ease;
+
+    &:hover {
+      border-color: #c9c1de;
+    }
+
+    &:focus,
+    &:focus-within {
+      border-color: var(--siws-purple);
+      /* A ring rather than a thicker border, so focus never shifts layout. */
+      box-shadow: 0 0 0 3px var(--siws-focus-ring);
+      outline: none;
+    }
+  }
+
+  textarea {
+    line-height: 1.6;
+  }
+
+  /* react-select, used by select and relationship fields. */
+  .rs__control--is-focused {
+    border-color: var(--siws-purple);
+    box-shadow: 0 0 0 3px var(--siws-focus-ring);
+  }
+
+  /* Payload hard-codes 13px on options. */
+  .rs__option {
+    font-size: 0.92rem;
+  }
+
+  .rs__option--is-focused {
+    background: var(--siws-purple-tint);
+    color: var(--siws-ink);
+  }
+
+  .rs__option--is-selected {
+    background: var(--siws-purple);
+    color: #ffffff;
+  }
+
+  .rs__multi-value {
+    border-radius: 999px;
+    background: var(--siws-purple-tint);
+
+    .rs__multi-value__label,
+    .multi-value-label {
+      color: var(--siws-purple);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Payload hard-codes 13px on field labels. */
+label.field-label,
+.field-label {
+  color: var(--siws-ink);
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+/*
+ * Field help text. These descriptions carry the SRS guidance content managers
+ * actually rely on, so they are sized and coloured to be read rather than
+ * skimmed past — 0.86rem at this ink clears 4.5:1 on white.
+ */
+.field-description {
+  color: var(--siws-ink-2);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.field-error,
+.field-type .error-message {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.field-type.error {
+  input,
+  textarea,
+  .rs__control {
+    border-color: var(--theme-error-500);
+    box-shadow: 0 0 0 3px rgba(176, 35, 48, 0.12);
+  }
+}
+
+/* --- Joined controls ------------------------------------------------------ */
+
+/*
+ * Payload fuses a relationship field and its "add new" button into one control:
+ * the select's RIGHT corners are flattened by `.relationship--allow-create`, the
+ * button's LEFT corners are flattened, and the button carries `margin-left:-1px`
+ * so the two borders overlap into a single seam.
+ *
+ * Raising `--style-radius-s` broke that seam — the two halves no longer met
+ * cleanly and read as two boxes jammed together. They are separated into two
+ * properly rounded controls instead, which is what the reference designs do.
+ *
+ * The real DOM is:
+ *
+ *   .relationship__wrap            <- display:flex, the actual parent
+ *     div.react-select             <- the select
+ *     .relationship-add-new        <- wrapper around the button
+ *       .popup__trigger-wrap
+ *         button.relationship-add-new__add-button
+ *
+ * An earlier attempt put the gap on `.relationship-add-new`, which is a *child*
+ * alongside the select rather than their parent — so it had no visible effect.
+ * The gap has to go on `.relationship__wrap`.
+ */
+.relationship__wrap {
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+/* Restore the corners Payload flattened for the seam. */
+.relationship--allow-create .rs__control,
+.field-type.relationship .rs__control {
+  border-radius: var(--siws-radius-sm);
+}
+
+.relationship-add-new {
+  align-items: stretch;
+
+  /* The button is nested two levels down, so the negative margin has to be
+     cleared on the button itself, not on this wrapper. */
+  .popup__trigger-wrap {
+    height: auto;
+  }
+}
+
+.relationship-add-new__add-button,
+.api-key__toggle-button,
+.doc-drawer__toggler,
+.restore-version__chevron {
+  margin: 0;
+  border-radius: var(--siws-radius-sm);
+  padding-inline: 0.85rem;
+  height: auto;
+  align-self: stretch;
+}
+
+.api-key,
+.doc-drawer__toggler-wrap {
+  gap: 0.5rem;
+}
+
+/*
+ * Keep the chosen value on one line.
+ *
+ * Payload sets `.rs__single-value { overflow: visible }`, and in the document
+ * sidebar — which is much narrower than the main column — a long value such as
+ * "SIWS Junior College" pushed the clear and dropdown buttons onto a second row,
+ * leaving the control looking broken. Truncating with an ellipsis keeps the
+ * control one row tall at any width; the full value stays available as a
+ * tooltip and to assistive technology.
+ */
+.field-type.relationship {
+  .rs__value-container {
+    flex-wrap: nowrap;
+    min-width: 0;
+    text-align: start;
+  }
+
+  .rs__single-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* The clear and dropdown buttons must never be the thing that gets squeezed. */
+  .rs__indicators {
+    flex-shrink: 0;
+  }
+}
+
+/*
+ * A little more room in the document sidebar.
+ *
+ * Payload's 325px default assumes its own 13px base; at the 17px scale used here
+ * every control inside is proportionally wider, which is what made the
+ * relationship field wrap in the first place. This restores the original ratio.
+ */
+.collection-edit,
+.global-edit {
+  --doc-sidebar-width: 380px;
+}
+
+/* --- Structural fields --------------------------------------------------- */
+
+.collapsible__toggle-wrap,
+.array-field__row-header,
+.blocks-field__block-header {
+  border-radius: var(--siws-radius-sm);
+}
+
+.collapsible__content {
+  border-radius: 0 0 var(--siws-radius-sm) var(--siws-radius-sm);
+}
+
+/* --- Rich text ----------------------------------------------------------- */
+
+.rich-text-lexical {
+  .editor-container {
+    border-radius: var(--siws-radius-sm);
+    border-color: var(--siws-line-strong);
+    background: var(--siws-card);
+    font-size: 0.96rem;
+  }
+
+  .fixed-toolbar {
+    border-radius: var(--siws-radius-sm) var(--siws-radius-sm) 0 0;
+    background: #fbfaff;
+    border-color: var(--siws-line);
+  }
+}
+
+/* --- Upload / media ------------------------------------------------------ */
+
+.file-field__upload,
+.upload__dropzone {
+  border-radius: var(--siws-radius);
+  border-color: var(--siws-line-strong);
+  background: var(--siws-card);
+}
+
+.thumbnail {
+  border-radius: var(--siws-radius-sm);
+  overflow: hidden;
+}
