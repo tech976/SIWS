@@ -34,7 +34,12 @@
     "verify:audit": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/verify-audit.ts",
     "seed:primary": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/primary.ts",
     "seed:scholarships": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/scholarships.ts",
-    "seed:secondary": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/secondary.ts"
+    "seed:secondary": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/secondary.ts",
+    "seed:preview": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/design-preview.ts",
+    "photos:scan": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/photos.ts scan",
+    "photos:import": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/photos.ts import",
+    "seed:galleries": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/galleries.ts",
+    "photos:consent": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/record-photo-consent.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.86.0",
@@ -60,6 +65,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "cross-env": "^7.0.3",
+    "heic-decode": "^2.1.0",
     "sass": "^1.102.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.20.3",

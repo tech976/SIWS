@@ -30,7 +30,7 @@
 
     &:focus,
     &:focus-within {
-      border-color: var(--siws-purple);
+      border-color: var(--siws-brand);
       /* A ring rather than a thicker border, so focus never shifts layout. */
       box-shadow: 0 0 0 3px var(--siws-focus-ring);
       outline: none;
@@ -43,7 +43,7 @@
 
   /* react-select, used by select and relationship fields. */
   .rs__control--is-focused {
-    border-color: var(--siws-purple);
+    border-color: var(--siws-brand);
     box-shadow: 0 0 0 3px var(--siws-focus-ring);
   }
 
@@ -53,22 +53,22 @@
   }
 
   .rs__option--is-focused {
-    background: var(--siws-purple-tint);
+    background: var(--siws-brand-tint);
     color: var(--siws-ink);
   }
 
   .rs__option--is-selected {
-    background: var(--siws-purple);
+    background: var(--siws-brand);
     color: #ffffff;
   }
 
   .rs__multi-value {
     border-radius: 999px;
-    background: var(--siws-purple-tint);
+    background: var(--siws-brand-tint);
 
     .rs__multi-value__label,
     .multi-value-label {
-      color: var(--siws-purple);
+      color: var(--siws-brand);
       font-size: 0.82rem;
       font-weight: 600;
     }

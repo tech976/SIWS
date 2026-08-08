@@ -56,12 +56,12 @@ export const EnquiryForm = ({
   if (state.status === 'success') {
     return (
       <div
-        className="rounded-2xl border-2 border-yellow bg-cream-soft p-6 text-center"
+        className="rounded-2xl border border-line bg-sea-soft p-6 text-center"
         // `alert` announces immediately, which is right for a confirmation the
         // visitor is waiting on.
         role="alert"
       >
-        <p className="text-lg font-semibold text-purple">Enquiry sent</p>
+        <p className="text-lg font-semibold text-brand">Enquiry sent</p>
         <p className="mt-2 text-sm text-ink-soft">{state.message}</p>
       </div>
     )
@@ -70,8 +70,11 @@ export const EnquiryForm = ({
   const inputClass = (name: string) =>
     [
       'w-full rounded-xl border-2 bg-white px-4 py-3 text-[0.95rem] text-ink',
-      'placeholder:text-ink-muted focus:outline-none focus:ring-3 focus:ring-purple/20',
-      fieldError(name) ? 'border-[#b3172b]' : 'border-line focus:border-purple',
+      'placeholder:text-ink-muted focus:outline-none focus:ring-3 focus:ring-brand/20',
+      // `border-field`, not `border-line`: an input's boundary is a meaningful
+      // UI component and WCAG 2.1 SC 1.4.11 wants it at 3:1. The decorative
+      // divider token is far too pale to show where a field actually is.
+      fieldError(name) ? 'border-[#b3172b]' : 'border-field focus:border-brand',
     ].join(' ')
 
   return (
@@ -182,7 +185,7 @@ export const EnquiryForm = ({
 
       {campusOptions.length > 1 ? (
         <div>
-          <label htmlFor="campus" className="mb-1.5 block text-sm font-semibold text-purple">
+          <label htmlFor="campus" className="mb-1.5 block text-sm font-semibold text-brand">
             Which campus <Required />
           </label>
           <select
@@ -206,7 +209,7 @@ export const EnquiryForm = ({
       ) : null}
 
       <div>
-        <label htmlFor="gradeApplyingFor" className="mb-1.5 block text-sm font-semibold text-purple">
+        <label htmlFor="gradeApplyingFor" className="mb-1.5 block text-sm font-semibold text-brand">
           Class you are asking about <Required />
         </label>
         <select
@@ -233,8 +236,8 @@ export const EnquiryForm = ({
         behind a link, so the parent reads it before they consent rather than
         after.
       */}
-      <details className="rounded-xl bg-cream-soft px-4 py-3 text-sm">
-        <summary className="cursor-pointer font-semibold text-purple">
+      <details className="rounded-xl bg-sea-soft px-4 py-3 text-sm">
+        <summary className="cursor-pointer font-semibold text-brand">
           How we will use your details
         </summary>
         <dl className="mt-3 grid gap-2 text-ink-soft">
@@ -245,7 +248,7 @@ export const EnquiryForm = ({
         </dl>
         {privacyHref ? (
           <p className="mt-3">
-            <a href={privacyHref} className="font-semibold text-purple underline underline-offset-4">
+            <a href={privacyHref} className="font-semibold text-brand underline underline-offset-4">
               Read our full privacy policy
             </a>
           </p>
@@ -261,7 +264,7 @@ export const EnquiryForm = ({
             required
             aria-invalid={fieldError('consent') ? true : undefined}
             aria-describedby={fieldError('consent') ? 'consent-error' : undefined}
-            className="mt-0.5 size-5 shrink-0 rounded border-2 border-line accent-purple"
+            className="mt-0.5 size-5 shrink-0 rounded border-2 border-field accent-brand"
           />
           <span>{ADMISSION_ENQUIRY_NOTICE.checkboxLabel}</span>
         </label>
@@ -323,7 +326,7 @@ const Field = ({
   className,
 }: FieldProps) => (
   <div>
-    <label htmlFor={name} className="mb-1.5 block text-sm font-semibold text-purple">
+    <label htmlFor={name} className="mb-1.5 block text-sm font-semibold text-brand">
       {label} {required ? <Required /> : null}
     </label>
     <input
@@ -346,7 +349,7 @@ const Field = ({
 
 const NoticeItem = ({ term, detail }: { term: string; detail: string }) => (
   <div>
-    <dt className="font-semibold text-purple">{term}</dt>
+    <dt className="font-semibold text-brand">{term}</dt>
     <dd>{detail}</dd>
   </div>
 )

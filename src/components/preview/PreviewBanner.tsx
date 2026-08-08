@@ -14,7 +14,7 @@ export const PreviewBanner = () => (
     // `status`, not `alert`: this is ambient context, and an assertive live
     // region would interrupt a screen-reader user on every page load.
     role="status"
-    className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-purple px-4 py-2.5 text-center text-sm text-white"
+    className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-brand px-4 py-2.5 text-center text-sm text-white"
   >
     <span className="font-semibold">
       Draft preview — this is how the page will look once published.
@@ -22,7 +22,7 @@ export const PreviewBanner = () => (
     <span className="text-white/80">Visitors cannot see this yet.</span>
     <a
       href="/next/exit-preview"
-      className="font-semibold text-yellow underline underline-offset-4 hover:text-white"
+      className="font-semibold text-accent underline underline-offset-4 hover:text-white"
     >
       Exit preview
     </a>

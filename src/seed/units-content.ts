@@ -264,7 +264,7 @@ const main = async () => {
         {
           blockType: 'statistics',
           heading: 'A legacy parents trust',
-          background: 'cream',
+          background: 'sea',
           stats: [
             { value: '1934', label: 'Serving Mumbai since' },
             { value: '92+', label: 'Years of educational legacy' },
@@ -300,7 +300,7 @@ const main = async () => {
         {
           blockType: 'callToAction',
           heading: 'Questions about admission?',
-          background: 'purple',
+          background: 'brand',
           text: richText(['Our admissions team is happy to talk you through the process.']),
           links: [
             {
@@ -370,7 +370,7 @@ const main = async () => {
             heading: 'What to put on this page',
             headingLevel: 'h2',
             width: 'narrow',
-            background: 'cream',
+            background: 'sea',
             content: richText([
               ...draft.guidance,
               'Replace this section with your own content, then set the status to “Submitted for review”.',

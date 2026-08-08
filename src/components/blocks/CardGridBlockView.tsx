@@ -46,7 +46,7 @@ export const CardGridBlockView = ({ block }: { block: CardGridBlock }) => {
               key={card.id ?? index}
               // `relative` is what the title link's ::after overlay anchors to,
               // turning the whole card into the click target.
-              className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-yellow bg-white shadow-card transition-transform focus-within:-translate-y-1 hover:-translate-y-1"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-card transition-transform focus-within:-translate-y-1 hover:-translate-y-1"
             >
               {card.image ? (
                 <Media

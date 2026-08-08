@@ -316,7 +316,7 @@ export const Units: CollectionConfig = {
       name: 'accent',
       type: 'select',
       required: true,
-      defaultValue: 'yellow',
+      defaultValue: 'accent',
       label: 'Highlight colour',
       options: UNIT_ACCENTS.map(({ label, value }) => ({ label, value })),
       admin: {

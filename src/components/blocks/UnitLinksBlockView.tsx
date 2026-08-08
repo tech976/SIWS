@@ -36,7 +36,7 @@ export const UnitLinksBlockView = ({
         {units.map((unit) => (
           <li
             key={unit.id}
-            className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-yellow bg-white shadow-card transition-transform focus-within:-translate-y-1 hover:-translate-y-1"
+            className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-card transition-transform focus-within:-translate-y-1 hover:-translate-y-1"
           >
             {unit.heroImage ? (
               <Media
@@ -59,7 +59,7 @@ export const UnitLinksBlockView = ({
               </h3>
 
               {unit.tagline ? (
-                <p className="mt-1 text-sm font-semibold text-purple">{unit.tagline}</p>
+                <p className="mt-1 text-sm font-semibold text-brand">{unit.tagline}</p>
               ) : null}
 
               {unit.description ? (

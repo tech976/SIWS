@@ -6,9 +6,9 @@ import { type BlockBackground } from './Section'
 
 const BACKGROUND_CLASS: Record<BlockBackground, string> = {
   white: 'bg-white',
-  cream: 'bg-cream',
-  tint: 'bg-purple-tint',
-  purple: 'bg-purple',
+  sea: 'bg-sea',
+  tint: 'bg-brand-tint',
+  brand: 'bg-brand',
 }
 
 /**
@@ -18,8 +18,8 @@ const BACKGROUND_CLASS: Record<BlockBackground, string> = {
  * beneath its container, which the shared section wrapper does not provide.
  */
 export const HeroBlockView = ({ block }: { block: HeroBlock }) => {
-  const variant = (block.background ?? 'purple') as BlockBackground
-  const inverted = variant === 'purple'
+  const variant = (block.background ?? 'brand') as BlockBackground
+  const inverted = variant === 'brand'
   const links = block.links ?? []
 
   const accent = block.accentWord?.trim()
@@ -28,7 +28,7 @@ export const HeroBlockView = ({ block }: { block: HeroBlock }) => {
   return (
     <section
       data-invert={inverted ? 'true' : undefined}
-      className={`relative isolate overflow-hidden ${BACKGROUND_CLASS[variant] ?? BACKGROUND_CLASS.purple}`}
+      className={`relative isolate overflow-hidden ${BACKGROUND_CLASS[variant] ?? BACKGROUND_CLASS.brand}`}
     >
       {block.image ? (
         <>
@@ -42,16 +42,26 @@ export const HeroBlockView = ({ block }: { block: HeroBlock }) => {
           {/* Guarantees contrast regardless of which photograph is uploaded. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-br from-purple/95 via-purple/90 to-purple-deep/95"
+            className="absolute inset-0 -z-10 bg-gradient-to-br from-brand/95 via-brand/90 to-brand-deep/95"
           />
         </>
       ) : null}
 
       <div className="siws-container py-16 sm:py-24">
         {block.eyebrow ? (
+          /**
+           * Body face, not the handwriting one.
+           *
+           * This line carries factual detail — board, grades, campuses — and
+           * Bright Chalk renders that as a scrawl: the pipes turn into strokes
+           * and the numerals are hard to read at this size. It is set as a
+           * small, spaced, uppercase label instead, which is how the college
+           * site treats the same line.
+           */
           <p
-            className={`text-lg ${inverted ? 'text-yellow' : 'text-purple'}`}
-            style={{ fontFamily: 'var(--font-chalk)' }}
+            className={`text-sm font-semibold tracking-[0.14em] uppercase ${
+              inverted ? 'text-accent' : 'text-brand'
+            }`}
           >
             {block.eyebrow}
           </p>

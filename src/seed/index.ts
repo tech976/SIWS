@@ -1,3 +1,4 @@
+import type { UnitAccent } from '@/theme/tokens'
 import { loadEnv } from '@/utilities/load-env'
 
 // Must run before the Payload config is evaluated, since the config reads
@@ -25,7 +26,7 @@ interface UnitSeed {
   shortName: string
   tagline: string
   description: string
-  accent: 'yellow' | 'orange' | 'coral' | 'lime' | 'purpleInk'
+  accent: UnitAccent
   order: number
 }
 
@@ -37,7 +38,7 @@ const UNITS: UnitSeed[] = [
     tagline: 'SSC Board | Safe | Value-Based Education',
     description:
       'A safe, nurturing and child-friendly start to school life, with a structured early-learning approach for Jr. KG and Sr. KG.',
-    accent: 'coral',
+    accent: 'accent',
     order: 1,
   },
   {
@@ -47,7 +48,7 @@ const UNITS: UnitSeed[] = [
     tagline: 'Building strong academic foundations',
     description:
       'Where early curiosity is shaped into steady study habits, through a structured SSC Board curriculum.',
-    accent: 'orange',
+    accent: 'sky',
     order: 2,
   },
   {
@@ -57,7 +58,7 @@ const UNITS: UnitSeed[] = [
     tagline: 'Preparing confident, capable students',
     description:
       'Academic rigour, board preparation and all-round development in the years leading up to the SSC examination.',
-    accent: 'yellow',
+    accent: 'accentDeep',
     order: 3,
   },
   {
@@ -67,7 +68,7 @@ const UNITS: UnitSeed[] = [
     tagline: 'Choosing your stream with confidence',
     description:
       'Standards XI and XII, with guidance on streams and courses for students moving up from Secondary School.',
-    accent: 'purpleInk',
+    accent: 'brandInk',
     order: 4,
   },
 ]

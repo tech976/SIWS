@@ -41,12 +41,12 @@ export const AccordionBlockView = ({
         {items.map((item, itemIndex) => (
           <details key={item.id ?? itemIndex} name={groupName} className="group py-1">
             <summary
-              className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold text-purple [&::-webkit-details-marker]:hidden"
+              className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold text-brand [&::-webkit-details-marker]:hidden"
             >
               <span>{item.question}</span>
               <span
                 aria-hidden="true"
-                className="grid size-7 shrink-0 place-items-center rounded-full bg-yellow text-purple transition-transform group-open:rotate-45"
+                className="grid size-7 shrink-0 place-items-center rounded-full bg-sea text-brand transition-transform group-open:rotate-45"
               >
                 +
               </span>

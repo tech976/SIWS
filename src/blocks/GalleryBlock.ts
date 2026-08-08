@@ -50,6 +50,22 @@ export const GalleryBlock: Block = {
       ],
     },
     {
+      name: 'perPage',
+      type: 'select',
+      defaultValue: '12',
+      label: 'Photos per page',
+      options: [
+        { label: '9', value: '9' },
+        { label: '12', value: '12' },
+        { label: '24', value: '24' },
+        { label: 'Show them all', value: '0' },
+      ],
+      admin: {
+        description:
+          'Only applies to the grid. Large galleries load far faster in pages.',
+      },
+    },
+    {
       name: 'layout',
       type: 'select',
       defaultValue: 'carousel',

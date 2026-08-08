@@ -32,6 +32,6 @@ export const CallToActionBlock: Block = {
       labels: { singular: 'Button', plural: 'Buttons' },
       fields: [linkField({ name: 'link', withAppearance: true })],
     },
-    sectionOptions([], 'purple'),
+    sectionOptions([], 'brand'),
   ],
 }

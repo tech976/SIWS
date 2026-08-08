@@ -65,7 +65,7 @@ export const PrimaryNav = ({ items, cta }: PrimaryNavProps) => {
   const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
   const linkClass = (extra: string) =>
-    `font-medium text-purple transition-colors hover:text-purple-deep aria-[current=page]:underline aria-[current=page]:decoration-yellow-deep aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8 ${extra}`
+    `font-medium text-brand transition-colors hover:text-brand-deep aria-[current=page]:underline aria-[current=page]:decoration-accent-deep aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8 ${extra}`
 
   return (
     <>
@@ -98,22 +98,22 @@ export const PrimaryNav = ({ items, cta }: PrimaryNavProps) => {
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="grid size-11 place-items-center rounded-lg border border-purple lg:hidden"
+            className="grid size-11 place-items-center rounded-lg border border-brand lg:hidden"
           >
             <span className="sr-only">{open ? 'Close menu' : 'Open menu'}</span>
             <span aria-hidden="true" className="relative block h-4 w-5">
               <span
-                className={`absolute left-0 block h-0.5 w-5 bg-purple transition-transform duration-200 ${
+                className={`absolute left-0 block h-0.5 w-5 bg-brand transition-transform duration-200 ${
                   open ? 'top-1/2 rotate-45' : 'top-0'
                 }`}
               />
               <span
-                className={`absolute left-0 top-1/2 block h-0.5 w-5 -translate-y-1/2 bg-purple transition-opacity duration-200 ${
+                className={`absolute left-0 top-1/2 block h-0.5 w-5 -translate-y-1/2 bg-brand transition-opacity duration-200 ${
                   open ? 'opacity-0' : 'opacity-100'
                 }`}
               />
               <span
-                className={`absolute left-0 block h-0.5 w-5 bg-purple transition-transform duration-200 ${
+                className={`absolute left-0 block h-0.5 w-5 bg-brand transition-transform duration-200 ${
                   open ? 'top-1/2 -rotate-45' : 'bottom-0'
                 }`}
               />

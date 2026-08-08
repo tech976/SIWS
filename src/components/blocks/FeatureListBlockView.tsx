@@ -56,12 +56,12 @@ const Item = ({
   <li className="flex items-start gap-4">
     <span
       aria-hidden="true"
-      className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-yellow text-sm font-bold text-purple"
+      className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-sea text-sm font-bold text-brand"
     >
       {numbered ? index + 1 : <Check size={17} strokeWidth={3} />}
     </span>
     <span>
-      <strong className="block text-[1.05rem] text-purple">{item.title}</strong>
+      <strong className="block text-[1.05rem] text-brand">{item.title}</strong>
       {item.description ? (
         <span className="mt-1 block text-ink-soft">{item.description}</span>
       ) : null}

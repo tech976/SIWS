@@ -1,0 +1,71 @@
+import Link from 'next/link'
+
+import type { Unit } from '@/payload-types'
+
+interface SectionSwitcherProps {
+  units: Unit[]
+  /** Slug of the section being viewed; null on the main portal. */
+  currentSlug?: string | null
+}
+
+/**
+ * The top bar — every SIWS section, always reachable.
+ *
+ * Matches the band that runs across the top of siwscollege.edu.in, but carries
+ * sections rather than the college's statutory links. It is the one piece of
+ * chrome identical on every page of every site: a parent who lands on the
+ * Primary site looking for the Secondary one should not have to go back to the
+ * portal and start again.
+ *
+ * A server component. The current section is known from the route, so nothing
+ * here needs `usePathname`, and the bar costs no client JavaScript.
+ *
+ * ORDERING is `unit.order`, the same field the portal's own list uses, so the
+ * sequence a visitor learns in one place holds everywhere.
+ */
+export const SectionSwitcher = ({ units, currentSlug }: SectionSwitcherProps) => {
+  const links = [
+    { label: 'SIWS', href: '/', slug: null as string | null },
+    ...units.map((unit) => ({
+      // `shortName` ("Primary School") over `name` ("SIWS Primary School") —
+      // the bar is a list of sections within SIWS, so repeating "SIWS" five
+      // times adds width without adding meaning.
+      label: unit.shortName || unit.name,
+      href: `/${unit.slug}`,
+      slug: unit.slug as string | null,
+    })),
+  ]
+
+  return (
+    <div className="bg-sky text-white">
+      {/*
+        Scrolls sideways rather than wrapping on a phone. Five sections will not
+        fit on a narrow screen, and a bar that wraps to three lines pushes the
+        school's own name below the fold on the page a visitor arrived at.
+      */}
+      <div className="siws-container overflow-x-auto">
+        <nav aria-label="SIWS sections" className="flex min-w-max justify-end">
+          {links.map((link) => {
+            const current = link.slug === (currentSlug ?? null)
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={current ? 'page' : undefined}
+                className={[
+                  'px-4 py-3 text-sm font-semibold whitespace-nowrap transition-colors',
+                  'hover:bg-white/15 focus-visible:bg-white/15',
+                  // The current section is marked by a filled block, not colour
+                  // alone — WCAG 2.1 SC 1.4.1.
+                  current ? 'bg-brand text-white' : 'text-white',
+                ].join(' ')}
+              >
+                {link.label}
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
+    </div>
+  )
+}

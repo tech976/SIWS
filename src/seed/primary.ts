@@ -477,26 +477,100 @@ const main = async () => {
       'SIWS Primary School, Wadala — Grades 1 to 4 on the Maharashtra State Board curriculum, with smart classrooms, experienced teachers and a CCTV-monitored campus.',
     layout: [
       {
-        blockType: 'richText',
-        heading: 'SIWS Primary School, Wadala',
+        blockType: 'hero',
+        title: 'SIWS Primary School, Wadala',
         accentWord: 'Wadala',
+        eyebrow: 'Maharashtra State Board | Grades 1 to 4',
+        intro:
+          'A caring, inclusive and stimulating school where the focus extends beyond academic excellence to developing confident, responsible and compassionate individuals.',
+      },
+      {
+        blockType: 'statistics',
+        heading: 'A legacy parents trust',
+        background: 'sea',
+        stats: [
+          { value: '1934', label: 'Serving Mumbai since' },
+          { value: '90+', label: 'Years of educational service' },
+          { value: 'A Grade', label: 'Department of Education' },
+          { value: '20+', label: 'Years average teaching experience' },
+        ],
+      },
+      {
+        blockType: 'richText',
+        heading: 'On one campus, from K.G. to Standard X',
+        accentWord: 'K.G. to Standard X',
         headingLevel: 'h2',
         width: 'normal',
         background: 'white',
         content: richText([
-          'The Wadala campus is part of the full SIWS school at Wadala — a K.G. Section, Primary School and Secondary School on one site, so a child can move from Kindergarten to Standard X without changing schools.',
-          'At SIWS Primary School, we are committed to nurturing every child in a caring, inclusive and stimulating environment. Our focus extends beyond academic excellence to developing confident, responsible and compassionate individuals.',
+          'The Wadala campus is the full SIWS school — a K.G. Section, Primary School and Secondary School on one site, so a child can move from Kindergarten to Standard X without ever changing schools.',
         ]),
       },
       {
         blockType: 'featureList',
-        heading: 'Why parents choose the Wadala campus',
-        accentWord: 'Wadala campus',
+        heading: 'Subjects',
+        accentWord: 'Subjects',
         headingLevel: 'h2',
         marker: 'tick',
         columns: '2',
-        background: 'tint',
+        background: 'sea',
+        items: SUBJECTS,
+      },
+      {
+        blockType: 'featureList',
+        heading: 'Grade by grade',
+        accentWord: 'Grade by grade',
+        headingLevel: 'h2',
+        marker: 'number',
+        columns: '1',
+        background: 'white',
+        intro: richText([
+          'Our Primary Section follows the Maharashtra State Board curriculum (SCERT Maharashtra / Balbharati), aligned with the National Education Policy 2020 and its competency-based approach (PARAKH).',
+        ]),
+        items: GRADE_CURRICULUM,
+      },
+      {
+        blockType: 'featureList',
+        heading: 'How we teach',
+        accentWord: 'teach',
+        headingLevel: 'h2',
+        marker: 'tick',
+        columns: '2',
+        background: 'sea',
+        intro: richText([
+          'Every child learns differently. Our classrooms are interactive, inclusive and learner-centred, with teachers acting as facilitators who encourage children to think, explore and discover.',
+        ]),
+        items: TEACHING_PRACTICES,
+      },
+      {
+        blockType: 'featureList',
+        heading: 'Beyond academics',
+        accentWord: 'Beyond academics',
+        headingLevel: 'h2',
+        marker: 'tick',
+        columns: '2',
+        background: 'white',
+        items: HOLISTIC,
+      },
+      {
+        blockType: 'featureList',
+        heading: 'What the Wadala programme offers',
+        accentWord: 'Wadala programme',
+        headingLevel: 'h2',
+        marker: 'tick',
+        columns: '2',
+        background: 'sea',
         items: PROGRAMME_BENEFITS,
+      },
+      {
+        blockType: 'featureList',
+        heading: 'Why parents choose SIWS Wadala',
+        accentWord: 'SIWS Wadala',
+        headingLevel: 'h2',
+        marker: 'tick',
+        columns: '2',
+        background: 'white',
+        items: USPS,
       },
       {
         blockType: 'faculty',
@@ -505,9 +579,30 @@ const main = async () => {
         headingLevel: 'h2',
         campus: 'wadala',
         showQualifications: true,
-        background: 'white',
+        background: 'sea',
         intro: richText([
           'Our teachers are well trained, with over 20 years of teaching experience.',
+        ]),
+      },
+      {
+        blockType: 'featureList',
+        heading: 'Competitions and prizes',
+        accentWord: 'Competitions',
+        headingLevel: 'h2',
+        marker: 'tick',
+        columns: '2',
+        background: 'white',
+        items: COMPETITIONS,
+      },
+      {
+        blockType: 'richText',
+        heading: 'Safe, secure and disciplined',
+        accentWord: 'Safe',
+        headingLevel: 'h2',
+        width: 'narrow',
+        background: 'sea',
+        content: richText([
+          'The entire campus — classrooms, corridors, entrances and common areas — is monitored by CCTV. Well-defined safety protocols, disciplined practices and vigilant supervision give parents confidence that their children are learning in a safe, caring and protected atmosphere.',
         ]),
       },
     ],
@@ -527,6 +622,25 @@ const main = async () => {
       'SIWS Primary School, Matunga — Grades 1 to 4 on the Maharashtra State Board curriculum, with a nine-strong teaching team and a safe, disciplined campus.',
     layout: [
       {
+        blockType: 'hero',
+        title: 'SIWS Primary School, Matunga',
+        accentWord: 'Matunga',
+        eyebrow: 'Maharashtra State Board | Standards I to IV',
+        intro:
+          'A journey of learning, growing and achieving — building tomorrow’s achievers through personalised learning, innovative teaching, strong values and a nurturing environment from the very first step.',
+      },
+      {
+        blockType: 'statistics',
+        heading: 'A legacy parents trust',
+        background: 'sea',
+        stats: [
+          { value: '1934', label: 'SIWS founded' },
+          { value: '1936', label: 'Matunga Primary opened' },
+          { value: 'A Grade', label: 'Department of Education' },
+          { value: 'State Board', label: 'Maharashtra' },
+        ],
+      },
+      {
         blockType: 'richText',
         heading: 'SIWS Primary School, Matunga',
         accentWord: 'Matunga',
@@ -544,7 +658,7 @@ const main = async () => {
         accentWord: 'Matunga',
         headingLevel: 'h2',
         width: 'narrow',
-        background: 'cream',
+        background: 'sea',
         content: richText([
           'SIWS School made a humble beginning in the year 1934 with just 4 students at Shivaji Park. Within the next two years the Primary Section was opened at Matunga, and in order to cope with the heavy demand for admission the Wadala School was opened.',
           'Years of dedication, learning and success have shaped our journey of nurturing confident and compassionate young minds.',
@@ -588,10 +702,72 @@ const main = async () => {
         headingLevel: 'h2',
         campus: 'matunga',
         showQualifications: true,
-        background: 'cream',
+        background: 'sea',
         intro: richText([
           'With knowledge and passion, our teachers create a classroom where every child feels encouraged to explore and succeed.',
         ]),
+      },
+      {
+        blockType: 'richText',
+        heading: 'Admission to Matunga',
+        accentWord: 'Admission',
+        headingLevel: 'h2',
+        width: 'normal',
+        background: 'white',
+        content: richText([
+          'Our admission process is simple, transparent and parent-friendly. Eligible students can apply by submitting the required documents, completing the admission formalities and interacting with the school as per the prescribed guidelines.',
+          'Every pupil seeking admission for the first time must produce their Birth Certificate, Aadhaar card and Ration card issued by a competent authority.',
+        ]),
+      },
+      {
+        blockType: 'richText',
+        heading: 'The academic year',
+        headingLevel: 'h2',
+        width: 'narrow',
+        background: 'sea',
+        content: richText([
+          'An enriching year-round learning experience, with a balanced schedule that encourages academic excellence and holistic growth.',
+        ]),
+      },
+      {
+        blockType: 'featureList',
+        heading: 'School rules — Matunga',
+        accentWord: 'Matunga',
+        headingLevel: 'h2',
+        marker: 'number',
+        columns: '1',
+        background: 'white',
+        items: MATUNGA_RULES.map((title) => ({ title })),
+      },
+      {
+        blockType: 'featureList',
+        heading: 'What sets Matunga apart',
+        accentWord: 'Matunga',
+        headingLevel: 'h2',
+        marker: 'tick',
+        columns: '2',
+        background: 'sea',
+        items: [
+          {
+            title: 'A Grade recognition',
+            description:
+              'Granted A Grade status by the Department of Education following improvements in infrastructure, teaching and other parameters. Recognised by the Maharashtra State Board.',
+          },
+          {
+            title: 'Experienced faculty',
+            description:
+              'With knowledge and passion, our teachers create a classroom where every child feels encouraged to explore and succeed.',
+          },
+          {
+            title: 'Modern facilities',
+            description: 'Smart classrooms and well-equipped labs.',
+          },
+          {
+            title: 'Personalised learning',
+            description:
+              'Building tomorrow’s achievers through personalised learning, innovative teaching and strong values.',
+          },
+        ],
       },
       {
         blockType: 'richText',
@@ -607,18 +783,28 @@ const main = async () => {
     ],
   })
 
-  // ------------------------------------------------------------------ HOME
-  await upsert({
-    slug: 'home',
-    title: 'SIWS Primary School',
+  // --------------------------------------------------------------- CONTACT
+  /**
+   * The enquiry form lives here now, not on the home page.
+   *
+   * Seeded before `home` because the home hero links to it by relationship,
+   * and an internal link needs its target to exist first (FR-QL-06).
+   */
+  const contactPageId = await upsert({
+    slug: 'contact',
+    title: 'Contact us',
+    intro: 'Ask us about admission to Grades 1 to 4 at Wadala or Matunga.',
+    showInNav: true,
+    navLabel: 'Contact',
+    navOrder: 50,
     _status: 'published',
     reviewStatus: 'approved',
     metaDescription:
-      'SIWS Primary School — Grades 1 to 4 on the Maharashtra State Board curriculum at two campuses, Wadala and Matunga. Smart classrooms, experienced teachers and safe, CCTV-monitored campuses.',
+      'Contact SIWS Primary School — enquire about admission to Grades 1 to 4 at our Wadala and Matunga campuses.',
     layout: [
       {
         blockType: 'heroEnquiry',
-        title: 'SIWS Primary School',
+        title: 'Enquire about admission',
         subtitle: 'Maharashtra State Board | Grades 1 to 4 | Wadala & Matunga',
         benefitsIntro: 'At SIWS, your child benefits from:',
         benefits: [
@@ -648,6 +834,61 @@ const main = async () => {
       },
       {
         blockType: 'cardGrid',
+        heading: 'Who to contact',
+        headingLevel: 'h2',
+        columns: '2',
+        background: 'white',
+        cards: [
+          {
+            title: 'Admissions',
+            description:
+              'For enquiries about Grades 1 to 4 at either campus — admissions@siws.edu.in',
+          },
+          {
+            title: 'General enquiries',
+            description: 'For anything else — info@siws.edu.in',
+          },
+        ],
+      },
+    ],
+  })
+
+  // ------------------------------------------------------------------ HOME
+  await upsert({
+    slug: 'home',
+    title: 'SIWS Primary School',
+    _status: 'published',
+    reviewStatus: 'approved',
+    metaDescription:
+      'SIWS Primary School — Grades 1 to 4 on the Maharashtra State Board curriculum at two campuses, Wadala and Matunga. Smart classrooms, experienced teachers and safe, CCTV-monitored campuses.',
+    layout: [
+      /**
+       * The enquiry form moved to the contact page. This hero carries the same
+       * headline and the same four reasons, and sends anyone ready to enquire
+       * one click onward — so the home page opens on the school rather than on
+       * a form.
+       */
+      {
+        blockType: 'hero',
+        title: 'SIWS Primary School',
+        accentWord: 'Primary',
+        eyebrow: 'Maharashtra State Board | Grades 1 to 4 | Wadala & Matunga',
+        // Plain string: the hero's `intro` is a textarea, not rich text.
+        intro:
+          'A caring, inclusive and stimulating school for Grades 1 to 4 — with smart classrooms, teachers of 20+ years’ experience, and safe, CCTV-monitored campuses at Wadala and Matunga.',
+        links: [
+          {
+            link: {
+              label: 'Enquire about admission',
+              type: 'internal',
+              reference: { relationTo: 'pages', value: contactPageId },
+              appearance: 'primary',
+            },
+          },
+        ],
+      },
+      {
+        blockType: 'cardGrid',
         heading: 'Our two campuses',
         accentWord: 'two campuses',
         headingLevel: 'h2',
@@ -658,8 +899,15 @@ const main = async () => {
         columns: '2',
         cards: [
           {
+            /**
+             * No teacher count. A raw headcount invites a parent to read one
+             * campus as better resourced than the other, when the two have
+             * different intakes — and it would go stale the moment somebody
+             * joins or leaves. The rosters themselves are on the teachers page.
+             */
             title: 'Wadala campus',
-            description: `Part of the full SIWS campus at Wadala, alongside the K.G. Section and the Secondary School. ${FACULTY.length} teachers.`,
+            description:
+              'Part of the full SIWS campus at Wadala, alongside the K.G. Section and the Secondary School.',
             cta: [
               {
                 link: {
@@ -672,7 +920,8 @@ const main = async () => {
           },
           {
             title: 'Matunga campus',
-            description: `The Primary Section opened at Matunga within two years of the school’s founding in 1934. ${MATUNGA_FACULTY.length} teachers.`,
+            description:
+              'The Primary Section opened at Matunga within two years of the school’s founding in 1934.',
             cta: [
               {
                 link: {
@@ -700,7 +949,7 @@ const main = async () => {
       {
         blockType: 'statistics',
         heading: 'A legacy parents trust',
-        background: 'cream',
+        background: 'sea',
         stats: [
           { value: '1934', label: 'Serving Mumbai since' },
           { value: '90+', label: 'Years of educational service' },
@@ -743,7 +992,7 @@ const main = async () => {
       {
         blockType: 'callToAction',
         heading: 'Come and see the school for yourself',
-        background: 'purple',
+        background: 'brand',
         text: richText(['Our admissions team is happy to talk you through the process.']),
         links: [
           {
@@ -791,7 +1040,7 @@ const main = async () => {
         headingLevel: 'h2',
         marker: 'tick',
         columns: '2',
-        background: 'cream',
+        background: 'sea',
         items: SUBJECTS,
       },
       {
@@ -830,7 +1079,7 @@ const main = async () => {
         headingLevel: 'h2',
         marker: 'tick',
         columns: '2',
-        background: 'cream',
+        background: 'sea',
         items: HOLISTIC,
       },
       {
@@ -895,7 +1144,7 @@ const main = async () => {
         headingLevel: 'h2',
         campus: 'matunga',
         showQualifications: true,
-        background: 'cream',
+        background: 'sea',
         intro: richText([
           'With knowledge and passion, our teachers create a classroom where every child feels encouraged to explore and succeed.',
         ]),
@@ -948,7 +1197,7 @@ const main = async () => {
         heading: 'Scholarships',
         headingLevel: 'h2',
         width: 'normal',
-        background: 'cream',
+        background: 'sea',
         content: richText([
           'SIWS administers 151 scholarship and endowment funds, given by well-wishers of the institution over more than nine decades. They are awarded right across the institution, from the Kindergarten Section through to the S.S.C. Examination.',
         ]),
@@ -965,7 +1214,7 @@ const main = async () => {
         headingLevel: 'h3',
         marker: 'tick',
         columns: '1',
-        background: 'cream',
+        background: 'sea',
         items: [
           {
             title: 'Ms. G. Radha Head Teacher Primary School, Wadala Endowment Scholarship Fund',
@@ -1039,7 +1288,7 @@ const main = async () => {
       {
         blockType: 'callToAction',
         heading: 'Questions about admission?',
-        background: 'purple',
+        background: 'brand',
         text: richText(['Our admissions team is happy to talk you through the process.']),
         links: [
           {
@@ -1117,7 +1366,7 @@ const main = async () => {
         headingLevel: 'h2',
         marker: 'number',
         columns: '1',
-        background: 'cream',
+        background: 'sea',
         items: GENERAL_RULES.map((title) => ({ title })),
       },
       {

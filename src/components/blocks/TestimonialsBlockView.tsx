@@ -29,9 +29,9 @@ export const TestimonialsBlockView = ({ block }: { block: TestimonialsBlock }) =
         {quotes.map((entry, index) => (
           <li
             key={entry.id ?? index}
-            className="flex flex-col rounded-2xl border-2 border-yellow bg-white p-6 shadow-[0_6px_15px_rgba(0,0,0,0.06)]"
+            className="flex flex-col rounded-2xl border border-line bg-white p-6 shadow-[0_6px_15px_rgba(0,0,0,0.06)]"
           >
-            <span aria-hidden="true" className="text-yellow-deep">
+            <span aria-hidden="true" className="text-accent-deep">
               <Quote size={26} strokeWidth={2.5} />
             </span>
 
@@ -46,7 +46,7 @@ export const TestimonialsBlockView = ({ block }: { block: TestimonialsBlock }) =
             </blockquote>
 
             <footer className="mt-5 border-t border-line pt-4">
-              <cite className="block font-semibold not-italic text-purple">
+              <cite className="block font-semibold not-italic text-brand">
                 — {entry.attribution}
               </cite>
               {entry.detail ? (

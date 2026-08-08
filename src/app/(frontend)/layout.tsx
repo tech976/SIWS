@@ -46,7 +46,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Deliberately NOT capping maximum-scale: preventing pinch-zoom fails
   // WCAG 2.1 SC 1.4.4 (Resize Text).
-  themeColor: '#613e97',
+  // The browser-chrome colour on mobile. A literal rather than a `var()`,
+  // because this is read from the document head before any stylesheet is
+  // parsed — so it has to be kept in step with `SIWS_BRAND.brand` by hand.
+  themeColor: '#2e3192',
 }
 
 const FrontendLayout = async ({ children }: { children: ReactNode }) => {

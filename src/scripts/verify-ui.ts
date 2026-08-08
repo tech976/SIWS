@@ -165,7 +165,7 @@ const main = () => {
 
   // -- 3. Icon chips ------------------------------------------------------
   check('Icon chips clear 4.5:1 against white glyphs', () => {
-    const chips = ['--chip-purple', '--chip-blue', '--chip-teal', '--chip-coral', '--chip-amber']
+    const chips = ['--chip-brand', '--chip-blue', '--chip-teal', '--chip-coral', '--chip-amber']
     const weak = chips
       .map((name) => ({ name, ratio: contrast(WHITE, token(t, name)) }))
       /**
@@ -209,7 +209,7 @@ const main = () => {
       ['ink-2 on card', '--siws-ink-2', card],
       ['ink-3 on card', '--siws-ink-3', card],
       ['ink-3 on canvas', '--siws-ink-3', canvas],
-      ['purple on card', '--siws-purple', card],
+      ['brand on card', '--siws-brand', card],
     ]
 
     const weak = cases

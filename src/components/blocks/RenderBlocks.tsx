@@ -1,14 +1,19 @@
 import type { Page, Unit } from '@/payload-types'
 
 import { AccordionBlockView } from './AccordionBlockView'
+import { AnnouncementsBlockView } from './AnnouncementsBlockView'
 import { CallToActionBlockView } from './CallToActionBlockView'
 import { CardGridBlockView } from './CardGridBlockView'
 import { FacultyBlockView } from './FacultyBlockView'
 import { FeatureListBlockView } from './FeatureListBlockView'
 import { GalleryBlockView } from './GalleryBlockView'
 import { HeroBlockView } from './HeroBlockView'
+import { HeroCarouselBlockView } from './HeroCarouselBlockView'
 import { HeroEnquiryBlockView } from './HeroEnquiryBlockView'
+import { LogoStripBlockView } from './LogoStripBlockView'
 import { MediaTextBlockView } from './MediaTextBlockView'
+import { ProgramCardsBlockView } from './ProgramCardsBlockView'
+import { QuickNavBlockView } from './QuickNavBlockView'
 import { RichTextBlockView } from './RichTextBlockView'
 import { StatisticsBlockView } from './StatisticsBlockView'
 import { TestimonialsBlockView } from './TestimonialsBlockView'
@@ -54,6 +59,8 @@ export const RenderBlocks = ({ blocks, unit = null, units = [] }: RenderBlocksPr
         switch (block.blockType) {
           case 'hero':
             return <HeroBlockView key={key} block={block} />
+          case 'heroCarousel':
+            return <HeroCarouselBlockView key={key} block={block} />
           case 'unitLinks':
             return <UnitLinksBlockView key={key} block={block} units={units} />
           case 'richText':
@@ -62,6 +69,14 @@ export const RenderBlocks = ({ blocks, unit = null, units = [] }: RenderBlocksPr
             return <MediaTextBlockView key={key} block={block} />
           case 'cardGrid':
             return <CardGridBlockView key={key} block={block} />
+          case 'programCards':
+            return <ProgramCardsBlockView key={key} block={block} />
+          case 'quickNav':
+            return <QuickNavBlockView key={key} block={block} />
+          case 'announcements':
+            return <AnnouncementsBlockView key={key} block={block} />
+          case 'logoStrip':
+            return <LogoStripBlockView key={key} block={block} />
           case 'featureList':
             return <FeatureListBlockView key={key} block={block} />
           case 'faculty':

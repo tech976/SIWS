@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 
-import { isExternalHref, pageHref } from '@/lib/href'
-import type { Page } from '@/payload-types'
+import { isExternalHref, mediaHref, pageHref } from '@/lib/href'
+import type { Media, Page } from '@/payload-types'
 
 /**
  * A relationship declared with `relationTo: ['pages']` is polymorphic, so
@@ -16,6 +16,8 @@ export type CMSLinkReference =
   | number
   | string
   | { relationTo: 'pages'; value: number | Page }
+  /** A link field may target an uploaded file — a notice pointing at a PDF. */
+  | { relationTo: 'media'; value: number | Media }
   | null
 
 /**
@@ -32,20 +34,25 @@ export interface CMSLinkValue {
   appearance?: ('primary' | 'secondary' | 'plain') | null
 }
 
-const unwrapReference = (reference: CMSLinkReference | undefined): Page | number | null => {
-  if (reference === null || reference === undefined) return null
+const unwrapReference = (
+  reference: CMSLinkReference | undefined,
+): { kind: 'page' | 'media'; value: Page | Media | number | null } => {
+  if (reference === null || reference === undefined) return { kind: 'page', value: null }
 
   if (
     typeof reference === 'object' &&
     'relationTo' in reference &&
     'value' in reference
   ) {
-    return reference.value
+    return {
+      kind: reference.relationTo === 'media' ? 'media' : 'page',
+      value: reference.value,
+    }
   }
 
   // A string ID cannot be resolved to a URL without another lookup, and the
   // Postgres adapter uses numeric IDs, so this is treated as unresolvable.
-  return typeof reference === 'string' ? null : reference
+  return { kind: 'page', value: typeof reference === 'string' ? null : reference }
 }
 
 interface CMSLinkProps {
@@ -59,7 +66,7 @@ interface CMSLinkProps {
 const APPEARANCE_CLASS: Record<string, string> = {
   primary: 'btn-primary',
   secondary: 'btn-secondary',
-  plain: 'underline underline-offset-4 font-semibold text-purple hover:text-purple-deep',
+  plain: 'underline underline-offset-4 font-semibold text-brand hover:text-brand-deep',
 }
 
 export const resolveCMSHref = (link: CMSLinkValue | null | undefined): string | null => {
@@ -69,7 +76,10 @@ export const resolveCMSHref = (link: CMSLinkValue | null | undefined): string | 
     return typeof link.url === 'string' && link.url.length > 0 ? link.url : null
   }
 
-  return pageHref(unwrapReference(link.reference))
+  const { kind, value } = unwrapReference(link.reference)
+  return kind === 'media'
+    ? mediaHref(value as Media | number | null)
+    : pageHref(value as Page | number | null)
 }
 
 export const CMSLink = ({

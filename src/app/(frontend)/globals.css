@@ -3,38 +3,67 @@
 
 /* ==========================================================================
    SIWS DESIGN SYSTEM
-   Tokens transcribed from the approved landing page so the platform is
-   colour- and type-identical to the signed-off design (SRS 2.5).
+
+   Colours are the institution's own, taken from siwscollege.edu.in, which
+   publishes them as CSS variables in its theme (--siwsBlue, --siwsOrange,
+   --siwsSkyBlue, --siwsSeaBlue, --siwsGrey, --siwsDefault). Layout, type and
+   spacing remain the approved landing page's (SRS 2.5).
+
+   Kept in step with `src/theme/tokens.ts`, which the admin panel reads.
+   Token names describe a role, not a hue, so the next brand change is a value
+   edit here rather than a rename across every component.
    ========================================================================== */
 
 @theme {
   /* --- Brand ----------------------------------------------------------- */
-  --color-purple: #613e97;
-  --color-purple-deep: #5c3d99;
-  --color-purple-ink: #2d3282;
-  --color-purple-tint: #f3f0f9;
+  --color-brand: #2e3192;
+  --color-brand-deep: #24276f;
+  --color-brand-ink: #1f2265;
+  --color-brand-tint: #eef3fc;
 
-  --color-yellow: #fede3b;
-  --color-yellow-deep: #f5c400;
-  --color-cream: #fdeec3;
-  --color-cream-soft: #fbf7ef;
+  --color-accent: #ffaf2a;
+  --color-accent-deep: #f39200;
+  --color-sea: #dbecff;
+  --color-sea-soft: #f2f8ff;
 
-  --color-orange: #fc8815;
-  --color-orange-light: #ff9f45;
-  --color-coral: #ff6464;
-  --color-lime: #e3f219;
+  /**
+   * The college's own `--siwsSkyBlue` is #3B86D7, and that is what
+   * `--color-sky-light` holds. But white text on it measures 3.77:1, below the
+   * 4.5:1 WCAG 2.1 AA needs for body text — and this blue carries the section
+   * bar and the whole footer, which are text. So the text-bearing surface is
+   * one step darker at 4.66:1. The two are hard to tell apart side by side;
+   * an unreadable footer is not.
+   */
+  --color-sky: #3376c2;
+  --color-sky-light: #3b86d7;
+  --color-grey: #f5f5f5;
 
   /* --- Ink & surface --------------------------------------------------- */
-  --color-ink: #333333;
-  --color-ink-soft: #444444;
-  --color-ink-muted: #6b6470;
-  --color-line: #e6e0d4;
+  --color-ink: #1e1e1e;
+  --color-ink-soft: #3a3a42;
+  --color-ink-muted: #5c5c68;
   --color-surface: #ffffff;
 
+  /**
+   * Two border tokens, because one cannot serve both jobs.
+   *
+   * `--color-line` draws decorative rules — a divider between accordion items,
+   * a hairline above a footer row. Those carry no meaning and have no contrast
+   * minimum.
+   *
+   * `--color-field` draws the boundary of a form control, which WCAG 2.1
+   * SC 1.4.11 requires to reach 3:1 against its background so that someone can
+   * see where the input actually is. A single soft token was being used for
+   * both, so every text input on the site sat at 1.31:1. This one measures
+   * 3.79:1.
+   */
+  --color-line: #dbe3ef;
+  --color-field: #7a8399;
+
   /* --- Severity (FR-EMG-05) -------------------------------------------- */
-  --color-notice-info: #fdeec3;
-  --color-notice-info-ink: #4a3208;
-  --color-notice-warning: #fc8815;
+  --color-notice-info: #dbecff;
+  --color-notice-info-ink: #1f2a5c;
+  --color-notice-warning: #f39200;
   --color-notice-warning-ink: #2b1600;
   --color-notice-critical: #b3172b;
   --color-notice-critical-ink: #ffffff;
@@ -42,6 +71,7 @@
   /* --- Type ------------------------------------------------------------ */
   --font-display: var(--font-display), 'Montserrat', system-ui, sans-serif;
   --font-body: var(--font-body), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-alt: var(--font-alt), 'Montserrat', system-ui, sans-serif;
   --font-chalk: var(--font-chalk), 'Comic Sans MS', cursive;
 
   /* --- Shape ----------------------------------------------------------- */
@@ -49,10 +79,17 @@
   --radius-card: 16px;
 
   --shadow-card: 0 6px 15px rgba(0, 0, 0, 0.08);
-  --shadow-raised: 0 12px 30px rgba(97, 62, 151, 0.14);
+  /* Tinted with the brand blue rather than the old purple. */
+  --shadow-raised: 0 12px 30px rgba(46, 49, 146, 0.16);
 
   /* Header height, read by the sticky-offset and scroll-margin rules. */
   --siws-header-height: 5.5rem;
+  /**
+   * Height of the pinned section bar. Anchor targets are pushed clear of it,
+   * otherwise jumping to a heading lands it underneath the bar and the visitor
+   * sees the section below the one they asked for.
+   */
+  --siws-section-bar-height: 2.75rem;
 }
 
 /* ==========================================================================
@@ -116,10 +153,24 @@
   h4,
   h5,
   h6 {
-    color: var(--color-purple);
-    font-family: var(--font-display);
-    font-weight: 400;
-    line-height: 1.2;
+    color: var(--color-brand);
+    /**
+     * MONTSERRAT BOLD, not Anton — matching siwscollege.edu.in exactly.
+     *
+     * Their theme applies Anton to precisely three selectors: `.st-home h1`,
+     * `.st-connect h2` and `.clubs-list h5` — oversized banner headings set in
+     * white over a photograph. Every ordinary heading on their site inherits
+     * `body { font-family: var(--montserrat) }`.
+     *
+     * This rule previously used Anton for h1–h6 site-wide, which is why our
+     * section headings looked condensed where theirs are round and open.
+     * Anton is still loaded and available as `--font-display` for the banner
+     * cases it was actually meant for.
+     */
+    font-family: var(--font-body);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
     text-wrap: balance;
   }
 
@@ -134,14 +185,14 @@
    * (NFR Accessibility — visible focus indicator).
    */
   :focus-visible {
-    outline: 3px solid var(--color-purple);
+    outline: 3px solid var(--color-brand);
     outline-offset: 2px;
     border-radius: 4px;
   }
 
   /* Anchored headings must clear the sticky header when jumped to. */
   :target {
-    scroll-margin-top: calc(var(--siws-header-height) + 1rem);
+    scroll-margin-top: calc(var(--siws-section-bar-height) + 1rem);
   }
 
   /* Images never overflow their column, whatever the CMS upload dimensions. */
@@ -161,16 +212,21 @@
 
 @layer base {
   html[data-contrast='high'] {
-    --color-purple: #2c1a4d;
-    --color-purple-deep: #1d1033;
+    /* Same hues as the brand, pushed to the extremes of their range. */
+    --color-brand: #0f1140;
+    --color-brand-deep: #080a2b;
+    --color-brand-ink: #080a2b;
     --color-ink: #000000;
     --color-ink-soft: #000000;
     --color-ink-muted: #262626;
-    --color-yellow: #ffe873;
-    --color-cream: #fff8dd;
-    --color-cream-soft: #ffffff;
+    --color-accent: #ffd27a;
+    --color-accent-deep: #e08a00;
+    --color-sea: #eaf4ff;
+    --color-sea-soft: #ffffff;
+    --color-sky: #14458f;
     --color-line: #000000;
-    --color-purple-tint: #ffffff;
+    --color-field: #000000;
+    --color-brand-tint: #ffffff;
   }
 
   html[data-contrast='high'] body {
@@ -203,7 +259,7 @@
     top: 0;
     z-index: 200;
     padding: 0.75rem 1.25rem;
-    background: var(--color-purple);
+    background: var(--color-brand);
     color: #ffffff;
     font-weight: 600;
     border-radius: 0 0 8px 0;
@@ -233,7 +289,7 @@
     padding-inline: 1.25rem;
   }
 
-  /* The template's pill CTA: yellow fill, purple ink — a 6.4:1 pairing. */
+  /* The template's pill CTA: accent fill, brand ink — a 6.4:1 pairing. */
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -241,12 +297,12 @@
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
     border-radius: var(--radius-pill);
-    background: var(--color-yellow);
-    color: var(--color-purple);
+    background: var(--color-accent);
+    color: var(--color-brand);
     font-weight: 600;
     line-height: 1.2;
     text-decoration: none;
-    border: 2px solid var(--color-yellow);
+    border: 2px solid var(--color-accent);
     transition:
       background-color 0.18s ease,
       border-color 0.18s ease,
@@ -256,8 +312,8 @@
   }
 
   .btn-primary:hover {
-    background: var(--color-yellow-deep);
-    border-color: var(--color-yellow-deep);
+    background: var(--color-accent-deep);
+    border-color: var(--color-accent-deep);
   }
 
   .btn-primary:active {
@@ -273,21 +329,21 @@
     min-height: 2.75rem;
     border-radius: var(--radius-pill);
     background: transparent;
-    color: var(--color-purple);
+    color: var(--color-brand);
     font-weight: 600;
     text-decoration: none;
-    border: 2px solid var(--color-purple);
+    border: 2px solid var(--color-brand);
     transition:
       background-color 0.18s ease,
       color 0.18s ease;
   }
 
   .btn-secondary:hover {
-    background: var(--color-purple);
+    background: var(--color-brand);
     color: #ffffff;
   }
 
-  /* The cream announcement strip from the template header. */
+  /* The sea announcement strip from the template header. */
   .info-strip {
     display: flex;
     align-items: center;
@@ -295,24 +351,27 @@
     gap: 0.5rem;
     flex-wrap: wrap;
     padding: 0.75rem 1rem;
-    background: var(--color-cream);
+    background: var(--color-sea);
     color: var(--color-ink);
     font-size: 0.875rem;
     font-weight: 500;
     text-align: center;
   }
 
-  /* The yellow-bordered card used for the enquiry form. */
+  /*
+   * The enquiry card. A hairline and a soft shadow, not a 2px orange rule —
+   * orange is reserved for things you click.
+   */
   .siws-card {
     background: var(--color-surface);
-    border: 2px solid var(--color-yellow);
+    border: 1px solid var(--color-line);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
     padding: 1.75rem;
   }
 
   /*
-   * Sections on the deep-purple background. Declared once here rather than in
+   * Sections on the deep-brand background. Declared once here rather than in
    * each block, so a new block cannot ship with dark-on-dark text.
    */
   [data-invert='true'] {
@@ -328,11 +387,11 @@
   }
 
   [data-invert='true'] .siws-prose :is(a, strong) {
-    color: var(--color-yellow);
+    color: var(--color-accent);
   }
 
   [data-invert='true'] .heading-accent {
-    color: var(--color-yellow);
+    color: var(--color-accent);
   }
 
   [data-invert='true'] .btn-secondary {
@@ -342,22 +401,22 @@
 
   [data-invert='true'] .btn-secondary:hover {
     background: #ffffff;
-    color: var(--color-purple);
+    color: var(--color-brand);
   }
 
   [data-invert='true'] :focus-visible {
-    outline-color: var(--color-yellow);
+    outline-color: var(--color-accent);
   }
 
-  /* Section heading with the yellow highlight word, as per the template. */
+  /* Section heading with the accent highlight word, as per the template. */
   .heading-accent {
-    color: var(--color-yellow-deep);
+    color: var(--color-accent-deep);
   }
 
   html[data-contrast='high'] .heading-accent {
-    color: var(--color-purple);
+    color: var(--color-brand);
     text-decoration: underline;
-    text-decoration-color: var(--color-yellow-deep);
+    text-decoration-color: var(--color-accent-deep);
     text-decoration-thickness: 3px;
     text-underline-offset: 4px;
   }

@@ -27,3 +27,6 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 *.tsbuildinfo
+
+# photo drop folder — originals never enter version control
+/photos-inbox

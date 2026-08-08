@@ -1,4 +1,4 @@
-import type { Page, Unit } from '@/payload-types'
+import type { Media, Page, Unit } from '@/payload-types'
 
 /**
  * URL construction for CMS content.
@@ -43,6 +43,22 @@ export const pageHref = (page: MaybePopulated<Page>): string | null => {
   if (unit === null || unit === undefined) return `/${page.slug}`
 
   return null
+}
+
+/**
+ * Resolves an uploaded file to its public URL — a notice pointing at a PDF
+ * merit list, a downloadable form.
+ *
+ * Same null contract as `pageHref`: a file the visitor may not read comes back
+ * unpopulated, and the caller renders inert text rather than a broken link.
+ * A withdrawn image is also treated as unresolvable, so a document pulled for
+ * consent reasons stops being downloadable the moment it is withdrawn rather
+ * than only disappearing from the pages that embed it.
+ */
+export const mediaHref = (media: MaybePopulated<Media>): string | null => {
+  if (!isPopulated(media)) return null
+  if (media.withdrawn?.isWithdrawn) return null
+  return typeof media.url === 'string' && media.url.length > 0 ? media.url : null
 }
 
 /** True when a URL points somewhere other than this site (FR-QL-03). */

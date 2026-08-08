@@ -74,7 +74,7 @@ export const FacultyBlockView = async ({
         {teachers.map((teacher) => (
           <li
             key={teacher.id}
-            className="flex items-start gap-4 rounded-2xl border-2 border-yellow bg-white p-5 shadow-card"
+            className="flex items-start gap-4 rounded-2xl border border-line bg-white p-5 shadow-card"
           >
             {teacher.photo ? (
               <Media
@@ -88,14 +88,14 @@ export const FacultyBlockView = async ({
                  as a real person. */
               <span
                 aria-hidden="true"
-                className="grid size-20 shrink-0 place-items-center rounded-full bg-purple-tint text-lg font-bold text-purple"
+                className="grid size-20 shrink-0 place-items-center rounded-full bg-brand-tint text-lg font-bold text-brand"
               >
                 {initials(teacher.name)}
               </span>
             )}
 
             <span className="min-w-0">
-              <strong className="block text-[1.02rem] leading-snug text-purple">
+              <strong className="block text-[1.02rem] leading-snug text-brand">
                 {teacher.name}
               </strong>
 

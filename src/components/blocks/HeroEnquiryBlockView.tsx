@@ -39,7 +39,7 @@ export const HeroEnquiryBlockView = ({
   const badgeTitle = block.badge?.title
 
   return (
-    <section className="relative isolate overflow-hidden bg-purple" id="enquire">
+    <section className="relative isolate overflow-hidden bg-brand" id="enquire">
       {block.backgroundImage ? (
         <>
           <Media
@@ -56,7 +56,7 @@ export const HeroEnquiryBlockView = ({
           */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-br from-purple/95 via-purple/90 to-purple-deep/95"
+            className="absolute inset-0 -z-10 bg-gradient-to-br from-brand/95 via-brand/90 to-brand-deep/95"
           />
         </>
       ) : null}
@@ -65,17 +65,14 @@ export const HeroEnquiryBlockView = ({
         {/* --- Left: the pitch ------------------------------------------- */}
         <div className="text-white">
           <h1
-            className="text-3xl leading-tight text-yellow sm:text-4xl lg:text-[2.9rem]"
+            className="text-3xl leading-tight text-accent sm:text-4xl lg:text-[2.9rem]"
             style={{ fontFamily: 'var(--font-display)' }}
           >
             {block.title}
           </h1>
 
           {block.subtitle ? (
-            <p
-              className="mt-4 text-lg text-yellow sm:text-xl"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
+            <p className="mt-4 text-lg font-semibold text-accent sm:text-xl">
               {block.subtitle}
             </p>
           ) : null}
@@ -91,7 +88,7 @@ export const HeroEnquiryBlockView = ({
                   <li key={benefit} className="flex items-start gap-3">
                     <span
                       aria-hidden="true"
-                      className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-yellow text-purple"
+                      className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-white text-brand"
                     >
                       <Check size={15} strokeWidth={3} />
                     </span>
@@ -106,7 +103,7 @@ export const HeroEnquiryBlockView = ({
             <div className="mt-9 inline-flex items-center gap-4 rounded-2xl bg-white/12 p-4 pr-6 ring-1 ring-white/20">
               <span
                 aria-hidden="true"
-                className="grid size-12 shrink-0 place-items-center rounded-xl bg-yellow text-purple"
+                className="grid size-12 shrink-0 place-items-center rounded-xl bg-accent text-brand"
               >
                 <GraduationCap size={24} strokeWidth={2} />
               </span>
@@ -122,16 +119,13 @@ export const HeroEnquiryBlockView = ({
 
         {/* --- Right: the enquiry card ----------------------------------- */}
         <div className="siws-card self-start">
-          <h2
-            className="text-2xl text-purple"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
+          <h2 className="text-2xl text-brand">
             {block.form?.title ?? 'Book a Free Campus Tour'}
           </h2>
 
           {block.form?.subtitle ? (
             <p
-              className="mt-1 mb-5 text-purple"
+              className="mt-1 mb-5 text-brand"
               style={{ fontFamily: 'var(--font-chalk)' }}
             >
               {block.form.subtitle}
@@ -159,7 +153,7 @@ export const HeroEnquiryBlockView = ({
                 <li key={point} className="flex items-start gap-2.5 text-sm text-ink-soft">
                   <span
                     aria-hidden="true"
-                    className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-cream text-purple"
+                    className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-sea text-brand"
                   >
                     <Check size={12} strokeWidth={3} />
                   </span>

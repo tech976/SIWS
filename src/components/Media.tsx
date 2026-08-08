@@ -20,6 +20,17 @@ interface MediaProps {
   priority?: boolean
   /** Crop to fill the container rather than preserving intrinsic ratio. */
   fill?: boolean
+  /**
+   * Overrides the alt text held in the media library.
+   *
+   * Narrow by design. The library normally owns alt text, because the person
+   * who uploads a photograph is the one who knows what is in it. The exception
+   * is an image whose accessible name is fixed by its surroundings rather than
+   * its content — an organisation's logo in a strip that already names the
+   * organisation. There the page is the authority, and letting the library win
+   * risks announcing "logo" six times in a row.
+   */
+  alt?: string
 }
 
 const isPopulated = (value: MediaProps['resource']): value is MediaDoc =>
@@ -31,6 +42,7 @@ export const Media = ({
   className,
   priority = false,
   fill = false,
+  alt: altOverride,
 }: MediaProps) => {
   // An unpopulated relationship means the file was deleted or is not readable;
   // rendering nothing is preferable to a broken image icon.
@@ -52,7 +64,12 @@ export const Media = ({
    * which is the correct treatment — announcing a decorative image is noise
    * (WCAG 2.1 SC 1.1.1).
    */
-  const rawAlt = typeof resource.alt === 'string' ? resource.alt.trim() : ''
+  const rawAlt =
+    typeof altOverride === 'string'
+      ? altOverride.trim()
+      : typeof resource.alt === 'string'
+        ? resource.alt.trim()
+        : ''
   const alt = rawAlt === '-' ? '' : rawAlt
 
   const src = toImageSrc(resource.url)

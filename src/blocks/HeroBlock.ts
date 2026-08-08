@@ -34,7 +34,7 @@ export const HeroBlock: Block = {
       name: 'accentWord',
       type: 'text',
       label: 'Highlight a word',
-      admin: { description: 'Optional. Type a word from the heading to show it in SIWS yellow.' },
+      admin: { description: 'Optional. Type a word from the heading to show it in SIWS accent.' },
       validate: (value: unknown, { siblingData }: { siblingData?: { title?: string } }) => {
         if (!value || typeof value !== 'string') return true
         const title = siblingData?.title
@@ -58,7 +58,7 @@ export const HeroBlock: Block = {
       label: 'Background photograph',
       admin: {
         description:
-          'Optional. A purple overlay keeps the text readable whichever picture you choose.',
+          'Optional. A brand overlay keeps the text readable whichever picture you choose.',
       },
     },
     {
@@ -71,6 +71,6 @@ export const HeroBlock: Block = {
     },
     // This block owns its own heading controls above, so the shared ones are
     // suppressed to avoid declaring `accentWord` twice at the same level.
-    sectionOptions([], 'purple', { headingControls: false }),
+    sectionOptions([], 'brand', { headingControls: false }),
   ],
 }

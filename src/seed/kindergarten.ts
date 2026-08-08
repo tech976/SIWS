@@ -190,7 +190,7 @@ const main = async () => {
   // -----------------------------------------------------------------------
   // The pages. `home` is the unit landing page; the rest are inner pages.
   // -----------------------------------------------------------------------
-  const pages: {
+  type SeedPage = {
     slug: string
     title: string
     intro?: string
@@ -199,7 +199,115 @@ const main = async () => {
     navOrder?: number
     metaDescription?: string
     layout: Record<string, unknown>[]
-  }[] = [
+  }
+
+  /**
+   * Upserts one page and hands back its ID.
+   *
+   * Pulled out of the loop below so the contact page can be seeded on its own,
+   * ahead of everything else: the home hero links to it by relationship, and an
+   * internal link needs its target to exist first (FR-QL-06).
+   */
+  const upsertPage = async (page: SeedPage) => {
+    const existing = await payload.find({
+      collection: 'pages',
+      where: { and: [{ slug: { equals: page.slug } }, { unit: { equals: kg.id } }] },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    const data = {
+      ...page,
+      unit: kg.id,
+      // Seeded content is published and pre-approved: it is the copy SIWS
+      // already signed off, so routing it back through review would leave the
+      // site empty until someone clicked approve.
+      _status: 'published',
+      reviewStatus: 'approved',
+    }
+
+    if (existing.docs[0]) {
+      const doc = await payload.update({
+        collection: 'pages',
+        id: existing.docs[0].id,
+        data: data as never,
+        overrideAccess: true,
+      })
+      payload.logger.info(`Updated page: ${page.title}`)
+      return { id: doc.id, created: false }
+    }
+
+    const doc = await payload.create({
+      collection: 'pages',
+      data: data as never,
+      overrideAccess: true,
+    })
+    payload.logger.info(`Created page: ${page.title}`)
+    return { id: doc.id, created: true }
+  }
+
+  // -------------------------------------------------------------- CONTACT
+  /** The enquiry form lives here now, not on the home page. */
+  const contact = await upsertPage({
+    slug: 'contact',
+    title: 'Contact us',
+    intro: 'Book a free campus tour, or ask us about Jr. KG and Sr. KG admission.',
+    showInNav: true,
+    navLabel: 'Contact',
+    navOrder: 40,
+    metaDescription:
+      'Contact SIWS Kindergarten, Wadala — book a campus tour, and find our address, phone number and email for admissions.',
+    layout: [
+      {
+        blockType: 'heroEnquiry',
+        title: 'Book a Free Campus Tour',
+        subtitle: 'SSC Board | Safe | Value-Based Education',
+        benefitsIntro: 'At SIWS, your child benefits from:',
+        benefits: [
+          { text: 'Strong academic foundations (SSC Board)' },
+          { text: 'Structured early learning approach' },
+          { text: 'Focus on discipline, values and confidence' },
+          { text: 'Safe, nurturing and child-friendly campus' },
+        ],
+        badge: {
+          title: 'Admissions Open for 2026–27',
+          subtitle: 'Limited seats | Jr. KG & Sr. KG',
+        },
+        form: {
+          title: 'Book a Free Campus Tour',
+          subtitle: '(Limited seats available for Jr. KG & Sr. KG)',
+          classOptions: [{ label: 'Jr KG' }, { label: 'Sr KG' }],
+          trustPoints: [
+            { text: 'Over 92 years of educational legacy' },
+            { text: 'SSC / State Board curriculum' },
+            { text: 'Experienced and trained teachers' },
+            { text: 'Safe and disciplined campus' },
+          ],
+        },
+      },
+      {
+        blockType: 'cardGrid',
+        heading: 'Who to contact',
+        headingLevel: 'h2',
+        columns: '2',
+        background: 'white',
+        cards: [
+          {
+            title: 'Admissions',
+            description:
+              'For enquiries about Jr. KG and Sr. KG admission — admissions@siws.edu.in',
+          },
+          {
+            title: 'General enquiries',
+            description: 'For anything else — info@siws.edu.in, +91 98927 03893',
+          },
+        ],
+      },
+    ],
+  })
+
+  const pages: SeedPage[] = [
     // ---------------------------------------------------------------- HOME
     {
       slug: 'home',
@@ -208,31 +316,23 @@ const main = async () => {
         'Wadala’s most trusted kindergarten since 1934. SSC Board, safe and value-based early education for Jr. KG and Sr. KG. Admissions open for 2026–27.',
       layout: [
         {
-          blockType: 'heroEnquiry',
+          blockType: 'hero',
           title: 'Wadala’s Most Trusted Kindergarten Since 1934',
-          subtitle: 'SSC Board | Safe | Value-Based Education',
-          benefitsIntro: 'At SIWS, your child benefits from:',
-          benefits: [
-            { text: 'Strong academic foundations (SSC Board)' },
-            { text: 'Structured early learning approach' },
-            { text: 'Focus on discipline, values and confidence' },
-            { text: 'Safe, nurturing and child-friendly campus' },
+          accentWord: 'Most Trusted',
+          eyebrow: 'SSC Board | Safe | Value-Based Education',
+          // Plain string: the hero's `intro` is a textarea, not rich text.
+          intro:
+            'Strong academic foundations on the SSC Board, a structured early-learning approach, and a safe, nurturing and child-friendly campus — with a focus on discipline, values and confidence.',
+          links: [
+            {
+              link: {
+                label: 'Book a free campus tour',
+                type: 'internal',
+                reference: { relationTo: 'pages', value: contact.id },
+                appearance: 'primary',
+              },
+            },
           ],
-          badge: {
-            title: 'Admissions Open for 2026–27',
-            subtitle: 'Limited seats | Jr. KG & Sr. KG',
-          },
-          form: {
-            title: 'Book a Free Campus Tour',
-            subtitle: '(Limited seats available for Jr. KG & Sr. KG)',
-            classOptions: [{ label: 'Jr KG' }, { label: 'Sr KG' }],
-            trustPoints: [
-              { text: 'Over 92 years of educational legacy' },
-              { text: 'SSC / State Board curriculum' },
-              { text: 'Experienced and trained teachers' },
-              { text: 'Safe and disciplined campus' },
-            ],
-          },
         },
         {
           blockType: 'richText',
@@ -248,7 +348,7 @@ const main = async () => {
         {
           blockType: 'statistics',
           heading: 'A legacy parents trust',
-          background: 'cream',
+          background: 'sea',
           stats: [
             { value: '1934', label: 'Serving Mumbai since' },
             { value: '92+', label: 'Years of educational legacy' },
@@ -391,7 +491,7 @@ const main = async () => {
           headingLevel: 'h2',
           marker: 'tick',
           columns: '2',
-          background: 'cream',
+          background: 'sea',
           items: [
             /**
              * Rewritten against SIWS's own answers. The list previously offered
@@ -534,7 +634,7 @@ const main = async () => {
         {
           blockType: 'callToAction',
           heading: 'Come and see the campus for yourself',
-          background: 'purple',
+          background: 'brand',
           text: richText([
             'Book a free campus tour and meet the teachers who will be looking after your child.',
           ]),
@@ -587,7 +687,7 @@ const main = async () => {
           headingLevel: 'h2',
           marker: 'tick',
           columns: '1',
-          background: 'cream',
+          background: 'sea',
           items: [
             {
               title: 'English — alphabet and phonics',
@@ -721,7 +821,7 @@ const main = async () => {
           headingLevel: 'h2',
           marker: 'number',
           columns: '1',
-          background: 'cream',
+          background: 'sea',
           items: [
             {
               title: 'The process opens in November',
@@ -780,7 +880,7 @@ const main = async () => {
           headingLevel: 'h2',
           marker: 'tick',
           columns: '1',
-          background: 'cream',
+          background: 'sea',
           items: [
             {
               title: 'Jr. KG and Sr. KG — ₹65,000',
@@ -793,7 +893,7 @@ const main = async () => {
           blockType: 'accordion',
           heading: 'Admissions questions',
           headingLevel: 'h2',
-          background: 'cream',
+          background: 'sea',
           allowMultipleOpen: true,
           items: [
             {
@@ -819,37 +919,6 @@ const main = async () => {
       ],
     },
 
-    // -------------------------------------------------------------- CONTACT
-    {
-      slug: 'contact',
-      title: 'Contact us',
-      intro: 'We are on Sion–Wadala Estate Road in Wadala, Mumbai.',
-      showInNav: true,
-      navLabel: 'Contact',
-      navOrder: 40,
-      metaDescription:
-        'Contact SIWS Kindergarten, Wadala — address, phone number and email for admissions and general enquiries.',
-      layout: [
-        {
-          blockType: 'cardGrid',
-          heading: 'Who to contact',
-          headingLevel: 'h2',
-          columns: '2',
-          background: 'white',
-          cards: [
-            {
-              title: 'Admissions',
-              description:
-                'For enquiries about Jr. KG and Sr. KG admission — admissions@siws.edu.in',
-            },
-            {
-              title: 'General enquiries',
-              description: 'For anything else — info@siws.edu.in, +91 98927 03893',
-            },
-          ],
-        },
-      ],
-    },
   ]
 
   // -- Faculty (FR-FAC-01) -------------------------------------------------
@@ -889,46 +958,14 @@ const main = async () => {
 
   payload.logger.info(`Faculty — ${facultyCreated} created, ${facultyUpdated} updated.`)
 
-  let created = 0
-  let updated = 0
+  // The contact page was seeded above, before the rest, so it counts here.
+  let created = contact.created ? 1 : 0
+  let updated = contact.created ? 0 : 1
 
   for (const page of pages) {
-    const existing = await payload.find({
-      collection: 'pages',
-      where: { and: [{ slug: { equals: page.slug } }, { unit: { equals: kg.id } }] },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    })
-
-    const data = {
-      ...page,
-      unit: kg.id,
-      // Seeded content is published and pre-approved: it is the copy SIWS
-      // already signed off, so routing it back through review would leave the
-      // site empty until someone clicked approve.
-      _status: 'published',
-      reviewStatus: 'approved',
-    }
-
-    if (existing.docs[0]) {
-      await payload.update({
-        collection: 'pages',
-        id: existing.docs[0].id,
-        data: data as never,
-        overrideAccess: true,
-      })
-      updated += 1
-      payload.logger.info(`Updated page: ${page.title}`)
-    } else {
-      await payload.create({
-        collection: 'pages',
-        data: data as never,
-        overrideAccess: true,
-      })
-      created += 1
-      payload.logger.info(`Created page: ${page.title}`)
-    }
+    const result = await upsertPage(page)
+    if (result.created) created += 1
+    else updated += 1
   }
 
   payload.logger.info(`Kindergarten seed complete — ${created} created, ${updated} updated.`)

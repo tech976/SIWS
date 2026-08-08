@@ -6,6 +6,7 @@ import { APIError } from 'payload'
 
 import { ROLES, hasRole, isActiveUser, isAdmin, unitIdsOf } from '@/access'
 import type { AccessUser } from '@/access'
+import { campusField } from '@/fields/campus'
 import { auditChange, auditDelete } from '@/hooks/audit'
 import { IMAGE_AND_DOCUMENT_TYPES, validateFileContent } from '@/utilities/file-signature'
 import { describeMediaUsage } from '@/utilities/media-usage'
@@ -290,6 +291,29 @@ export const Media: CollectionConfig = {
         position: 'sidebar',
         description: 'Leave empty to share this with all four schools.',
       },
+    },
+    campusField({
+      position: 'sidebar',
+      description:
+        'Which campus this photograph was taken at. Leave blank if it is not campus-specific.',
+    }),
+    {
+      /**
+       * The group a photograph belongs to on a gallery page — "Sports",
+       * "Festivals", "Annual Day".
+       *
+       * Free text rather than a fixed list: schools already sort their
+       * photographs into folders, and those names differ per section and change
+       * every year. A closed list would mean a code change each time a school
+       * ran a new kind of event.
+       */
+      name: 'category',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Optional. Groups photos on the gallery page, e.g. “Sports” or “Festivals”.',
+      },
+      index: true,
     },
     {
       name: 'depictsChildren',

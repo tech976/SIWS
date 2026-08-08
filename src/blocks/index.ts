@@ -1,14 +1,19 @@
 import type { Block } from 'payload'
 
 import { AccordionBlock } from './AccordionBlock'
+import { AnnouncementsBlock } from './AnnouncementsBlock'
 import { CallToActionBlock } from './CallToActionBlock'
 import { CardGridBlock } from './CardGridBlock'
 import { FacultyBlock } from './FacultyBlock'
 import { FeatureListBlock } from './FeatureListBlock'
 import { GalleryBlock } from './GalleryBlock'
 import { HeroBlock } from './HeroBlock'
+import { HeroCarouselBlock } from './HeroCarouselBlock'
 import { HeroEnquiryBlock } from './HeroEnquiryBlock'
+import { LogoStripBlock } from './LogoStripBlock'
 import { MediaTextBlock } from './MediaTextBlock'
+import { ProgramCardsBlock } from './ProgramCardsBlock'
+import { QuickNavBlock } from './QuickNavBlock'
 import { RichTextBlock } from './RichTextBlock'
 import { StatisticsBlock } from './StatisticsBlock'
 import { UnitLinksBlock } from './UnitLinksBlock'
@@ -26,13 +31,18 @@ import { TestimonialsBlock } from './TestimonialsBlock'
  */
 export const contentBlocks: Block[] = [
   HeroBlock,
+  HeroCarouselBlock,
   RichTextBlock,
   MediaTextBlock,
   CardGridBlock,
+  ProgramCardsBlock,
   FeatureListBlock,
   FacultyBlock,
   GalleryBlock,
   AccordionBlock,
+  AnnouncementsBlock,
+  QuickNavBlock,
+  LogoStripBlock,
   TestimonialsBlock,
   StatisticsBlock,
   UnitLinksBlock,
@@ -42,9 +52,13 @@ export const contentBlocks: Block[] = [
 
 export {
   AccordionBlock,
+  AnnouncementsBlock,
+  QuickNavBlock,
+  LogoStripBlock,
   FacultyBlock,
   CallToActionBlock,
   CardGridBlock,
+  ProgramCardsBlock,
   FeatureListBlock,
   GalleryBlock,
   HeroBlock,

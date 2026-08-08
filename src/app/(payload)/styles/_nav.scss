@@ -2,7 +2,7 @@
  * SIWS admin — the left navigation.
  *
  * Reworked to the light-sidebar pattern in the approved reference dashboards:
- * a white rail, muted uppercase section labels, and a single solid-purple pill
+ * a white rail, muted uppercase section labels, and a single solid-blue pill
  * marking the active item.
  *
  * Styled rather than replaced. Payload's `DefaultNav` also owns the
@@ -78,20 +78,20 @@
     color 0.16s ease;
 
   &:hover {
-    background: var(--siws-purple-tint);
-    color: var(--siws-purple);
+    background: var(--siws-brand-tint);
+    color: var(--siws-brand);
     text-decoration: none;
   }
 
   /* The solid pill from both references. */
   &.active {
-    background: var(--siws-purple);
+    background: var(--siws-brand);
     color: #ffffff;
     font-weight: 600;
-    box-shadow: 0 6px 16px rgba(97, 62, 151, 0.28);
+    box-shadow: 0 6px 16px rgba(46, 49, 146, 0.28);
 
     &:hover {
-      background: var(--siws-purple-mid);
+      background: var(--siws-brand-mid);
       color: #ffffff;
     }
 
@@ -129,8 +129,8 @@
 
   &:hover,
   &:focus-visible {
-    background: var(--siws-purple-tint);
-    color: var(--siws-purple);
+    background: var(--siws-brand-tint);
+    color: var(--siws-brand);
   }
 }
 
@@ -152,7 +152,7 @@
   width: 44px;
   height: 44px;
   border-radius: 13px;
-  background: var(--siws-purple-tint);
+  background: var(--siws-brand-tint);
 
   img {
     width: 30px;
@@ -195,7 +195,7 @@
   margin-block-start: 1.15rem;
   padding: 0.95rem 0.9rem;
   border-radius: var(--siws-radius);
-  background: linear-gradient(160deg, var(--siws-purple-tint) 0%, var(--siws-purple-tint-2) 100%);
+  background: linear-gradient(160deg, var(--siws-brand-tint) 0%, var(--siws-brand-tint-2) 100%);
   text-align: center;
 }
 
@@ -207,7 +207,7 @@
   margin: 0 auto 0.5rem;
   border-radius: 50%;
   background: var(--siws-card);
-  color: var(--siws-purple);
+  color: var(--siws-brand);
   box-shadow: var(--siws-shadow-sm);
 }
 
@@ -233,7 +233,7 @@
   width: 100%;
   padding: 0.6rem 1rem;
   border-radius: 999px;
-  background: var(--siws-purple);
+  background: var(--siws-brand);
   color: #ffffff;
   font-size: 0.85rem;
   font-weight: 600;
@@ -241,7 +241,7 @@
   transition: background-color 0.16s ease;
 
   &:hover {
-    background: var(--siws-purple-deep);
+    background: var(--siws-brand-deep);
     color: #ffffff;
     text-decoration: none;
   }

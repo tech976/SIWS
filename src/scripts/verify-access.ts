@@ -42,6 +42,10 @@ const check = async ({ name, run }: Case): Promise<void> => {
   }
 }
 
+const assert = (condition: boolean, message: string) => {
+  if (!condition) throw new Error(message)
+}
+
 /** Asserts that an operation is refused. A success here is the failure. */
 const expectRejection = async (operation: () => Promise<unknown>, because: string) => {
   try {
@@ -57,6 +61,53 @@ const main = async () => {
 
   const createdUsers: number[] = []
   const createdPages: number[] = []
+
+  /**
+   * Sweep anything a previous run left behind, BEFORE creating this run's
+   * fixtures.
+   *
+   * The `finally` block below cleans up, but it only runs if the process gets
+   * that far. A run killed part-way — a failed schema push, a Ctrl-C, a broken
+   * pipe from `| head` — leaves its fixtures in place. One of those fixtures is
+   * a page the suite deliberately PUBLISHES to prove a Unit Head can publish,
+   * and a published page is served to the public: a stray `verify-draft-…` page
+   * was found live on the Kindergarten site, returning 200.
+   *
+   * So cleanup runs at both ends. Deleting by the same patterns the fixtures
+   * are named with means this is self-healing rather than something a person
+   * has to remember.
+   */
+  const sweep = async (reason: string) => {
+    const { docs: pages } = await payload.find({
+      collection: 'pages',
+      where: { slug: { like: 'verify-' } },
+      limit: 500,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const { docs: users } = await payload.find({
+      collection: 'users',
+      where: { email: { like: 'verify.' } },
+      limit: 500,
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    for (const doc of pages) {
+      await payload.delete({ collection: 'pages', id: doc.id, overrideAccess: true }).catch(() => undefined)
+    }
+    for (const doc of users) {
+      await payload.delete({ collection: 'users', id: doc.id, overrideAccess: true }).catch(() => undefined)
+    }
+
+    if (pages.length + users.length > 0) {
+      console.log(
+        `  swept ${pages.length} page(s) and ${users.length} user(s) left by a previous run (${reason})`,
+      )
+    }
+  }
+
+  await sweep('before')
 
   try {
     const { docs: units } = await payload.find({
@@ -420,6 +471,58 @@ const main = async () => {
       })
     }
 
+    // ---- 9c. No rich-text object stored in a plain text field ------------
+    /**
+     * A `textarea` field stores whatever it is given. Hand it a Lexical
+     * document — as a seed does the moment someone copies `intro: richText([…])`
+     * from a block that does take rich text — and Postgres keeps the
+     * stringified object, which the page then prints to the visitor as
+     * `{"root":{"type":"root"…}`.
+     *
+     * Nothing fails: not the seed, not the type checker, not the build. It is
+     * visible only by looking at the page, and it reached the Primary, Secondary,
+     * Kindergarten and Scholarships heroes before anyone did.
+     *
+     * A stored Lexical document is an OBJECT. A string that merely contains
+     * `{"root":` is therefore always this mistake, whatever field it is in.
+     */
+    await check({
+      name: 'No page prints raw rich-text JSON in a plain text field',
+      run: async () => {
+        const { docs } = await payload.find({
+          collection: 'pages',
+          limit: 200,
+          depth: 0,
+          overrideAccess: true,
+        })
+
+        const offenders: string[] = []
+
+        const walk = (value: unknown, path: string) => {
+          if (typeof value === 'string') {
+            if (value.includes('{"root":')) offenders.push(path)
+            return
+          }
+          if (Array.isArray(value)) {
+            value.forEach((entry, index) => walk(entry, `${path}[${index}]`))
+            return
+          }
+          if (value && typeof value === 'object') {
+            for (const [key, entry] of Object.entries(value)) walk(entry, `${path}.${key}`)
+          }
+        }
+
+        for (const doc of docs) walk(doc.layout, `${doc.slug}.layout`)
+
+        assert(
+          offenders.length === 0,
+          `Rich-text JSON stored as text at: ${offenders.slice(0, 5).join(', ')}${
+            offenders.length > 5 ? ` (+${offenders.length - 5} more)` : ''
+          }`,
+        )
+      },
+    })
+
     // ---- 10. Privilege escalation ---------------------------------------
     await check({
       name: 'A Unit Head cannot grant themselves the Administrator role',
@@ -457,6 +560,11 @@ const main = async () => {
         .delete({ collection: 'users', id, overrideAccess: true })
         .catch(() => undefined)
     }
+
+    // Belt and braces: catches anything created outside the two id lists —
+    // a fixture added later, or one whose create succeeded but whose id was
+    // never recorded because the call threw after the write.
+    await sweep('after').catch(() => undefined)
   }
 
   console.log(`\n${passed} passed, ${failed} failed\n`)

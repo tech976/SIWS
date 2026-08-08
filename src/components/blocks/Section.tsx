@@ -9,13 +9,13 @@ import type { ReactNode } from 'react'
  * colour.
  */
 
-export type BlockBackground = 'white' | 'cream' | 'tint' | 'purple'
+export type BlockBackground = 'white' | 'sea' | 'tint' | 'brand'
 
 const BACKGROUND_CLASS: Record<BlockBackground, string> = {
   white: 'bg-white',
-  cream: 'bg-cream',
-  tint: 'bg-purple-tint',
-  purple: 'bg-purple',
+  sea: 'bg-sea',
+  tint: 'bg-brand-tint',
+  brand: 'bg-brand',
 }
 
 interface SectionProps {
@@ -27,13 +27,13 @@ interface SectionProps {
 
 export const Section = ({ background = 'white', children, className, id }: SectionProps) => {
   const variant = (background ?? 'white') as BlockBackground
-  const inverted = variant === 'purple'
+  const inverted = variant === 'brand'
 
   return (
     <section
       id={id}
       // `data-invert` lets the stylesheet flip heading and body colours in one
-      // place rather than every block re-deciding what "on purple" means.
+      // place rather than every block re-deciding what "on brand" means.
       data-invert={inverted ? 'true' : undefined}
       className={[BACKGROUND_CLASS[variant] ?? BACKGROUND_CLASS.white, 'py-14 sm:py-20', className]
         .filter(Boolean)

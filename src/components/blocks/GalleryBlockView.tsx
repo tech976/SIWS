@@ -2,6 +2,7 @@ import { Media } from '@/components/Media'
 import { RichText } from '@/components/RichText'
 import type { GalleryBlock, Media as MediaDoc } from '@/payload-types'
 
+import { GalleryPager } from './GalleryPager'
 import { Section, SectionHeading, type BlockBackground } from './Section'
 
 /**
@@ -22,6 +23,45 @@ export const GalleryBlockView = ({ block }: { block: GalleryBlock }) => {
   if (images.length === 0) return null
 
   const isGrid = block.layout === 'grid'
+  /**
+   * 12 fills four rows of three on a desktop and reads as a complete page.
+   * Only applied to the grid: the scrolling row is already self-limiting, and
+   * paginating something you scroll through would be two controls for one job.
+   */
+  const perPageSetting = Number(block.perPage ?? '12')
+  const perPage = perPageSetting > 0 ? perPageSetting : images.length
+
+  const cards = images.map((entry, index) => {
+    const media = entry.image as MediaDoc
+    const caption = entry.caption || media.caption
+
+    return (
+      <li
+        key={entry.id ?? index}
+        className={
+          isGrid
+            ? 'overflow-hidden rounded-2xl border border-line bg-white shadow-card'
+            : 'w-76 shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-white shadow-card sm:w-92'
+        }
+      >
+        <Media
+          resource={media}
+          sizes={
+            isGrid
+              ? '(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw'
+              : '(min-width: 640px) 23rem, 19rem'
+          }
+          // Only the first image is likely above the fold.
+          priority={index === 0}
+          className="aspect-4/3 w-full object-cover"
+        />
+
+        {caption ? (
+          <p className="px-4 py-3.5 text-sm font-medium text-ink-soft">{caption}</p>
+        ) : null}
+      </li>
+    )
+  })
 
   return (
     <Section background={block.background as BlockBackground}>
@@ -34,6 +74,9 @@ export const GalleryBlockView = ({ block }: { block: GalleryBlock }) => {
 
       {block.intro ? <RichText data={block.intro} className="mb-8 max-w-3xl" /> : null}
 
+      {isGrid && images.length > perPage ? (
+        <GalleryPager items={cards} perPage={perPage} />
+      ) : (
       <ul
         className={
           isGrid
@@ -47,38 +90,9 @@ export const GalleryBlockView = ({ block }: { block: GalleryBlock }) => {
               'flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 -mx-5 px-5 [scrollbar-width:thin]'
         }
       >
-        {images.map((entry, index) => {
-          const media = entry.image as MediaDoc
-          const caption = entry.caption || media.caption
-
-          return (
-            <li
-              key={entry.id ?? index}
-              className={
-                isGrid
-                  ? 'overflow-hidden rounded-2xl border-2 border-yellow bg-white shadow-card'
-                  : 'w-[19rem] shrink-0 snap-start overflow-hidden rounded-2xl border-2 border-yellow bg-white shadow-card sm:w-[23rem]'
-              }
-            >
-              <Media
-                resource={media}
-                sizes={
-                  isGrid
-                    ? '(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw'
-                    : '(min-width: 640px) 23rem, 19rem'
-                }
-                // Only the first image is likely above the fold.
-                priority={index === 0}
-                className="aspect-4/3 w-full object-cover"
-              />
-
-              {caption ? (
-                <p className="px-4 py-3.5 text-sm font-medium text-ink-soft">{caption}</p>
-              ) : null}
-            </li>
-          )
-        })}
+        {cards}
       </ul>
+      )}
 
       {!isGrid && images.length > 1 ? (
         <p className="mt-1 text-sm text-ink-muted">

@@ -206,7 +206,7 @@ export const Dashboard = async ({ payload, user }: DashboardProps) => {
       label: 'Published pages',
       value: publishedPages,
       icon: <FileText {...ICON} />,
-      chip: 'purple',
+      chip: 'brand',
       delta: { tone: publishedPages > 0 ? 'pos' : 'flat', label: 'Live' },
       href: `${ADMIN_BASE}/pages`,
       filled: true,

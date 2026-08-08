@@ -1,16 +1,24 @@
-import { Montserrat } from 'next/font/google'
+import { Anton, Montserrat, Space_Grotesk } from 'next/font/google'
 import localFont from 'next/font/local'
 
 /**
- * SIWS type system.
+ * SIWS type system — matched to the institution's own site.
  *
- * The two display faces are licensed files shipped with the project, subset to
- * Latin + the punctuation SIWS copy actually uses and re-encoded as woff2
- * (1.29 MB → 163 KB and 1.09 MB → 184 KB). Montserrat comes through
- * `next/font/google`, which downloads it at build time and self-hosts the
- * result — so no request ever leaves the visitor's browser for a font, which
- * both helps the 3-second budget and avoids a third-party call before consent
- * (SRS 2.5, 5.25).
+ * siwscollege.edu.in declares its faces as CSS variables in its theme:
+ *
+ *   --montserrat:   'Montserrat', sans-serif   → body, and `body { font-size: 17px }`
+ *   --anton:        'Anton', sans-serif        → h1 and .st-heading
+ *   --spaceGrotesk: 'Space Grotesk', sans-serif → the Student Corner section
+ *
+ * All three are reproduced here. Montserrat was already the body face, so only
+ * the display face changed: Citrus Gothic out, Anton in.
+ *
+ * Every one comes through `next/font/google`, which downloads at build time and
+ * self-hosts the result — so no request leaves the visitor's browser for a
+ * font. That both helps the 3-second budget and avoids a third-party call
+ * before consent (SRS 2.5, 5.25). All three are OFL-licensed, so self-hosting
+ * is permitted; the previous display face was a licensed file shipped with the
+ * project, and dropping it removes that licence from the dependency list.
  */
 
 /** Body copy across the entire site. */
@@ -22,15 +30,31 @@ export const montserrat = Montserrat({
   fallback: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
 })
 
-/** Headings and display copy — the SIWS signature face. */
-export const citrusGothic = localFont({
-  src: './CitrusGothic-Regular.woff2',
+/**
+ * Headings — the college's `--anton`.
+ *
+ * Anton ships a single weight (400) and is already very heavy, so nothing
+ * should apply `font-bold` on top: the browser would synthesise a fake bold and
+ * smear the letterforms. It is also tightly spaced and set in caps on their
+ * site, which is why headings using it get a little letter-spacing back.
+ */
+export const anton = Anton({
+  subsets: ['latin'],
   weight: '400',
-  style: 'normal',
   display: 'swap',
   variable: '--font-display',
   // Used in the H1 above the fold, so it is worth the early request.
   preload: true,
+  fallback: ['Montserrat', 'system-ui', 'sans-serif'],
+})
+
+/** The college's `--spaceGrotesk`, for the occasional contrasting section. */
+export const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-alt',
+  preload: false,
   fallback: ['Montserrat', 'system-ui', 'sans-serif'],
 })
 
@@ -50,6 +74,7 @@ export const brightChalk = localFont({
 /** Applied together on <html>. */
 export const fontVariables = [
   montserrat.variable,
-  citrusGothic.variable,
+  anton.variable,
+  spaceGrotesk.variable,
   brightChalk.variable,
 ].join(' ')

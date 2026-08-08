@@ -38,8 +38,11 @@ const DynamicRoute = async ({ params }: RouteProps) => {
     <>
       <SiteHeader
         unit={unit}
+        units={units}
         navItems={navItems}
-        infoText={unit?.tagline}
+        // The tagline now sits in the identity band, so repeating it in the
+        // strip immediately beneath would say the same thing twice.
+        infoText={null}
         cta={unit ? { label: 'Enquire about admission', href: `/${unit.slug}` } : null}
       />
 

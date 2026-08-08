@@ -5,7 +5,7 @@
  * components at Payload's defaults: pagination, popups, drawers, tooltips,
  * checkboxes, date pickers, the filter builder. Individually each is minor;
  * together they are what makes a themed panel feel half-finished — a visitor
- * meets a 3px-radius grey pill immediately below a 12px-radius purple card.
+ * meets a 3px-radius grey pill immediately below a 12px-radius brand card.
  *
  * Class names below were read from the compiled `@payloadcms/next` stylesheet,
  * not guessed, so they match what the panel actually renders.
@@ -27,16 +27,16 @@
       color 0.15s ease;
 
     &:hover {
-      background: var(--siws-purple-tint);
-      color: var(--siws-purple);
+      background: var(--siws-brand-tint);
+      color: var(--siws-brand);
     }
 
     &--is-current {
-      background: var(--siws-purple);
+      background: var(--siws-brand);
       color: #ffffff;
 
       &:hover {
-        background: var(--siws-purple-deep);
+        background: var(--siws-brand-deep);
         color: #ffffff;
       }
     }
@@ -51,7 +51,7 @@
   }
 
   &__button-active {
-    color: var(--siws-purple);
+    color: var(--siws-brand);
     font-weight: 700;
   }
 }
@@ -64,7 +64,7 @@
   background: var(--siws-card);
 
   &:focus {
-    border-color: var(--siws-purple);
+    border-color: var(--siws-brand);
     box-shadow: 0 0 0 3px var(--siws-focus-ring);
     outline: none;
   }
@@ -127,7 +127,7 @@
     background: var(--siws-card);
 
     .doc-tab__label {
-      color: var(--siws-purple);
+      color: var(--siws-brand);
       font-weight: 700;
     }
   }
@@ -153,8 +153,8 @@
   }
 
   &--checked &__input {
-    background: var(--siws-purple);
-    border-color: var(--siws-purple);
+    background: var(--siws-brand);
+    border-color: var(--siws-brand);
   }
 
   &__icon {
@@ -206,7 +206,7 @@
   }
 
   .react-datepicker__header {
-    background: var(--siws-purple-tint);
+    background: var(--siws-brand-tint);
     border-bottom-color: var(--siws-line);
     padding-block: 0.6rem;
   }
@@ -227,13 +227,13 @@
   }
 
   .react-datepicker__day:hover {
-    background: var(--siws-purple-tint-2);
+    background: var(--siws-brand-tint-2);
     border-radius: 8px;
   }
 
   .react-datepicker__day--selected,
   .react-datepicker__day--keyboard-selected {
-    background: var(--siws-purple);
+    background: var(--siws-brand);
     border-radius: 8px;
     color: #ffffff;
     font-weight: 700;
@@ -241,7 +241,7 @@
 
   .react-datepicker__day--today {
     font-weight: 700;
-    color: var(--siws-purple);
+    color: var(--siws-brand);
   }
 
   .react-datepicker__day--outside-month {
@@ -271,16 +271,16 @@
   }
 
   .react-datepicker__time-list-item:hover {
-    background: var(--siws-purple-tint-2);
+    background: var(--siws-brand-tint-2);
   }
 
   .react-datepicker__time-list-item--selected {
-    background: var(--siws-purple);
+    background: var(--siws-brand);
     color: #ffffff;
     font-weight: 700;
 
     &:hover {
-      background: var(--siws-purple-deep);
+      background: var(--siws-brand-deep);
     }
   }
 
@@ -303,7 +303,7 @@
   }
 
   &__action {
-    color: var(--siws-purple);
+    color: var(--siws-brand);
     font-weight: 600;
   }
 }
@@ -340,8 +340,8 @@
 
 .list-selection {
   border-radius: var(--siws-radius-sm);
-  background: var(--siws-purple-tint);
-  color: var(--siws-purple);
+  background: var(--siws-brand-tint);
+  color: var(--siws-brand);
   font-weight: 600;
 }
 
@@ -417,8 +417,8 @@
   flex-shrink: 0;
   padding: 0.15rem 0.55rem;
   border-radius: 999px;
-  background: var(--siws-purple-tint);
-  color: var(--siws-purple);
+  background: var(--siws-brand-tint);
+  color: var(--siws-brand);
   font-size: 0.76rem;
   font-weight: 700;
   white-space: nowrap;

@@ -149,13 +149,18 @@ export interface Page {
   layout?:
     | (
         | HeroBlock
+        | HeroCarouselBlock
         | RichTextBlock
         | MediaTextBlock
         | CardGridBlock
+        | ProgramCardsBlock
         | FeatureListBlock
         | FacultyBlock
         | GalleryBlock
         | AccordionBlock
+        | AnnouncementsBlock
+        | QuickNavBlock
+        | LogoStripBlock
         | TestimonialsBlock
         | StatisticsBlock
         | UnitLinksBlock
@@ -234,7 +239,7 @@ export interface HeroBlock {
   eyebrow?: string | null;
   title: string;
   /**
-   * Optional. Type a word from the heading to show it in SIWS yellow.
+   * Optional. Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
@@ -242,7 +247,7 @@ export interface HeroBlock {
    */
   intro?: string | null;
   /**
-   * Optional. A purple overlay keeps the text readable whichever picture you choose.
+   * Optional. A brand overlay keeps the text readable whichever picture you choose.
    */
   image?: (number | null) | Media;
   links?:
@@ -276,7 +281,7 @@ export interface HeroBlock {
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
@@ -305,6 +310,14 @@ export interface Media {
    * Leave empty to share this with all four schools.
    */
   unit?: (number | null) | Unit;
+  /**
+   * Which campus this photograph was taken at. Leave blank if it is not campus-specific.
+   */
+  campus?: ('wadala' | 'matunga') | null;
+  /**
+   * Optional. Groups photos on the gallery page, e.g. “Sports” or “Festivals”.
+   */
+  category?: string | null;
   /**
    * Tick this if a student can be identified. A parental permission record is then required before this picture can go on the website.
    */
@@ -484,7 +497,7 @@ export interface Unit {
   /**
    * Gives this school its own accent colour. Everything else stays the same.
    */
-  accent: 'yellow' | 'orange' | 'coral' | 'lime' | 'purpleInk';
+  accent: 'accent' | 'accentDeep' | 'sky' | 'sea' | 'brandInk';
   updatedAt: string;
   createdAt: string;
 }
@@ -561,6 +574,72 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroCarouselBlock".
+ */
+export interface HeroCarouselBlock {
+  slides?:
+    | {
+        /**
+         * A wide photograph. If it shows an identifiable child, record the parental consent on the image first.
+         */
+        image: number | Media;
+        /**
+         * Optional headline over the image.
+         */
+        title?: string | null;
+        /**
+         * Optional. What is happening in the photograph.
+         */
+        caption?: string | null;
+        /**
+         * Optional.
+         */
+        cta?:
+          | {
+              link: {
+                /**
+                 * The words people will see and click. Say where it goes — “Download the admission form”, not “Click here”.
+                 */
+                label: string;
+                type: 'internal' | 'external';
+                /**
+                 * Links to other websites always open in a new tab.
+                 */
+                newTab?: boolean | null;
+                /**
+                 * If that page is later removed, this link hides itself instead of breaking.
+                 */
+                reference?: {
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null;
+                url?: string | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  height?: ('standard' | 'tall') | null;
+  /**
+   * Use “Smaller” when this section sits underneath another heading.
+   */
+  headingLevel?: ('h2' | 'h3') | null;
+  /**
+   * Type a word from the heading to show it in SIWS accent.
+   */
+  accentWord?: string | null;
+  /**
+   * Text colour adjusts automatically so it stays readable.
+   */
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'heroCarousel';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "RichTextBlock".
  */
 export interface RichTextBlock {
@@ -588,7 +667,7 @@ export interface RichTextBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
@@ -598,7 +677,7 @@ export interface RichTextBlock {
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'richText';
@@ -669,13 +748,13 @@ export interface MediaTextBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaText';
@@ -757,16 +836,99 @@ export interface CardGridBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'cardGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProgramCardsBlock".
+ */
+export interface ProgramCardsBlock {
+  /**
+   * Optional.
+   */
+  heading?: string | null;
+  /**
+   * Optional line under the heading.
+   */
+  intro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Two or three read best. Four is the most that will fit across.
+   */
+  cards?:
+    | {
+        title: string;
+        /**
+         * A landscape photograph. If it shows an identifiable child, record the parental consent on the image first.
+         */
+        image: number | Media;
+        /**
+         * Optional. One short line under the title.
+         */
+        caption?: string | null;
+        /**
+         * Optional. Makes the whole card clickable.
+         */
+        cta?:
+          | {
+              link: {
+                type: 'internal' | 'external';
+                /**
+                 * Links to other websites always open in a new tab.
+                 */
+                newTab?: boolean | null;
+                /**
+                 * If that page is later removed, this link hides itself instead of breaking.
+                 */
+                reference?: {
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null;
+                url?: string | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Use “Smaller” when this section sits underneath another heading.
+   */
+  headingLevel?: ('h2' | 'h3') | null;
+  /**
+   * Type a word from the heading to show it in SIWS accent.
+   */
+  accentWord?: string | null;
+  /**
+   * Text colour adjusts automatically so it stays readable.
+   */
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'programCards';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -810,7 +972,7 @@ export interface FeatureListBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
@@ -824,7 +986,7 @@ export interface FeatureListBlock {
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'featureList';
@@ -866,13 +1028,13 @@ export interface FacultyBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'faculty';
@@ -915,6 +1077,10 @@ export interface GalleryBlock {
       }[]
     | null;
   /**
+   * Only applies to the grid. Large galleries load far faster in pages.
+   */
+  perPage?: ('9' | '12' | '24' | '0') | null;
+  /**
    * A scrolling row suits a handful of photographs; a grid is better for a full album.
    */
   layout?: ('carousel' | 'grid') | null;
@@ -923,13 +1089,13 @@ export interface GalleryBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'gallery';
@@ -973,16 +1139,180 @@ export interface AccordionBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'accordion';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AnnouncementsBlock".
+ */
+export interface AnnouncementsBlock {
+  /**
+   * Optional.
+   */
+  heading?: string | null;
+  /**
+   * Newest first. The list scrolls once it is longer than the panel.
+   */
+  items?:
+    | {
+        /**
+         * What the notice says, in full.
+         */
+        title: string;
+        /**
+         * Optional. Shown beside the notice.
+         */
+        date?: string | null;
+        /**
+         * Optional. A document to open, or a page on this website.
+         */
+        cta?:
+          | {
+              link: {
+                type: 'internal' | 'external';
+                /**
+                 * Links to other websites always open in a new tab.
+                 */
+                newTab?: boolean | null;
+                /**
+                 * If that page is later removed, this link hides itself instead of breaking.
+                 */
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'media';
+                      value: number | Media;
+                    } | null);
+                url?: string | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Longer lists scroll inside the panel.
+   */
+  maxHeight?: ('short' | 'medium' | 'all') | null;
+  /**
+   * Use “Smaller” when this section sits underneath another heading.
+   */
+  headingLevel?: ('h2' | 'h3') | null;
+  /**
+   * Type a word from the heading to show it in SIWS accent.
+   */
+  accentWord?: string | null;
+  /**
+   * Text colour adjusts automatically so it stays readable.
+   */
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'announcements';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuickNavBlock".
+ */
+export interface QuickNavBlock {
+  /**
+   * Optional.
+   */
+  heading?: string | null;
+  /**
+   * Three across reads best.
+   */
+  items?:
+    | {
+        label: string;
+        icon?: ('building' | 'people' | 'chart' | 'book' | 'calendar' | 'document' | 'award' | 'compass') | null;
+        link: {
+          type: 'internal' | 'external';
+          /**
+           * Links to other websites always open in a new tab.
+           */
+          newTab?: boolean | null;
+          /**
+           * If that page is later removed, this link hides itself instead of breaking.
+           */
+          reference?: {
+            relationTo: 'pages';
+            value: number | Page;
+          } | null;
+          url?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Use “Smaller” when this section sits underneath another heading.
+   */
+  headingLevel?: ('h2' | 'h3') | null;
+  /**
+   * Type a word from the heading to show it in SIWS accent.
+   */
+  accentWord?: string | null;
+  /**
+   * Text colour adjusts automatically so it stays readable.
+   */
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'quickNav';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoStripBlock".
+ */
+export interface LogoStripBlock {
+  /**
+   * Optional.
+   */
+  heading?: string | null;
+  /**
+   * Only list organisations you actually have a relationship with, and use their logo only with their permission.
+   */
+  items?:
+    | {
+        /**
+         * Shown if there is no logo, and read aloud by screen readers.
+         */
+        name: string;
+        /**
+         * Optional. A wide image on a transparent or white background.
+         */
+        logo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Use “Smaller” when this section sits underneath another heading.
+   */
+  headingLevel?: ('h2' | 'h3') | null;
+  /**
+   * Type a word from the heading to show it in SIWS accent.
+   */
+  accentWord?: string | null;
+  /**
+   * Text colour adjusts automatically so it stays readable.
+   */
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'logoStrip';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1015,13 +1345,13 @@ export interface TestimonialsBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'testimonials';
@@ -1053,13 +1383,13 @@ export interface StatisticsBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'statistics';
@@ -1096,13 +1426,13 @@ export interface UnitLinksBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'unitLinks';
@@ -1164,13 +1494,13 @@ export interface CallToActionBlock {
    */
   headingLevel?: ('h2' | 'h3') | null;
   /**
-   * Type a word from the heading to show it in SIWS yellow.
+   * Type a word from the heading to show it in SIWS accent.
    */
   accentWord?: string | null;
   /**
    * Text colour adjusts automatically so it stays readable.
    */
-  background?: ('white' | 'cream' | 'tint' | 'purple') | null;
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'callToAction';
@@ -1215,7 +1545,7 @@ export interface HeroEnquiryBlock {
     subtitle?: string | null;
   };
   /**
-   * Optional photograph behind the hero. A deep purple overlay keeps the text readable, whichever picture you choose.
+   * Optional photograph behind the hero. A deep brand overlay keeps the text readable, whichever picture you choose.
    */
   backgroundImage?: (number | null) | Media;
   form: {
@@ -1514,13 +1844,18 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        heroCarousel?: T | HeroCarouselBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
         mediaText?: T | MediaTextBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
+        programCards?: T | ProgramCardsBlockSelect<T>;
         featureList?: T | FeatureListBlockSelect<T>;
         faculty?: T | FacultyBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
         accordion?: T | AccordionBlockSelect<T>;
+        announcements?: T | AnnouncementsBlockSelect<T>;
+        quickNav?: T | QuickNavBlockSelect<T>;
+        logoStrip?: T | LogoStripBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
         statistics?: T | StatisticsBlockSelect<T>;
         unitLinks?: T | UnitLinksBlockSelect<T>;
@@ -1573,6 +1908,40 @@ export interface HeroBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  background?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroCarouselBlock_select".
+ */
+export interface HeroCarouselBlockSelect<T extends boolean = true> {
+  slides?:
+    | T
+    | {
+        image?: T;
+        title?: T;
+        caption?: T;
+        cta?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  height?: T;
+  headingLevel?: T;
+  accentWord?: T;
   background?: T;
   id?: T;
   blockName?: T;
@@ -1660,6 +2029,40 @@ export interface CardGridBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProgramCardsBlock_select".
+ */
+export interface ProgramCardsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  intro?: T;
+  cards?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        caption?: T;
+        cta?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  headingLevel?: T;
+  accentWord?: T;
+  background?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FeatureListBlock_select".
  */
 export interface FeatureListBlockSelect<T extends boolean = true> {
@@ -1709,6 +2112,7 @@ export interface GalleryBlockSelect<T extends boolean = true> {
         caption?: T;
         id?: T;
       };
+  perPage?: T;
   layout?: T;
   headingLevel?: T;
   accentWord?: T;
@@ -1730,6 +2134,85 @@ export interface AccordionBlockSelect<T extends boolean = true> {
         id?: T;
       };
   allowMultipleOpen?: T;
+  headingLevel?: T;
+  accentWord?: T;
+  background?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AnnouncementsBlock_select".
+ */
+export interface AnnouncementsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        date?: T;
+        cta?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  maxHeight?: T;
+  headingLevel?: T;
+  accentWord?: T;
+  background?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuickNavBlock_select".
+ */
+export interface QuickNavBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        icon?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+        id?: T;
+      };
+  headingLevel?: T;
+  accentWord?: T;
+  background?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoStripBlock_select".
+ */
+export interface LogoStripBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        name?: T;
+        logo?: T;
+        id?: T;
+      };
   headingLevel?: T;
   accentWord?: T;
   background?: T;
@@ -1898,6 +2381,8 @@ export interface MediaSelect<T extends boolean = true> {
   caption?: T;
   credit?: T;
   unit?: T;
+  campus?: T;
+  category?: T;
   depictsChildren?: T;
   parentalConsent?:
     | T

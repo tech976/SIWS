@@ -313,18 +313,23 @@ const main = async () => {
     return doc.id
   }
 
-  // ------------------------------------------------------------------ HOME
-  await upsert({
-    slug: 'home',
-    title: 'SIWS High School, Wadala',
+  // --------------------------------------------------------------- CONTACT
+  /** Seeded before `home`, which links to it — see the note in primary.ts. */
+  const contactPageId = await upsert({
+    slug: 'contact',
+    title: 'Contact us',
+    intro: 'Ask us about admission to Standards V to X at Wadala.',
+    showInNav: true,
+    navLabel: 'Contact',
+    navOrder: 50,
     _status: 'published',
     reviewStatus: 'approved',
     metaDescription:
-      'SIWS High School, Wadala — Standards V to X on the Maharashtra State Board curriculum, aligned with NEP 2020. 99.53% in the SSC Examination 2026.',
+      'Contact SIWS High School, Wadala — enquire about admission to Standards V to X.',
     layout: [
       {
         blockType: 'heroEnquiry',
-        title: 'SIWS High School, Wadala',
+        title: 'Enquire about admission',
         subtitle: 'Maharashtra State Board | Standards V to X',
         benefitsIntro: 'At SIWS, your child benefits from:',
         benefits: [
@@ -351,10 +356,58 @@ const main = async () => {
         },
       },
       {
+        blockType: 'cardGrid',
+        heading: 'Who to contact',
+        headingLevel: 'h2',
+        columns: '2',
+        background: 'white',
+        cards: [
+          {
+            title: 'Admissions',
+            description: 'For enquiries about Standards V to X — admissions@siws.edu.in',
+          },
+          {
+            title: 'General enquiries',
+            description: 'For anything else — info@siws.edu.in',
+          },
+        ],
+      },
+    ],
+  })
+
+  // ------------------------------------------------------------------ HOME
+  await upsert({
+    slug: 'home',
+    title: 'SIWS High School, Wadala',
+    _status: 'published',
+    reviewStatus: 'approved',
+    metaDescription:
+      'SIWS High School, Wadala — Standards V to X on the Maharashtra State Board curriculum, aligned with NEP 2020. 99.53% in the SSC Examination 2026.',
+    layout: [
+      {
+        blockType: 'hero',
+        title: 'SIWS High School, Wadala',
+        accentWord: 'High School',
+        eyebrow: 'Maharashtra State Board | Standards V to X',
+        // Plain string: the hero's `intro` is a textarea, not rich text.
+        intro:
+          'A learner-centred, competency-based education aligned with NEP 2020 — with smart boards in every classroom, well-equipped science and computer laboratories, and a campus under CCTV surveillance throughout.',
+        links: [
+          {
+            link: {
+              label: 'Enquire about admission',
+              type: 'internal',
+              reference: { relationTo: 'pages', value: contactPageId },
+              appearance: 'primary',
+            },
+          },
+        ],
+      },
+      {
         blockType: 'statistics',
         heading: 'SSC Examination 2026',
         accentWord: '2026',
-        background: 'cream',
+        background: 'sea',
         stats: [
           { value: SSC_2026.percentage, label: 'Overall pass percentage' },
           { value: String(SSC_2026.appeared), label: 'Students appeared' },
@@ -404,7 +457,7 @@ const main = async () => {
         accentWord: 'next',
         headingLevel: 'h2',
         width: 'narrow',
-        background: 'cream',
+        background: 'sea',
         content: richText([
           'Our institution provides a strong academic foundation that prepares students for higher education and future success. After successfully completing the SSC examination, students can pursue admission to Junior Colleges in the Science and Commerce streams, according to their interests and career goals.',
           'The knowledge, skills and values acquired during their school education enable them to progress confidently to degree colleges, professional courses and diverse career opportunities.',
@@ -413,7 +466,7 @@ const main = async () => {
       {
         blockType: 'callToAction',
         heading: 'Come and see the school for yourself',
-        background: 'purple',
+        background: 'brand',
         text: richText(['Our admissions team is happy to talk you through the process.']),
         links: [
           {
@@ -462,7 +515,7 @@ const main = async () => {
         headingLevel: 'h2',
         marker: 'tick',
         columns: '2',
-        background: 'cream',
+        background: 'sea',
         items: SUBJECTS,
       },
       {
@@ -502,7 +555,9 @@ const main = async () => {
   await upsert({
     slug: 'teachers',
     title: 'Our teachers',
-    intro: `The ${FACULTY.length} members of staff who teach and support Standards V to X.`,
+    // No headcount here either — the roster below already shows who they are,
+    // and a printed number goes stale the moment somebody joins or leaves.
+    intro: 'The teachers and support staff who teach across Standards V to X.',
     showInNav: true,
     navLabel: 'Teachers',
     navOrder: 30,
@@ -529,7 +584,7 @@ const main = async () => {
         headingLevel: 'h2',
         campus: 'wadala',
         showQualifications: true,
-        background: 'cream',
+        background: 'sea',
       },
     ],
   })
@@ -551,7 +606,7 @@ const main = async () => {
         blockType: 'statistics',
         heading: 'SSC Examination 2026',
         accentWord: '2026',
-        background: 'cream',
+        background: 'sea',
         stats: [
           { value: SSC_2026.percentage, label: 'Overall pass percentage' },
           { value: String(SSC_2026.appeared), label: 'Students appeared' },
@@ -629,7 +684,7 @@ const main = async () => {
         headingLevel: 'h2',
         marker: 'number',
         columns: '1',
-        background: 'cream',
+        background: 'sea',
         items: GENERAL_RULES.map((title) => ({ title })),
       },
     ],

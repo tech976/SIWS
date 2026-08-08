@@ -31,7 +31,7 @@ export default buildConfig({
     },
 
     /**
-     * Both approved reference designs are light-canvas, and the purple rail is
+     * Both approved reference designs are light-canvas, and the brand rail is
      * built for a light content area. Pinning the theme means a staff member
      * whose operating system is set to dark mode still gets the design that was
      * signed off, rather than an unreviewed dark variant.

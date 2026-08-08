@@ -145,7 +145,7 @@ const main = async () => {
         accentWord: 'Vision',
         headingLevel: 'h2',
         width: 'narrow',
-        background: 'purple',
+        background: 'brand',
         content: richText([VISION]),
       },
       {
@@ -158,7 +158,7 @@ const main = async () => {
         background: 'white',
         items: MISSION,
       },
-      coreValuesSection('cream'),
+      coreValuesSection('sea'),
       schoolsSection('Explore each school in the SIWS family.'),
     ],
   })
@@ -180,7 +180,7 @@ const main = async () => {
         accentWord: 'Inspiring Excellence',
         intro:
           "South Indians' Welfare Society is one of Mumbai's most respected educational institutions, nurturing students from Kindergarten to Postgraduate education.",
-        background: 'purple',
+        background: 'brand',
         links: [
           {
             link: {
@@ -200,7 +200,7 @@ const main = async () => {
         accentWord: 'Welfare Society',
         headingLevel: 'h2',
         width: 'normal',
-        background: 'cream',
+        background: 'sea',
         content: richText(OVERVIEW),
       },
       {

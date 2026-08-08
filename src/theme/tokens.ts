@@ -1,37 +1,61 @@
 /**
  * SIWS brand tokens.
  *
- * Extracted verbatim from the approved landing page (`index.html`) so the
- * platform is colour-identical to the signed-off design. This module is the one
- * source of truth: `globals.css` emits these as CSS custom properties and the
- * admin panel reads them for its accent pickers, so a brand change lands in one
- * place (SRS 2.5 — "A consistent design template must be applied across all
+ * Taken from the institution's own site, siwscollege.edu.in, which defines its
+ * palette as CSS variables in its theme stylesheet: `--siwsBlue: #2E3192`,
+ * `--siwsOrange: #FFAF2A`, `--siwsSkyBlue: #3B86D7`, `--siwsSeaBlue: #DBECFF`,
+ * `--siwsGrey: #F5F5F5` and `--siwsDefault: #1E1E1E`. Those six are reproduced
+ * exactly; everything else here is derived from them for states the college
+ * site has no equivalent of.
+ *
+ * This module is the one source of truth: `globals.css` emits these as CSS
+ * custom properties and the admin panel reads them, so a brand change lands in
+ * one place (SRS 2.5 — "A consistent design template must be applied across all
  * unit sites for brand cohesion").
+ *
+ * NAMED BY ROLE, NOT BY HUE
+ * -------------------------
+ * These were `purple`, `yellow` and `cream`, after the approved landing page.
+ * The college's palette is blue and orange, and a token called `purple` holding
+ * `#2E3192` is a trap for whoever reads it next. The names now say what a
+ * colour is *for*, so the next brand change is a value edit rather than a
+ * rename — which is what this module was for in the first place.
  */
 
 export const SIWS_BRAND = {
-  /** Primary brand purple — headings, nav, body ink on light surfaces. */
-  purple: '#613e97',
-  /** Deeper purple used for hover and pressed states. */
-  purpleDeep: '#5c3d99',
-  /** Near-navy accent from the testimonial and footer treatments. */
-  purpleInk: '#2d3282',
+  /** `--siwsBlue`. Headings, nav, primary surfaces. */
+  brand: '#2e3192',
+  /** Derived. Hover and pressed states on brand fills. */
+  brandDeep: '#24276f',
+  /** Derived. The deepest surface — footer, testimonial panels. */
+  brandInk: '#1f2265',
+  /** Derived. A barely-there wash for cards and monograms. */
+  brandTint: '#eef3fc',
 
-  /** Primary accent — CTA fills, underlines, highlight words. */
-  yellow: '#fede3b',
-  /** Darker yellow for borders and hover on yellow fills. */
-  yellowDeep: '#f5c400',
-  /** Soft cream — the announcement / info strip. */
-  cream: '#fdeec3',
+  /** `--siwsOrange`. CTA fills, underlines, highlight words. */
+  accent: '#ffaf2a',
+  /** From the college homepage. Borders and hover on accent fills. */
+  accentDeep: '#f39200',
 
-  orange: '#fc8815',
-  orangeLight: '#ff9f45',
-  coral: '#ff6464',
-  lime: '#e3f219',
-  magenta: '#ff45ff',
+  /**
+   * The section bar and the footer. One step darker than the college's
+   * `--siwsSkyBlue` so that white text on it clears 4.5:1 (4.66 against 3.77).
+   */
+  sky: '#3376c2',
+  /** `--siwsSkyBlue` exactly. Illustration and accents — never small text. */
+  skyLight: '#3b86d7',
+  /** `--siwsSeaBlue`. The announcement / information strip. */
+  sea: '#dbecff',
+  /** From the college stylesheet. Alternating section background. */
+  seaSoft: '#f2f8ff',
+  /** `--siwsGrey`. Neutral section background. */
+  grey: '#f5f5f5',
 
-  ink: '#333333',
-  inkSoft: '#444444',
+  /** `--siwsDefault`. Body copy. */
+  ink: '#1e1e1e',
+  inkSoft: '#3a3a42',
+  inkMuted: '#5c5c68',
+
   white: '#ffffff',
 } as const
 
@@ -42,33 +66,39 @@ export type BrandColour = keyof typeof SIWS_BRAND
  * sites, so units differ only by accent — never by layout, type scale or
  * component styling.
  *
- * Contrast note: every accent below is used as a *background* only with
- * `--siws-purple` (#613e97) text, or as a *border//detail* colour. Each of these
- * pairings clears WCAG 2.1 AA 4.5:1, which the light accents would fail against
- * white text (NFR Accessibility).
+ * Contrast note: each light accent below is used as a *background* with
+ * `--color-brand` (#2e3192) text, or as a *border/detail* colour. Those pairings
+ * clear WCAG 2.1 AA 4.5:1 — brand on accent measures 5.79:1 — which they would
+ * fail against white text. `brandInk` is the one dark option and takes white
+ * text at 14.24:1 (NFR Accessibility).
  */
 export const UNIT_ACCENTS = [
-  { label: 'SIWS Yellow (default)', value: 'yellow', hex: SIWS_BRAND.yellow },
-  { label: 'Warm Orange', value: 'orange', hex: SIWS_BRAND.orange },
-  { label: 'Soft Coral', value: 'coral', hex: SIWS_BRAND.coral },
-  { label: 'Fresh Lime', value: 'lime', hex: SIWS_BRAND.lime },
-  { label: 'Deep Purple', value: 'purpleInk', hex: SIWS_BRAND.purpleInk },
+  { label: 'SIWS Orange (default)', value: 'accent', hex: SIWS_BRAND.accent },
+  { label: 'Deep Orange', value: 'accentDeep', hex: SIWS_BRAND.accentDeep },
+  { label: 'Sky Blue', value: 'sky', hex: SIWS_BRAND.sky },
+  { label: 'Sea Blue', value: 'sea', hex: SIWS_BRAND.sea },
+  { label: 'Deep Blue', value: 'brandInk', hex: SIWS_BRAND.brandInk },
 ] as const
 
 export type UnitAccent = (typeof UNIT_ACCENTS)[number]['value']
 
 export const accentHex = (accent: UnitAccent | null | undefined): string =>
-  UNIT_ACCENTS.find((option) => option.value === accent)?.hex ?? SIWS_BRAND.yellow
+  UNIT_ACCENTS.find((option) => option.value === accent)?.hex ?? SIWS_BRAND.accent
 
 /**
- * Type families. `Citrus Gothic`, `Bright Chalk` and `Early Quake` are licensed
- * display faces shipped in `/assets/font`; Montserrat carries all body copy.
+ * Type families, matched to siwscollege.edu.in — Anton for headings,
+ * Montserrat for body, Space Grotesk for the occasional contrasting section.
+ * All three are OFL-licensed and self-hosted through `next/font/google`.
+ *
+ * `Bright Chalk` is the one face not on the college site: a licensed file used
+ * for the handwritten subtitle on the enquiry card, kept from the approved
+ * Kindergarten design. Say the word and it goes too.
  */
 export const SIWS_FONTS = {
-  display: "'Citrus Gothic', 'Montserrat', sans-serif",
+  display: "'Anton', 'Montserrat', sans-serif",
   body: "'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif",
+  alt: "'Space Grotesk', 'Montserrat', sans-serif",
   chalk: "'Bright Chalk', 'Comic Sans MS', cursive",
-  quake: "'Early Quake', 'Citrus Gothic', cursive",
 } as const
 
 /**
@@ -77,8 +107,8 @@ export const SIWS_FONTS = {
  * banner meets contrast requirements at every severity.
  */
 export const NOTICE_SEVERITY = {
-  info: { label: 'Information', bg: '#fdeec3', fg: '#4a3208', border: '#e0b64a' },
-  warning: { label: 'Warning', bg: '#fc8815', fg: '#2b1600', border: '#c46400' },
+  info: { label: 'Information', bg: '#dbecff', fg: '#1f2a5c', border: '#7fb0e8' },
+  warning: { label: 'Warning', bg: '#f39200', fg: '#2b1600', border: '#b56b00' },
   critical: { label: 'Critical', bg: '#b3172b', fg: '#ffffff', border: '#7d0f1e' },
 } as const
 

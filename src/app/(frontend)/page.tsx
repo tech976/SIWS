@@ -42,7 +42,7 @@ const PortalHome = async () => {
 
   return (
     <>
-      <SiteHeader navItems={navItems} infoText={TAGLINE} />
+      <SiteHeader units={units} navItems={navItems} infoText={TAGLINE} />
 
       <main id="main-content">
         {page ? (

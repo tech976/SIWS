@@ -36,6 +36,6 @@ export const StatisticsBlock: Block = {
         },
       ],
     },
-    sectionOptions([], 'cream'),
+    sectionOptions([], 'sea'),
   ],
 }

@@ -284,9 +284,8 @@ const main = async () => {
       eyebrow: 'SIWS Group of Institutions',
       title: 'Scholarships and endowment funds',
       accentWord: 'Scholarships',
-      intro: richText([
-        `SIWS administers ${TOTAL} scholarship and endowment funds, given by well-wishers of the institution over more than nine decades. Together they reach students from the Kindergarten and Nursery Section right through to the S.S.C. Examination.`,
-      ]),
+      // Plain string: the hero's `intro` is a textarea, not rich text.
+      intro: `SIWS administers ${TOTAL} scholarship and endowment funds, given by well-wishers of the institution over more than nine decades. Together they reach students from the Kindergarten and Nursery Section right through to the S.S.C. Examination.`,
     },
     {
       blockType: 'richText',
@@ -304,7 +303,7 @@ const main = async () => {
     {
       blockType: 'statistics',
       heading: 'The register at a glance',
-      background: 'cream',
+      background: 'sea',
       stats: [
         { value: String(TOTAL), label: 'Scholarship and endowment funds' },
         { value: String(MERIT.length), label: 'Merit scholarships' },
@@ -348,7 +347,7 @@ const main = async () => {
     {
       blockType: 'callToAction',
       heading: 'Questions about a scholarship?',
-      background: 'purple',
+      background: 'brand',
       text: richText([
         'The school office can tell you which awards apply to your child’s class and what is taken into account.',
       ]),

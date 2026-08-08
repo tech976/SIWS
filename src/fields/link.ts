@@ -140,7 +140,7 @@ export const linkField = ({
       type: 'select',
       defaultValue: 'primary',
       options: [
-        { label: 'Primary button (yellow)', value: 'primary' },
+        { label: 'Primary button (accent)', value: 'primary' },
         { label: 'Secondary button (outlined)', value: 'secondary' },
         { label: 'Plain text link', value: 'plain' },
       ],

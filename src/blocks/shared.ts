@@ -1,5 +1,7 @@
 import type { Field, SelectField } from 'payload'
 
+import { linkField } from '@/fields/link'
+
 /**
  * Options shared by every content block.
  *
@@ -17,9 +19,9 @@ import type { Field, SelectField } from 'payload'
 
 export const BACKGROUND_OPTIONS = [
   { label: 'White', value: 'white' },
-  { label: 'Cream', value: 'cream' },
-  { label: 'Soft purple', value: 'tint' },
-  { label: 'Deep purple', value: 'purple' },
+  { label: 'Sea blue', value: 'sea' },
+  { label: 'Soft blue', value: 'tint' },
+  { label: 'Deep blue', value: 'brand' },
 ] as const
 
 export type BlockBackground = (typeof BACKGROUND_OPTIONS)[number]['value']
@@ -93,7 +95,7 @@ export const sectionOptions = (
       type: 'text',
       label: 'Highlight a word',
       admin: {
-        description: 'Type a word from the heading to show it in SIWS yellow.',
+        description: 'Type a word from the heading to show it in SIWS accent.',
         condition: (_data, siblingData) => Boolean(siblingData?.heading),
       },
       validate: (value: unknown, { siblingData }: { siblingData?: { heading?: string } }) => {
@@ -151,4 +153,39 @@ export const blockAdmin = (group: (typeof BLOCK_GROUPS)[keyof typeof BLOCK_GROUP
   components: {
     Label: '@/components/admin/SectionLabel#SectionLabel',
   },
+})
+
+/**
+ * An optional link, as a one-row array.
+ *
+ * `linkField` marks its own target required — correct once a link is intended,
+ * wrong for a link that may not be there at all. A bare group therefore cannot
+ * be left empty: Payload defaults `type` to "internal" and then insists on a
+ * page. Three blocks were written with that mistake before it was caught, each
+ * failing validation only at seed time with "This field is required" against a
+ * field labelled Optional.
+ *
+ * An array of at most one row sidesteps it: no row means no link, and a row
+ * that exists is validated properly.
+ */
+export const optionalLink = ({
+  name = 'cta',
+  label = 'Link',
+  relationTo,
+  withLabel = true,
+  description = 'Optional.',
+}: {
+  name?: string
+  label?: string
+  relationTo?: ('pages' | 'media')[]
+  withLabel?: boolean
+  description?: string
+} = {}): Field => ({
+  name,
+  type: 'array',
+  label,
+  maxRows: 1,
+  labels: { singular: 'Link', plural: 'Link' },
+  admin: { description },
+  fields: [linkField({ name: 'link', withLabel, ...(relationTo ? { relationTo } : {}) })],
 })

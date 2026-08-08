@@ -51,6 +51,6 @@ export const TestimonialsBlock: Block = {
         },
       ],
     },
-    sectionOptions([], 'cream'),
+    sectionOptions([], 'sea'),
   ],
 }

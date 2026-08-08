@@ -9,14 +9,15 @@
 
 :root {
   /* --- SIWS brand ------------------------------------------------------ */
-  --siws-purple: #613e97;
-  --siws-purple-mid: #7350ad;
-  --siws-purple-deep: #4e3179;
-  --siws-purple-tint: #f2eefa;
-  --siws-purple-tint-2: #e7dff7;
+  /* Matches src/theme/tokens.ts, which takes these from siwscollege.edu.in. */
+  --siws-brand: #2e3192;
+  --siws-brand-mid: #3d41b5;
+  --siws-brand-deep: #24276f;
+  --siws-brand-tint: #eef1fb;
+  --siws-brand-tint-2: #dde3f7;
 
-  --siws-yellow: #fede3b;
-  --siws-yellow-deep: #f5c400;
+  --siws-accent: #ffaf2a;
+  --siws-accent-deep: #f39200;
 
   /* --- Icon-chip palette ----------------------------------------------- */
   /*
@@ -27,12 +28,12 @@
    * count or label can be dropped into a chip later without silently making it
    * inaccessible. Measured ratios against white:
    *
-   *   purple 7.94   blue 5.99   teal 5.20   coral 5.31   amber 5.00
+   *   brand 10.66   blue 5.99   teal 5.20   coral 5.31   amber 5.00
    *
    * The previous amber (#cf8500) measured exactly 3.00:1 — nominally passing for
    * an icon, but with no margin at all, and failing outright for text.
    */
-  --chip-purple: #613e97;
+  --chip-brand: #2e3192;
   --chip-blue: #3557d8;
   --chip-teal: #0d7a71;
   --chip-coral: #c23848;
@@ -42,28 +43,31 @@
   /* One focus ring, used by every input. Declared once so the emphasis is
      identical across text fields, selects, the list search and the date picker
      — three near-identical rgba() literals had drifted apart. */
-  --siws-focus-ring: rgba(97, 62, 151, 0.18);
+  --siws-focus-ring: rgba(46, 49, 146, 0.18);
 
-  --siws-canvas: #f6f6fb;
+  /* Neutrals carry a hint of the brand hue rather than being flat grey. They
+     were tinted violet for the old palette; they are tinted blue now. */
+  --siws-canvas: #f6f7fc;
   --siws-card: #ffffff;
-  --siws-line: #eceaf3;
-  --siws-line-strong: #ddd8ea;
+  --siws-line: #e8ebf4;
+  --siws-line-strong: #d7dcec;
 
-  --siws-ink: #241d38;
-  --siws-ink-2: #5f5872;
+  --siws-ink: #1e2138;
+  --siws-ink-2: #575d75;
   /*
    * Muted text — labels, dates, field descriptions, empty states.
    *
    * The reference dashboards use a noticeably lighter grey here, but at this
-   * size that pairing fails WCAG AA: the previous #8b849c measured 3.57:1 on a
+   * size that pairing fails WCAG AA: an earlier #8b849c measured 3.57:1 on a
    * card and 3.32:1 on the canvas, against the 4.5:1 small-text threshold. This
-   * value is the lightest that clears it on BOTH surfaces (4.91 and 4.55), so it
-   * stays as close to the reference look as accessibility allows.
+   * value is about the lightest cool grey that clears it on BOTH surfaces
+   * (4.85 and 4.50), so it stays as close to the reference look as
+   * accessibility allows.
    *
    * "Muted" must not mean "unreadable" — these labels carry the guidance
    * non-technical staff depend on.
    */
-  --siws-ink-3: #746d87;
+  --siws-ink-3: #6b7186;
 
   /* --- Status ----------------------------------------------------------- */
   --siws-pos-bg: #e3f7ea;
@@ -79,10 +83,10 @@
   --siws-radius-lg: 24px;
 
   /* Soft, wide, low-opacity — the detail that most separates the reference
-     designs from default admin chrome. Tinted purple, not neutral grey. */
-  --siws-shadow-sm: 0 1px 3px rgba(36, 29, 56, 0.04), 0 6px 16px rgba(36, 29, 56, 0.04);
-  --siws-shadow: 0 10px 30px rgba(36, 29, 56, 0.07);
-  --siws-shadow-lg: 0 20px 50px rgba(36, 29, 56, 0.12);
+     designs from default admin chrome. Tinted blue, not neutral grey. */
+  --siws-shadow-sm: 0 1px 3px rgba(30, 33, 56,0.04), 0 6px 16px rgba(30, 33, 56,0.04);
+  --siws-shadow: 0 10px 30px rgba(30, 33, 56,0.07);
+  --siws-shadow-lg: 0 20px 50px rgba(30, 33, 56,0.12);
 
   /* --- Payload overrides ------------------------------------------------ */
 
@@ -107,7 +111,7 @@
   --theme-warning-500: #9a6400;
   --theme-error-500: #b02330;
 
-  --accessibility-outline: 2px solid var(--siws-purple);
+  --accessibility-outline: 2px solid var(--siws-brand);
   --accessibility-outline-offset: 2px;
 }
 

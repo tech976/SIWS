@@ -31,7 +31,7 @@ body {
   font-weight: 600;
 
   a {
-    color: var(--siws-purple);
+    color: var(--siws-brand);
     text-decoration: none;
 
     &:hover {
@@ -51,19 +51,19 @@ body {
    and no rule needs overriding. */
 .btn--style-primary {
   --color: #ffffff;
-  --bg-color: var(--siws-purple);
-  --hover-bg: var(--siws-purple-deep);
+  --bg-color: var(--siws-brand);
+  --hover-bg: var(--siws-brand-deep);
   --hover-color: #ffffff;
 
   border-radius: 999px;
   font-size: 0.9rem;
   font-weight: 600;
-  box-shadow: 0 6px 18px rgba(97, 62, 151, 0.24);
+  box-shadow: 0 6px 18px rgba(46, 49, 146, 0.24);
 }
 
 .btn--style-secondary {
-  --color: var(--siws-purple);
-  --hover-bg: var(--siws-purple);
+  --color: var(--siws-brand);
+  --hover-bg: var(--siws-brand);
   --hover-color: #ffffff;
 
   border-radius: 999px;
@@ -99,7 +99,7 @@ body {
 
   &--has-onclick:hover {
     transform: translateY(-3px);
-    border-color: var(--siws-purple-tint-2);
+    border-color: var(--siws-brand-tint-2);
     box-shadow: var(--siws-shadow);
   }
 
@@ -187,7 +187,7 @@ body {
   .cell-title a,
   .cell-name a,
   .cell-filename a {
-    color: var(--siws-purple);
+    color: var(--siws-brand);
     font-weight: 600;
   }
 }
@@ -233,7 +233,7 @@ body {
 }
 
 .doc-tab--active .doc-tab__label {
-  color: var(--siws-purple);
+  color: var(--siws-brand);
   font-weight: 700;
 }
 
@@ -254,7 +254,7 @@ body {
 
 .template-minimal {
   background:
-    radial-gradient(1200px 560px at 50% -10%, rgba(97, 62, 151, 0.14), transparent 62%),
+    radial-gradient(1200px 560px at 50% -10%, rgba(46, 49, 146, 0.14), transparent 62%),
     var(--siws-canvas);
 
   &__wrap {

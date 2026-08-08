@@ -6,8 +6,8 @@ import { BLOCK_GROUPS, blockAdmin } from './shared'
 
 /**
  * The Kindergarten hero, transcribed from the approved landing page: headline
- * and subtitle over the brand purple, a ticked list of benefits, an admissions
- * badge, and the yellow-bordered enquiry card alongside.
+ * and subtitle over the brand blue, a ticked list of benefits, an admissions
+ * badge, and the accent-bordered enquiry card alongside.
  *
  * The enquiry form itself is not configurable here. Its fields are fixed by
  * FR-ADM-03 and its consent notice by FR-PRV-08, so letting a content manager
@@ -71,7 +71,7 @@ export const HeroEnquiryBlock: Block = {
       relationTo: 'media',
       admin: {
         description:
-          'Optional photograph behind the hero. A deep purple overlay keeps the text readable, whichever picture you choose.',
+          'Optional photograph behind the hero. A deep brand overlay keeps the text readable, whichever picture you choose.',
       },
     },
 
