@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Where } from 'payload'
 
 import {
   SECTIONS,
@@ -261,6 +261,40 @@ export const Pages: CollectionConfig = {
         step: 1,
         description: 'Lower numbers appear first in the menu.',
         condition: (data) => Boolean(data?.showInNav),
+      },
+    },
+    {
+      /*
+       * BR-NAV-01 — sub-menus. A page nominates the top-level item it sits
+       * under, so the menu is assembled from the pages themselves rather than
+       * from a separate tree that could drift out of step with them.
+       *
+       * Deliberately one level deep: BR-NAV-02 caps navigation at two clicks
+       * from the home page, and a third tier cannot be reached inside that
+       * budget. The limit is enforced by the shape of the data rather than
+       * left to editorial discipline.
+       */
+      name: 'navParent',
+      type: 'relationship',
+      relationTo: 'pages',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Optional. Puts this page in the drop-down beneath another menu item. Leave blank to make it a top-level item.',
+        condition: (data) => Boolean(data?.showInNav),
+      },
+      filterOptions: ({ id, data }) => {
+        const and: Where[] = [
+          // A page cannot be its own parent.
+          { id: { not_equals: id } },
+          // Only top-level items may be parents, which keeps the menu to two
+          // levels however the fields are filled in.
+          { navParent: { exists: false } },
+          // Parents must come from the same site, or a unit's menu could point
+          // at another unit's page under its own branding.
+          data?.unit ? { unit: { equals: data.unit } } : { unit: { exists: false } },
+        ]
+        return { and }
       },
     },
 

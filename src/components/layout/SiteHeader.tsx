@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { Unit } from '@/payload-types'
 
 import { PrimaryNav, type NavItem } from './PrimaryNav'
+import type { QuickLink } from './QuickLinks'
 import { SectionSwitcher } from './SectionSwitcher'
 
 interface SiteHeaderProps {
@@ -12,6 +13,8 @@ interface SiteHeaderProps {
   /** Every section, for the switcher along the top. */
   units?: Unit[]
   navItems: NavItem[]
+  /** SRS 5.24 — most-requested destinations, right of the header. */
+  quickLinks?: QuickLink[]
   /** The sea strip beneath the bar. */
   infoText?: string | null
   cta?: { label: string; href: string } | null
@@ -32,7 +35,7 @@ interface SiteHeaderProps {
  *
  * Only band 3 is interactive on the client; 1 and 2 render on the server.
  */
-export const SiteHeader = ({ unit, units = [], navItems, infoText, cta }: SiteHeaderProps) => {
+export const SiteHeader = ({ unit, units = [], navItems, quickLinks = [], infoText, cta }: SiteHeaderProps) => {
   const home = unit?.slug ? `/${unit.slug}` : '/'
   const title = unit?.name ?? "South Indians' Welfare Society"
 
@@ -91,7 +94,7 @@ export const SiteHeader = ({ unit, units = [], navItems, infoText, cta }: SiteHe
             </span>
           </Link>
 
-          <p className="mt-1 text-sm text-ink-soft">{tagline}</p>
+          <p className="mt-1 truncate text-sm text-ink-soft">{tagline}</p>
 
           {place ? (
             <p className="mt-0.5 text-xs text-ink-muted sm:text-sm">
@@ -106,7 +109,7 @@ export const SiteHeader = ({ unit, units = [], navItems, infoText, cta }: SiteHe
       {navItems.length > 0 || cta ? (
         <div className="relative border-y border-line">
           <div className="siws-container flex items-center gap-6 py-2.5">
-            <PrimaryNav items={navItems} cta={cta} />
+            <PrimaryNav items={navItems} quickLinks={quickLinks} cta={cta} />
           </div>
         </div>
       ) : null}

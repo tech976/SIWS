@@ -20,7 +20,7 @@ export const LogoStripBlockView = ({ block }: { block: LogoStripBlock }) => {
         heading={block.heading}
         accentWord={block.accentWord}
         level={block.headingLevel}
-        className="text-center"
+        className=""
       />
 
       <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-8 sm:gap-x-14">

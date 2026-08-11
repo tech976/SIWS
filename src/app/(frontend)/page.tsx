@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
-import { getInstitutionPage, getNavItems, getUnits } from '@/lib/site'
+import { getInstitutionPage, getNavItems, getQuickLinks, getUnits } from '@/lib/site'
 
 /**
  * Regenerate at most once a minute.
@@ -32,9 +32,10 @@ const TAGLINE = 'From KG to PG — Inspiring Excellence Since 1934'
 const PortalHome = async () => {
   const { isEnabled: draft } = await draftMode()
 
-  const [units, navItems, page] = await Promise.all([
+  const [units, navItems, quickLinks, page] = await Promise.all([
     getUnits(),
     getNavItems(null, null),
+    getQuickLinks(null, null),
     getInstitutionPage('home', draft),
   ])
 
@@ -42,7 +43,7 @@ const PortalHome = async () => {
 
   return (
     <>
-      <SiteHeader units={units} navItems={navItems} infoText={TAGLINE} />
+      <SiteHeader units={units} navItems={navItems} quickLinks={quickLinks} infoText={TAGLINE} />
 
       <main id="main-content">
         {page ? (

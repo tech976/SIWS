@@ -40,21 +40,43 @@ export const GalleryBlockView = ({ block }: { block: GalleryBlock }) => {
         key={entry.id ?? index}
         className={
           isGrid
-            ? 'overflow-hidden rounded-2xl border border-line bg-white shadow-card'
-            : 'w-76 shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-white shadow-card sm:w-92'
+            ? 'group overflow-hidden rounded-2xl border border-line bg-white shadow-card'
+            : 'group w-76 shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-white shadow-card sm:w-92'
         }
       >
-        <Media
-          resource={media}
-          sizes={
-            isGrid
-              ? '(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw'
-              : '(min-width: 640px) 23rem, 19rem'
-          }
-          // Only the first image is likely above the fold.
-          priority={index === 0}
-          className="aspect-4/3 w-full object-cover"
-        />
+        {/*
+          The ratio lives on this wrapper with the photograph filling it.
+          `aspect-*` on the image itself is overridden by the base
+          `img { height: auto }` rule, because `next/image` writes real width
+          and height attributes — so a grid of mixed portrait and landscape
+          uploads came out ragged, every tile a different height.
+        */}
+        <div className="relative aspect-[4/3] w-full overflow-hidden">
+          <Media
+            resource={media}
+            sizes={
+              isGrid
+                ? '(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw'
+                : '(min-width: 640px) 23rem, 19rem'
+            }
+            // Only the first image is likely above the fold.
+            priority={index === 0}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          {/*
+            A gallery is the one place the photographs should be seen at full
+            strength. The page's blue wash sat over every tile at 45% and
+            flattened the whole wall to the same dull cast — the tint that ties
+            a single feature image to the palette turns a grid of twelve into
+            mud. It now appears only under the pointer, where it reads as a
+            response to the visitor rather than as a filter over the picture.
+          */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand/55 via-brand/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          />
+        </div>
 
         {caption ? (
           <p className="px-4 py-3.5 text-sm font-medium text-ink-soft">{caption}</p>

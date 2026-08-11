@@ -44,6 +44,42 @@ export const Section = ({ background = 'white', children, className, id }: Secti
   )
 }
 
+interface SplitProps {
+  heading?: string | null
+  accentWord?: string | null
+  level?: 'h2' | 'h3' | null
+  /** A short line under the heading in the rail — context, not a summary. */
+  kicker?: string | null
+  children: ReactNode
+}
+
+/**
+ * The shell every text section is laid out on: a centred heading with the
+ * prose in a measured column beneath it.
+ *
+ * The heading centres over the section it introduces. The body copy inside
+ * that column stays ranged left — centred headings give a long page a clear
+ * rhythm of section starts, but centred body copy gives the eye no fixed left
+ * edge to return to on each line and is measurably harder to read.
+ *
+ * The column also caps the measure. Prose in a full-width container runs to
+ * 120-odd characters a line on a desktop, well past the ~75 that stays
+ * comfortable.
+ */
+export const SectionSplit = ({ heading, accentWord, level, kicker, children }: SplitProps) => (
+  <div>
+    <SectionHeading heading={heading} accentWord={accentWord} level={level} />
+    {kicker ? <p className="mx-auto mt-4 max-w-xl text-center text-ink-muted">{kicker}</p> : null}
+    {/*
+      The prose keeps its own measure and is centred as a column beneath the
+      heading. The text itself stays ranged left — a centred heading gives a
+      section a clear top, but centred body copy gives the eye no fixed left
+      edge to return to on each line, which is what makes it harder to read.
+    */}
+    <div className="mx-auto mt-8 max-w-3xl">{children}</div>
+  </div>
+)
+
 interface SectionHeadingProps {
   heading?: string | null
   /** A phrase within the heading to highlight, per the SIWS house style. */
@@ -68,8 +104,23 @@ export const SectionHeading = ({
   if (!heading) return null
 
   const Tag = level === 'h3' ? 'h3' : 'h2'
+  /*
+   * Centred over its own section, and capped so a long heading wraps into a
+   * balanced block rather than one full-width line and one short one.
+   * `mx-auto` matters as much as `text-center`: without it the element still
+   * fills the row and only its glyphs centre, which leaves the heading
+   * optically off from a narrower column beneath it.
+   */
   const classes = [
     level === 'h3' ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl',
+    /*
+     * No width cap. Capping at 3xl forced a heading to wrap before it had run
+     * out of room — "About South Indians' Welfare Society" broke onto a second
+     * line with 400px of empty space either side of it. Centred and uncapped,
+     * a heading takes the line it needs and only wraps when it genuinely
+     * cannot fit.
+     */
+    'mx-auto text-center text-balance',
     className,
   ]
     .filter(Boolean)

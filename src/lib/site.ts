@@ -80,6 +80,49 @@ export const getUnitBySlug = cache(async (slug: string): Promise<Unit | null> =>
  * by every visitor, and an unpublished entry sitting in it would be
  * indistinguishable from a live one.
  */
+/**
+ * SRS 5.24 — the most-requested destinations.
+ *
+ * Resolved against pages that actually exist and are published, so the panel
+ * can never offer a dead link: a shortcut that 404s is worse than no shortcut.
+ * Unit sites get their own admissions and contact pages; the portal gets the
+ * institution-wide ones.
+ */
+const QUICK_LINK_SLUGS = ['admissions', 'scholarships', 'annual-calendar', 'download-centre', 'careers', 'contact']
+
+export const getQuickLinks = cache(
+  async (unitId: number | string | null, unitSlug: string | null) => {
+    const payload = await payloadClient()
+
+    const { docs } = await payload.find({
+      collection: 'pages',
+      where: {
+        and: [
+          { slug: { in: QUICK_LINK_SLUGS } },
+          { _status: { equals: 'published' } },
+          unitId === null ? { unit: { exists: false } } : { unit: { equals: unitId } },
+        ],
+      },
+      limit: 20,
+      depth: 0,
+      overrideAccess: false,
+      select: { title: true, navLabel: true, slug: true },
+    })
+
+    // Ordered by the list above, not by what the database happened to return.
+    return QUICK_LINK_SLUGS.flatMap((slug) => {
+      const page = docs.find((doc) => doc.slug === slug)
+      if (!page) return []
+      return [
+        {
+          label: page.navLabel || page.title,
+          href: unitSlug ? `/${unitSlug}/${page.slug}` : `/${page.slug}`,
+        },
+      ]
+    })
+  },
+)
+
 export const getNavItems = cache(
   async (unitId: number | string | null, unitSlug: string | null): Promise<NavItem[]> => {
     const payload = await payloadClient()
@@ -94,18 +137,55 @@ export const getNavItems = cache(
         ],
       },
       sort: 'navOrder',
-      limit: 20,
+      limit: 80,
       depth: 0,
       overrideAccess: false,
       // The menu needs four fields; pulling whole documents with their block
       // trees would be an order of magnitude more work per request.
-      select: { title: true, navLabel: true, slug: true, navOrder: true },
+      select: { title: true, navLabel: true, slug: true, navOrder: true, navParent: true },
     })
 
-    return docs.map((page) => ({
-      label: page.navLabel || page.title,
-      href: unitSlug ? `/${unitSlug}/${page.slug}` : `/${page.slug}`,
-    }))
+    const href = (slug: string) => (unitSlug ? `/${unitSlug}/${slug}` : `/${slug}`)
+    const label = (page: (typeof docs)[number]) => page.navLabel || page.title
+
+    /*
+     * `depth: 0` returns a relationship as its id, not the document, so the
+     * parent is matched by id here rather than by a nested object.
+     */
+    const parentId = (page: (typeof docs)[number]) => {
+      const value = page.navParent
+      if (value === null || value === undefined) return null
+      return typeof value === 'object' ? String(value.id) : String(value)
+    }
+
+    const tops = docs.filter((page) => parentId(page) === null)
+    const topIds = new Set(tops.map((page) => String(page.id)))
+
+    /*
+     * A child whose parent is absent — unpublished, or taken out of the menu —
+     * is promoted to the top level rather than dropped. Losing a parent should
+     * not silently make a published page unreachable, which is exactly the
+     * failure BR-NAV-02's two-click rule exists to prevent.
+     */
+    const orphans = docs.filter((page) => {
+      const parent = parentId(page)
+      return parent !== null && !topIds.has(parent)
+    })
+
+    return [...tops, ...orphans]
+      .sort((a, b) => (a.navOrder ?? 100) - (b.navOrder ?? 100))
+      .map((page) => {
+        const children = docs
+          .filter((child) => parentId(child) === String(page.id))
+          .sort((a, b) => (a.navOrder ?? 100) - (b.navOrder ?? 100))
+          .map((child) => ({ label: label(child), href: href(child.slug) }))
+
+        return {
+          label: label(page),
+          href: href(page.slug),
+          ...(children.length > 0 ? { children } : {}),
+        }
+      })
   },
 )
 

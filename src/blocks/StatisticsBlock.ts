@@ -11,6 +11,23 @@ export const StatisticsBlock: Block = {
   fields: [
     headingField,
     {
+      name: 'intro',
+      type: 'textarea',
+      maxLength: 220,
+      label: 'Line under the heading',
+      admin: { description: 'Optional. One sentence saying what these figures show.' },
+    },
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Background photograph',
+      admin: {
+        description:
+          'Optional. The figures are laid over it behind a deep blue wash, so any photograph stays readable. Without one the figures sit on plain brand colour.',
+      },
+    },
+    {
       name: 'stats',
       type: 'array',
       minRows: 2,

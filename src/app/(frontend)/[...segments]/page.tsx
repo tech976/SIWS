@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
-import { getNavItems, getUnits, resolveRoute } from '@/lib/site'
+import { getNavItems, getQuickLinks, getUnits, resolveRoute } from '@/lib/site'
 import type { Media, Page, Unit } from '@/payload-types'
 
 interface RouteProps {
@@ -31,6 +31,7 @@ const DynamicRoute = async ({ params }: RouteProps) => {
   const { unit, page, kind } = resolved
   const units = await getUnits()
   const navItems = await getNavItems(unit?.id ?? null, unit?.slug ?? null)
+  const quickLinks = await getQuickLinks(unit?.id ?? null, unit?.slug ?? null)
 
   const footerUnits = units.map(({ id, slug, shortName }) => ({ id, slug, shortName }))
 
@@ -40,6 +41,7 @@ const DynamicRoute = async ({ params }: RouteProps) => {
         unit={unit}
         units={units}
         navItems={navItems}
+        quickLinks={quickLinks}
         // The tagline now sits in the identity band, so repeating it in the
         // strip immediately beneath would say the same thing twice.
         infoText={null}
@@ -56,7 +58,7 @@ const DynamicRoute = async ({ params }: RouteProps) => {
               A hero block carries its own H1, so rendering the page title above
               it too would put two H1s on the page and break the heading outline.
             */}
-            {hasOwnHeading(page.layout) ? null : (
+            {hasOwnHeading(page.layout, page.title) ? null : (
               <header className="siws-container pt-12 pb-2">
                 <h1 className="text-4xl sm:text-5xl">{page.title}</h1>
                 {page.intro ? (
@@ -143,9 +145,25 @@ export const generateMetadata = async ({ params }: RouteProps): Promise<Metadata
  * Checked against the first block only: a hero further down the page would not
  * be acting as the page heading, so the title header still belongs above it.
  */
-const hasOwnHeading = (layout: Page['layout']): boolean => {
+const hasOwnHeading = (layout: Page['layout'], title?: string): boolean => {
   const first = Array.isArray(layout) ? layout[0] : undefined
-  return first?.blockType === 'heroEnquiry' || first?.blockType === 'hero'
+  if (!first) return false
+
+  // A banner always carries the page's heading itself.
+  if (first.blockType === 'heroEnquiry' || first.blockType === 'hero') return true
+
+  /*
+   * A first section whose heading is the page title is also the page's
+   * heading, whatever kind of block it is.
+   *
+   * Without this the route printed the title above a section that already said
+   * the same thing — "Our History" immediately above "Our History". The check
+   * is on the heading rather than on a list of block types, so it holds for
+   * any block an editor happens to start a page with.
+   */
+  const heading = (first as { heading?: unknown }).heading
+  if (typeof heading !== 'string' || typeof title !== 'string') return false
+  return heading.trim().toLowerCase() === title.trim().toLowerCase()
 }
 
 /** Page share image, falling back to the unit hero (BR-SEO-05). */

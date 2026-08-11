@@ -3,7 +3,9 @@ import type { Page, Unit } from '@/payload-types'
 import { AccordionBlockView } from './AccordionBlockView'
 import { AnnouncementsBlockView } from './AnnouncementsBlockView'
 import { CallToActionBlockView } from './CallToActionBlockView'
+import { BentoBlockView } from './BentoBlockView'
 import { CardGridBlockView } from './CardGridBlockView'
+import { DividerBlockView } from './DividerBlockView'
 import { FacultyBlockView } from './FacultyBlockView'
 import { FeatureListBlockView } from './FeatureListBlockView'
 import { GalleryBlockView } from './GalleryBlockView'
@@ -11,6 +13,7 @@ import { HeroBlockView } from './HeroBlockView'
 import { HeroCarouselBlockView } from './HeroCarouselBlockView'
 import { HeroEnquiryBlockView } from './HeroEnquiryBlockView'
 import { LogoStripBlockView } from './LogoStripBlockView'
+import { MapBlockView } from './MapBlockView'
 import { MediaTextBlockView } from './MediaTextBlockView'
 import { ProgramCardsBlockView } from './ProgramCardsBlockView'
 import { QuickNavBlockView } from './QuickNavBlockView'
@@ -67,6 +70,12 @@ export const RenderBlocks = ({ blocks, unit = null, units = [] }: RenderBlocksPr
             return <RichTextBlockView key={key} block={block} />
           case 'mediaText':
             return <MediaTextBlockView key={key} block={block} />
+          case 'bento':
+            return <BentoBlockView key={key} block={block} />
+          case 'divider':
+            return <DividerBlockView key={key} block={block} />
+          case 'map':
+            return <MapBlockView key={key} block={block} />
           case 'cardGrid':
             return <CardGridBlockView key={key} block={block} />
           case 'programCards':

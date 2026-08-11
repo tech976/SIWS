@@ -59,6 +59,27 @@ const FrontendLayout = async ({ children }: { children: ReactNode }) => {
 
   return (
     <html lang="en-IN" className={fontVariables} suppressHydrationWarning>
+      <head>
+        {/*
+          Applies the visitor's saved text-size and contrast choice BEFORE
+          first paint.
+          
+          Setting it from React instead would render the default first and
+          repaint a frame later, so someone who needs large text or high
+          contrast — precisely the visitor least able to cope with it — gets a
+          flash of the version they cannot read. It is inline and tiny for the
+          same reason: an external file would arrive too late to help.
+          
+          Wrapped in try/catch because private browsing can throw on
+          localStorage access, and a failed preference must not stop the page
+          rendering.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var d=document.documentElement,t=localStorage.getItem('siws:text-size'),c=localStorage.getItem('siws:contrast');if(t&&t!=='normal')d.setAttribute('data-text-size',t);if(c==='high')d.setAttribute('data-contrast','high')}catch(e){}`,
+          }}
+        />
+      </head>
       <body>
         {/* SRS 4.4 — skip-to-content link, the first thing a keyboard user reaches. */}
         <a href="#main-content" className="skip-link">

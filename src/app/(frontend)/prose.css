@@ -10,6 +10,22 @@
 .siws-prose {
   color: var(--color-ink-soft);
   line-height: 1.7;
+  /*
+   * Justified body copy, with hyphenation.
+   *
+   * `hyphens: auto` is not optional here. Justifying without it stretches the
+   * word spaces on every line to reach the right margin, and in a column this
+   * narrow that opens the vertical white "rivers" that make justified text on
+   * the web look broken. Allowing the browser to break long words keeps the
+   * spacing close to normal.
+   *
+   * `text-wrap: auto` because the base rule sets `pretty` on paragraphs, which
+   * asks the browser to optimise the last lines — that fights the justifier
+   * and leaves the final line spaced oddly.
+   */
+  text-align: justify;
+  hyphens: auto;
+  text-wrap: auto;
 }
 
 .siws-prose > * + * {

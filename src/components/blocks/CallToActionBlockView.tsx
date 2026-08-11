@@ -9,7 +9,7 @@ export const CallToActionBlockView = ({ block }: { block: CallToActionBlock }) =
 
   return (
     <Section background={block.background as BlockBackground}>
-      <div className="mx-auto max-w-3xl text-center">
+      <div className="siws-centre mx-auto max-w-3xl">
         <h2 className="text-3xl sm:text-4xl">{block.heading}</h2>
 
         {block.text ? (

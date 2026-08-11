@@ -74,6 +74,13 @@ export const CardGridBlock: Block = {
         },
       ],
     },
+    {
+      /* Marks a grid written by the seed, so a re-run replaces its own. */
+      name: 'placedBySeed',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { hidden: true },
+    },
     sectionOptions(),
   ],
 }

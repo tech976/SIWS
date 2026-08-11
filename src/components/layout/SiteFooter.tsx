@@ -5,6 +5,7 @@ import type { ComponentType, ReactNode } from 'react'
 import type { Unit } from '@/payload-types'
 
 import type { NavItem } from './PrimaryNav'
+import { AccessibilityControls } from './AccessibilityControls'
 
 interface SiteFooterProps {
   unit?: Unit | null
@@ -235,6 +236,18 @@ export const SiteFooter = ({ unit, quickLinks, units }: SiteFooterProps) => {
               since 1934, committed to value-based, disciplined and structured learning.
             </p>
           </div>
+        </div>
+      </div>
+
+      {/*
+        SRS 4.4 — the accessibility controls must be reachable from the header
+        or footer of EVERY page. The footer is on every page already, and these
+        are settings rather than navigation, so they belong here rather than
+        competing with the menu for space in the header.
+      */}
+      <div className="border-t border-white/25">
+        <div className="siws-container py-6">
+          <AccessibilityControls />
         </div>
       </div>
 

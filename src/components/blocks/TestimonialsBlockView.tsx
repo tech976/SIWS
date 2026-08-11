@@ -14,7 +14,7 @@ export const TestimonialsBlockView = ({ block }: { block: TestimonialsBlock }) =
         heading={block.heading}
         accentWord={block.accentWord}
         level={block.headingLevel}
-        className="mb-10 text-center"
+        className="mb-10"
       />
 
       <ul

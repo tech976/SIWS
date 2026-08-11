@@ -30,3 +30,13 @@ yarn-error.log*
 
 # photo drop folder — originals never enter version control
 /photos-inbox
+
+# Source material from SIWS — 1.1 GB of camera originals, Word documents and
+# video. The photographs enter the site through `photos:import`, which writes
+# web-sized derivatives into /media; the originals stay on the machine that
+# received them. Committing them would put a gigabyte of binaries into every
+# clone for no benefit.
+/SIWS Content
+
+# A personal copy of the SRS. The current spec is committed; this is not.
+SIWS_School_Website_SRS_v2_ORIGINAL_backup.pdf

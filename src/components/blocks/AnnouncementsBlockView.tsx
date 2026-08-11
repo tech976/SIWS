@@ -54,7 +54,7 @@ export const AnnouncementsBlockView = ({ block }: { block: AnnouncementsBlock })
         />
       </div>
 
-      <div className="mx-auto max-w-4xl rounded-2xl bg-white p-2 shadow-card sm:p-4">
+      <div className="max-w-4xl rounded-2xl bg-white p-2 shadow-card sm:p-4">
         {/*
           `tabIndex={0}` on a scrollable region is deliberate: WCAG 2.1 SC 2.1.1
           means a keyboard user must be able to scroll it, and a div with

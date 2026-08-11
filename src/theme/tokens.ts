@@ -28,9 +28,9 @@ export const SIWS_BRAND = {
   /** Derived. Hover and pressed states on brand fills. */
   brandDeep: '#24276f',
   /** Derived. The deepest surface — footer, testimonial panels. */
-  brandInk: '#1f2265',
+  brandInk: '#24276f',
   /** Derived. A barely-there wash for cards and monograms. */
-  brandTint: '#eef3fc',
+  brandTint: '#dbecff',
 
   /** `--siwsOrange`. CTA fills, underlines, highlight words. */
   accent: '#ffaf2a',
@@ -43,11 +43,11 @@ export const SIWS_BRAND = {
    */
   sky: '#3376c2',
   /** `--siwsSkyBlue` exactly. Illustration and accents — never small text. */
-  skyLight: '#3b86d7',
+  skyLight: '#3376c2',
   /** `--siwsSeaBlue`. The announcement / information strip. */
   sea: '#dbecff',
   /** From the college stylesheet. Alternating section background. */
-  seaSoft: '#f2f8ff',
+  seaSoft: '#ffffff',
   /** `--siwsGrey`. Neutral section background. */
   grey: '#f5f5f5',
 

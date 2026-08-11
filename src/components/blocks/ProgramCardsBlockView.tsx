@@ -36,11 +36,11 @@ export const ProgramCardsBlockView = ({ block }: { block: ProgramCardsBlock }) =
         heading={block.heading}
         accentWord={block.accentWord}
         level={block.headingLevel}
-        className="text-center"
+        className=""
       />
 
       {block.intro ? (
-        <RichText data={block.intro} className="mx-auto mb-10 max-w-2xl text-center" />
+        <RichText data={block.intro} className="mb-10 max-w-2xl" />
       ) : null}
 
       <ul className={`grid gap-6 ${columns}`}>

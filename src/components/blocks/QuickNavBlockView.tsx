@@ -44,7 +44,7 @@ export const QuickNavBlockView = ({ block }: { block: QuickNavBlock }) => {
         heading={block.heading}
         accentWord={block.accentWord}
         level={block.headingLevel}
-        className="text-center"
+        className=""
       />
 
       <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

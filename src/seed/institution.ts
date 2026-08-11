@@ -63,6 +63,60 @@ const CORE_VALUES = [
 const main = async () => {
   const payload = await getPayload({ config })
 
+  /**
+   * The banner photograph, looked up rather than hard-coded by id — ids differ
+   * between machines. Absent (media not seeded yet) the banner simply renders
+   * without a picture, so this script never fails for want of an upload.
+   */
+  const { docs: allMedia } = await payload.find({
+    collection: 'media',
+    limit: 100,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const photo = (filename: string) => allMedia.find((m) => m.filename === filename)?.id ?? null
+
+  /*
+   * The banner photograph carries the most weight on the site, so it is the
+   * one with people in it looking at each other rather than at a worksheet:
+   * a teacher surrounded by her class says "school" in a way that a good
+   * photograph of a tidy classroom cannot.
+   */
+  const heroImage = photo('kg-teacher-with-children.jpg')
+  /*
+   * The divider photographs are reused from the gallery on purpose. They sit
+   * under a 95%-to-70% wash, so what reads is tone and shape, not a
+   * recognisable picture — holding two more photographs back from the gallery
+   * to avoid a repeat nobody can see would cost more than it saved.
+   */
+  const dividerOne = photo('kg-play-area.jpg')
+  const dividerTwo = photo('kg-classroom-group.jpg')
+  const overviewImage = photo('kg-play-area.jpg')
+  const historyImage = photo('kg-classroom-activity.jpg')
+
+  /*
+   * The gallery takes whatever is left, so the page fills out as SIWS sends
+   * more photographs rather than needing this file edited each time.
+   */
+  /*
+   * Only the banner and History hold a photograph back from the gallery.
+   * There are eight in the library, and "Life at SIWS" is meant to read as a
+   * wall — six tiles fill two rows of three, where four left a ragged gap.
+   * The About photograph appears in both, which is normal for a gallery that
+   * is showing the same school the page is describing.
+   */
+  const usedIds = new Set([heroImage, historyImage].filter(Boolean))
+  const galleryImages = allMedia
+    .filter((m) => !usedIds.has(m.id) && m.withdrawn?.isWithdrawn !== true)
+    .slice(0, 6)
+    .map((m) => ({ image: m.id, caption: '' }))
+
+  if (!heroImage) {
+    payload.logger.warn(
+      'No photographs found — run `npm run seed:media` first if you want them.',
+    )
+  }
+
   /** Upserts an institution-wide page, matched by slug with no unit. */
   const upsert = async (page: Record<string, unknown> & { slug: string; title: string }) => {
     const existing = await payload.find({
@@ -95,15 +149,27 @@ const main = async () => {
     return doc
   }
 
+  /*
+   * A card grid, not a tick list.
+   *
+   * The Mission directly above it is already six ticked lines, and two
+   * identical six-item lists back to back read as one long list the reader
+   * stops distinguishing — the values lost against the commitments. They are
+   * also different in kind: a mission is a set of promises, where the ticks
+   * are apt, while a value is a single named idea. Cards give each value its
+   * own field and let the name carry the weight.
+   */
   const coreValuesSection = (background: string) => ({
-    blockType: 'featureList',
+    blockType: 'cardGrid',
     heading: 'Our Core Values',
     accentWord: 'Core Values',
     headingLevel: 'h2',
-    marker: 'tick',
-    columns: '2',
+    columns: '3',
     background,
-    items: CORE_VALUES,
+    cards: CORE_VALUES.map((value) => ({
+      title: value.title,
+      description: value.description,
+    })),
   })
 
   const schoolsSection = (intro: string) => ({
@@ -163,6 +229,110 @@ const main = async () => {
     ],
   })
 
+  /*
+   * Three of the menu's placeholder pages can be filled from the content SIWS
+   * supplied, so they are — with that content and nothing else.
+   *
+   * The rest of the placeholders are deliberately untouched. SIWS has sent no
+   * words for Admissions, Alumni, Careers, Transport, the Download Centre and
+   * the others, and a school's public page is the last place to put invented
+   * detail: a made-up admission step or bus route outlives the placeholder it
+   * replaced and is read as fact. They keep the "we are preparing this page"
+   * line until real content arrives.
+   */
+  await upsert({
+    slug: 'history',
+    title: 'Our History',
+    intro: null,
+    _status: 'published',
+    reviewStatus: 'approved',
+    metaDescription:
+      "How South Indians' Welfare Society grew from a primary school at Shivaji Park in 1934 into a Kindergarten-to-Postgraduate institution.",
+    layout: [
+      {
+        blockType: 'richText',
+        heading: 'Our History',
+        accentWord: 'History',
+        headingLevel: 'h2',
+        width: 'normal',
+        background: 'white',
+        content: richText(HISTORY),
+      },
+      ...(historyImage
+        ? [
+            {
+              blockType: 'divider',
+              image: historyImage,
+              overlay: 'brand',
+              height: 'slim',
+              text: 'From KG to PG — inspiring excellence since 1934.',
+            },
+          ]
+        : []),
+    ],
+  })
+
+  await upsert({
+    slug: 'vision-mission',
+    title: 'Vision & Mission',
+    intro: null,
+    _status: 'published',
+    reviewStatus: 'approved',
+    metaDescription:
+      "The vision and mission of South Indians' Welfare Society, and the values they are built on.",
+    layout: [
+      {
+        blockType: 'richText',
+        heading: 'Our Vision',
+        accentWord: 'Vision',
+        headingLevel: 'h2',
+        width: 'narrow',
+        background: 'brand',
+        content: richText([VISION]),
+      },
+      {
+        blockType: 'featureList',
+        heading: 'Our Mission',
+        accentWord: 'Mission',
+        headingLevel: 'h2',
+        marker: 'tick',
+        columns: '2',
+        background: 'white',
+        items: MISSION,
+      },
+      coreValuesSection('tint'),
+    ],
+  })
+
+  /*
+   * Contact carries the one piece of contact information SIWS has given: the
+   * Wadala address. No telephone number, no email address and no office hours
+   * are published, because none were supplied and a wrong number on a school's
+   * contact page is worse than no number at all.
+   */
+  await upsert({
+    slug: 'contact',
+    title: 'Contact',
+    intro: null,
+    _status: 'published',
+    reviewStatus: 'approved',
+    metaDescription:
+      "Where to find South Indians' Welfare Society — Major R Parameswaran Road, Wadala, Mumbai.",
+    layout: [
+      {
+        blockType: 'map',
+        heading: 'Find us',
+        accentWord: 'us',
+        headingLevel: 'h2',
+        background: 'white',
+        label: 'South Indians\u2019 Welfare Society, Wadala',
+        address:
+          'Sewree Estate, 337, Major R Parameswaran Rd, Wadala, Mumbai, Maharashtra 400031',
+        height: 'tall',
+      },
+    ],
+  })
+
   // --------------------------------------------------------------- PORTAL HOME
   await upsert({
     slug: 'home',
@@ -180,7 +350,25 @@ const main = async () => {
         accentWord: 'Inspiring Excellence',
         intro:
           "South Indians' Welfare Society is one of Mumbai's most respected educational institutions, nurturing students from Kindergarten to Postgraduate education.",
-        background: 'brand',
+        /*
+         * White, not deep blue. The brand reads as accent — the highlighted
+         * words, the button, the chips — against a white page, which is both
+         * what the approved design does and what keeps a page this long from
+         * becoming a wall of saturated colour.
+         */
+        background: 'white',
+        ...(heroImage
+          ? {
+              image: heroImage,
+              // The same three facts the statistics band below already carries,
+              // so the banner asserts nothing the page does not already say.
+              highlights: [
+                { value: '1934', label: 'Serving Mumbai since' },
+                { value: '90+', label: 'Years of educational legacy' },
+                { value: 'KG–PG', label: 'A complete journey' },
+              ],
+            }
+          : {}),
         links: [
           {
             link: {
@@ -194,26 +382,144 @@ const main = async () => {
         ],
       },
       schoolsSection('A seamless learning journey under one trusted institution.'),
-      {
-        blockType: 'richText',
-        heading: "About South Indians' Welfare Society",
-        accentWord: 'Welfare Society',
-        headingLevel: 'h2',
-        width: 'normal',
-        background: 'sea',
-        content: richText(OVERVIEW),
-      },
+      /*
+       * Overview and History run as picture-beside-text, on alternating sides.
+       * As full-width prose they were four paragraphs in a narrow column with
+       * half the screen empty beside them — the text had nothing to sit
+       * against, and the reader got no landmark between one section and the
+       * next. Alternating the side gives the eye something to track down the
+       * page.
+       */
+      ...(dividerOne
+        ? [
+            {
+              blockType: 'divider',
+              image: dividerOne,
+              overlay: 'brand',
+              height: 'slim',
+              // Verbatim from the tagline SIWS supplied; nothing new is claimed.
+              text: 'From KG to PG — inspiring excellence since 1934.',
+            },
+          ]
+        : []),
+      overviewImage
+        ? {
+            blockType: 'mediaText',
+            heading: "About South Indians' Welfare Society",
+            accentWord: 'Welfare Society',
+            headingLevel: 'h2',
+            background: 'white',
+            image: overviewImage,
+            imagePosition: 'right',
+            imageShape: 'rounded',
+            content: richText(OVERVIEW),
+          }
+        : {
+            blockType: 'richText',
+            heading: "About South Indians' Welfare Society",
+            accentWord: 'Welfare Society',
+            headingLevel: 'h2',
+            width: 'normal',
+            background: 'white',
+            content: richText(OVERVIEW),
+          },
       {
         blockType: 'statistics',
         heading: 'A legacy parents trust',
-        background: 'white',
+        background: 'brand',
         stats: [
           { value: '1934', label: 'Serving Mumbai since' },
           { value: '90+', label: 'Years of educational legacy' },
           { value: 'KG–PG', label: 'A complete educational journey' },
         ],
       },
-      coreValuesSection('tint'),
+      historyImage
+        ? {
+            blockType: 'mediaText',
+            heading: 'Our History',
+            accentWord: 'History',
+            headingLevel: 'h2',
+            background: 'white',
+            image: historyImage,
+            imagePosition: 'left',
+            imageShape: 'rounded',
+            content: richText(HISTORY),
+          }
+        : {
+            blockType: 'richText',
+            heading: 'Our History',
+            accentWord: 'History',
+            headingLevel: 'h2',
+            width: 'normal',
+            background: 'white',
+            content: richText(HISTORY),
+          },
+      /*
+       * Vision then Mission, in that order: the vision is the single sentence
+       * the mission's six commitments serve, and reading them the other way
+       * round makes the list look like an unexplained set of promises.
+       */
+      /*
+       * The single deep-blue section on the page. One statement, centred, on
+       * full brand — it is the only place the colour is allowed to take the
+       * whole width, which is what makes it land instead of blending into the
+       * bands above and below it.
+       */
+      {
+        blockType: 'richText',
+        heading: 'Our Vision',
+        accentWord: 'Vision',
+        headingLevel: 'h2',
+        width: 'narrow',
+        background: 'brand',
+        content: richText([VISION]),
+      },
+      {
+        blockType: 'featureList',
+        heading: 'Our Mission',
+        accentWord: 'Mission',
+        headingLevel: 'h2',
+        marker: 'tick',
+        columns: '2',
+        background: 'white',
+        items: MISSION,
+      },
+      coreValuesSection('white'),
+      ...(dividerTwo
+        ? [
+            {
+              blockType: 'divider',
+              image: dividerTwo,
+              overlay: 'sea',
+              height: 'slim',
+            },
+          ]
+        : []),
+      ...(galleryImages.length > 0
+        ? [
+            {
+              blockType: 'gallery',
+              heading: 'Life at SIWS',
+              accentWord: 'SIWS',
+              headingLevel: 'h2',
+              background: 'tint',
+              layout: 'grid',
+              perPage: '9',
+              images: galleryImages,
+            },
+          ]
+        : []),
+      {
+        blockType: 'map',
+        heading: 'Find us',
+        accentWord: 'us',
+        headingLevel: 'h2',
+        background: 'white',
+        label: 'South Indians’ Welfare Society, Wadala',
+        address:
+          'Sewree Estate, 337, Major R Parameswaran Rd, Wadala, Mumbai, Maharashtra 400031',
+        height: 'medium',
+      },
     ],
   })
 

@@ -153,10 +153,13 @@ export interface Page {
         | RichTextBlock
         | MediaTextBlock
         | CardGridBlock
+        | BentoBlock
         | ProgramCardsBlock
         | FeatureListBlock
         | FacultyBlock
         | GalleryBlock
+        | DividerBlock
+        | MapBlock
         | AccordionBlock
         | AnnouncementsBlock
         | QuickNavBlock
@@ -205,6 +208,10 @@ export interface Page {
    */
   navOrder?: number | null;
   /**
+   * Optional. Puts this page in the drop-down beneath another menu item. Leave blank to make it a top-level item.
+   */
+  navParent?: (number | null) | Page;
+  /**
    * When your work is ready, choose “Submitted for review”. Your head of school is emailed and can either approve it or send it back with a note.
    */
   reviewStatus: 'draft' | 'in_review' | 'changes_requested' | 'approved';
@@ -247,9 +254,25 @@ export interface HeroBlock {
    */
   intro?: string | null;
   /**
-   * Optional. A brand overlay keeps the text readable whichever picture you choose.
+   * Optional. Shown as a wide picture beneath the heading, not behind the text — so the photograph stays fully visible and the words stay legible without an overlay dimming it.
    */
   image?: (number | null) | Media;
+  /**
+   * Optional. Up to three short facts shown on the picture — e.g. "1934" / "Serving Mumbai since".
+   */
+  highlights?:
+    | {
+        /**
+         * Keep it short — "1934", "KG–PG", "SSC Board".
+         */
+        value: string;
+        /**
+         * Optional. The smaller line beneath.
+         */
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   links?:
     | {
         link: {
@@ -831,6 +854,7 @@ export interface CardGridBlock {
         id?: string | null;
       }[]
     | null;
+  placedBySeed?: boolean | null;
   /**
    * Use “Smaller” when this section sits underneath another heading.
    */
@@ -846,6 +870,59 @@ export interface CardGridBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'cardGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BentoBlock".
+ */
+export interface BentoBlock {
+  /**
+   * Optional.
+   */
+  heading?: string | null;
+  /**
+   * Optional.
+   */
+  intro?: string | null;
+  /**
+   * Mix wide, tall and small tiles. Two or three large ones among smaller tiles reads best — all-large is a list again.
+   */
+  tiles?:
+    | {
+        size?: ('small' | 'wide' | 'tall' | 'large') | null;
+        tone?: ('photo' | 'plain' | 'brand' | 'accent') | null;
+        /**
+         * Required for a photograph tile; ignored on the others.
+         */
+        image?: (number | null) | Media;
+        title?: string | null;
+        /**
+         * Optional. Keep it short — a tile is not a paragraph.
+         */
+        body?: string | null;
+        /**
+         * Optional. Shown large — "1934", "92+". Use instead of tile text, not as well.
+         */
+        figure?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  placedBySeed?: boolean | null;
+  /**
+   * Use “Smaller” when this section sits underneath another heading.
+   */
+  headingLevel?: ('h2' | 'h3') | null;
+  /**
+   * Type a word from the heading to show it in SIWS accent.
+   */
+  accentWord?: string | null;
+  /**
+   * Text colour adjusts automatically so it stays readable.
+   */
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'bento';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1099,6 +1176,64 @@ export interface GalleryBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DividerBlock".
+ */
+export interface DividerBlock {
+  /**
+   * Runs the full width of the screen, behind a colour overlay.
+   */
+  image: number | Media;
+  /**
+   * Optional. One short line — a value, a promise, a phrase. Leave blank for the photograph alone.
+   */
+  text?: string | null;
+  /**
+   * Optional. Only used when there is a line above.
+   */
+  attribution?: string | null;
+  overlay?: ('brand' | 'sea' | 'accent') | null;
+  placedBySeed?: boolean | null;
+  height?: ('slim' | 'tall') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'divider';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock".
+ */
+export interface MapBlock {
+  /**
+   * Optional.
+   */
+  heading?: string | null;
+  /**
+   * The full postal address, as you would write it on a letter. The map finds it — e.g. "Sewree Estate, 337, Major R Parameswaran Rd, Wadala, Mumbai, Maharashtra 400031".
+   */
+  address: string;
+  /**
+   * Optional. Shown above the address — e.g. "SIWS Wadala campus".
+   */
+  label?: string | null;
+  height?: ('short' | 'medium' | 'tall') | null;
+  /**
+   * Use “Smaller” when this section sits underneath another heading.
+   */
+  headingLevel?: ('h2' | 'h3') | null;
+  /**
+   * Type a word from the heading to show it in SIWS accent.
+   */
+  accentWord?: string | null;
+  /**
+   * Text colour adjusts automatically so it stays readable.
+   */
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'map';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1365,6 +1500,14 @@ export interface StatisticsBlock {
    * Optional.
    */
   heading?: string | null;
+  /**
+   * Optional. One sentence saying what these figures show.
+   */
+  intro?: string | null;
+  /**
+   * Optional. The figures are laid over it behind a deep blue wash, so any photograph stays readable. Without one the figures sit on plain brand colour.
+   */
+  image?: (number | null) | Media;
   stats?:
     | {
         /**
@@ -1848,10 +1991,13 @@ export interface PagesSelect<T extends boolean = true> {
         richText?: T | RichTextBlockSelect<T>;
         mediaText?: T | MediaTextBlockSelect<T>;
         cardGrid?: T | CardGridBlockSelect<T>;
+        bento?: T | BentoBlockSelect<T>;
         programCards?: T | ProgramCardsBlockSelect<T>;
         featureList?: T | FeatureListBlockSelect<T>;
         faculty?: T | FacultyBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
+        divider?: T | DividerBlockSelect<T>;
+        map?: T | MapBlockSelect<T>;
         accordion?: T | AccordionBlockSelect<T>;
         announcements?: T | AnnouncementsBlockSelect<T>;
         quickNav?: T | QuickNavBlockSelect<T>;
@@ -1871,6 +2017,7 @@ export interface PagesSelect<T extends boolean = true> {
   showInNav?: T;
   navLabel?: T;
   navOrder?: T;
+  navParent?: T;
   reviewStatus?: T;
   reviewNote?: T;
   submittedBy?: T;
@@ -1893,6 +2040,13 @@ export interface HeroBlockSelect<T extends boolean = true> {
   accentWord?: T;
   intro?: T;
   image?: T;
+  highlights?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
   links?:
     | T
     | {
@@ -2021,6 +2175,32 @@ export interface CardGridBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  placedBySeed?: T;
+  headingLevel?: T;
+  accentWord?: T;
+  background?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BentoBlock_select".
+ */
+export interface BentoBlockSelect<T extends boolean = true> {
+  heading?: T;
+  intro?: T;
+  tiles?:
+    | T
+    | {
+        size?: T;
+        tone?: T;
+        image?: T;
+        title?: T;
+        body?: T;
+        figure?: T;
+        id?: T;
+      };
+  placedBySeed?: T;
   headingLevel?: T;
   accentWord?: T;
   background?: T;
@@ -2114,6 +2294,35 @@ export interface GalleryBlockSelect<T extends boolean = true> {
       };
   perPage?: T;
   layout?: T;
+  headingLevel?: T;
+  accentWord?: T;
+  background?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DividerBlock_select".
+ */
+export interface DividerBlockSelect<T extends boolean = true> {
+  image?: T;
+  text?: T;
+  attribution?: T;
+  overlay?: T;
+  placedBySeed?: T;
+  height?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock_select".
+ */
+export interface MapBlockSelect<T extends boolean = true> {
+  heading?: T;
+  address?: T;
+  label?: T;
+  height?: T;
   headingLevel?: T;
   accentWord?: T;
   background?: T;
@@ -2245,6 +2454,8 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
  */
 export interface StatisticsBlockSelect<T extends boolean = true> {
   heading?: T;
+  intro?: T;
+  image?: T;
   stats?:
     | T
     | {

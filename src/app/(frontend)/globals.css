@@ -1,5 +1,15 @@
 @import 'tailwindcss';
-@import './prose.css';
+/*
+ * Imported INTO the components layer, not alongside it.
+ *
+ * Unlayered CSS beats layered CSS outright, whatever the specificity. Left
+ * unlayered, `.siws-prose { color: ink }` overrode
+ * `[data-invert='true'] .siws-prose { color: white }` further down this file,
+ * and every rich-text block on a deep-blue background rendered dark grey on
+ * deep blue — about 1.3:1, effectively invisible. Naming the layer puts the
+ * two rules on equal footing so the more specific one wins, as intended.
+ */
+@import './prose.css' layer(components);
 
 /* ==========================================================================
    SIWS DESIGN SYSTEM
@@ -18,24 +28,41 @@
   /* --- Brand ----------------------------------------------------------- */
   --color-brand: #2e3192;
   --color-brand-deep: #24276f;
-  --color-brand-ink: #1f2265;
-  --color-brand-tint: #eef3fc;
+  /*
+   * Aliases, not new colours.
+   *
+   * The palette carried eight blues and two pairs of them were indistinguishable
+   * on screen — #eef3fc against #dbecff, and #3376c2 against #3b86d7. A reader
+   * cannot tell those apart, so they were not two decisions, they were one
+   * decision made twice, and the page looked washy rather than considered.
+   *
+   * The names are kept so no component has to change and an editor's saved
+   * choice still resolves; they simply point at the surviving colour. Four
+   * blues now do all the work: brand, brand-deep for depth, sky for the
+   * institution bar, and sea as the one light tint.
+   */
+  --color-brand-ink: #24276f;
+  --color-brand-tint: #dbecff;
 
   --color-accent: #ffaf2a;
   --color-accent-deep: #f39200;
   --color-sea: #dbecff;
-  --color-sea-soft: #f2f8ff;
+  --color-sea-soft: #ffffff;
 
   /**
-   * The college's own `--siwsSkyBlue` is #3B86D7, and that is what
-   * `--color-sky-light` holds. But white text on it measures 3.77:1, below the
-   * 4.5:1 WCAG 2.1 AA needs for body text — and this blue carries the section
-   * bar and the whole footer, which are text. So the text-bearing surface is
-   * one step darker at 4.66:1. The two are hard to tell apart side by side;
-   * an unreadable footer is not.
+   * One sky blue, not two.
+   *
+   * The college's own `--siwsSkyBlue` is #3B86D7, but white text on it measures
+   * 3.77:1 — below the 4.5:1 WCAG 2.1 AA needs for body text — and this blue
+   * carries the section bar and the whole footer, which are text. The palette
+   * therefore kept a second, darker variant at 4.66:1 for those surfaces.
+   *
+   * Keeping both meant two blues nobody could tell apart, one of which was
+   * unusable for text. `--color-sky-light` is now an alias of the readable one,
+   * so the distinction is gone and the accessible value is the only one left.
    */
   --color-sky: #3376c2;
-  --color-sky-light: #3b86d7;
+  --color-sky-light: #3376c2;
   --color-grey: #f5f5f5;
 
   /* --- Ink & surface --------------------------------------------------- */
@@ -180,6 +207,38 @@
   }
 
   /*
+   * Justified body copy across the site.
+   *
+   * Scoped to the long-form paragraph classes rather than to every `p`. A
+   * justified line only looks right when it has enough words to distribute:
+   * on a two-word card label or a photo caption the justifier has nothing to
+   * work with and simply leaves the text ranged left with odd spacing, and on
+   * a heading it is actively wrong. So this covers the paragraphs a visitor
+   * actually reads, and leaves labels, captions and figures alone.
+   */
+  .siws-justify {
+    text-align: justify;
+    hyphens: auto;
+    text-wrap: auto;
+  }
+
+  /*
+   * A centred block centres its prose too.
+   *
+   * `.siws-prose` justifies by default, which is right for a column of body
+   * copy but wrong inside a short centred panel — a call to action ended up
+   * with its two lines stretched to the margins while its heading and button
+   * sat centred above and below, so the three disagreed. Marking the panel
+   * centres everything in it.
+   */
+  .siws-centre,
+  .siws-centre .siws-prose,
+  .siws-centre .siws-prose > * {
+    text-align: center;
+    hyphens: manual;
+  }
+
+  /*
    * A single, high-contrast focus ring for every interactive element. Declared
    * once at base level so no component can accidentally ship without one
    * (NFR Accessibility — visible focus indicator).
@@ -216,6 +275,7 @@
     --color-brand: #0f1140;
     --color-brand-deep: #080a2b;
     --color-brand-ink: #080a2b;
+    --color-sky-light: #14458f;
     --color-ink: #000000;
     --color-ink-soft: #000000;
     --color-ink-muted: #262626;

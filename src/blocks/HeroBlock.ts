@@ -55,11 +55,47 @@ export const HeroBlock: Block = {
       name: 'image',
       type: 'upload',
       relationTo: 'media',
-      label: 'Background photograph',
+      label: 'Photograph',
       admin: {
         description:
-          'Optional. A brand overlay keeps the text readable whichever picture you choose.',
+          'Optional. Shown as a wide picture beneath the heading, not behind the text — so the photograph stays fully visible and the words stay legible without an overlay dimming it.',
       },
+    },
+    {
+      /*
+       * The small chips that sit on the edge of the hero photograph.
+       *
+       * A fixed pair of fields rather than free text: every chip then reads as
+       * the same kind of thing — a short fact and its label — instead of
+       * becoming a second, competing paragraph.
+       */
+      name: 'highlights',
+      type: 'array',
+      label: 'Facts on the photograph',
+      maxRows: 3,
+      labels: { singular: 'Fact', plural: 'Facts' },
+      admin: {
+        description:
+          'Optional. Up to three short facts shown on the picture — e.g. "1934" / "Serving Mumbai since".',
+        condition: (_, siblingData) => Boolean(siblingData?.image),
+      },
+      fields: [
+        {
+          name: 'value',
+          type: 'text',
+          required: true,
+          label: 'Fact',
+          maxLength: 24,
+          admin: { description: 'Keep it short — "1934", "KG–PG", "SSC Board".' },
+        },
+        {
+          name: 'label',
+          type: 'text',
+          label: 'What it means',
+          maxLength: 40,
+          admin: { description: 'Optional. The smaller line beneath.' },
+        },
+      ],
     },
     {
       name: 'links',

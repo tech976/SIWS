@@ -21,6 +21,14 @@
     "seed": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/index.ts",
     "seed:media": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/media.ts",
     "seed:kg": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/kindergarten.ts",
+    "seed:pages": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/pages-general.ts",
+    "seed:unit-home": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/unit-home.ts",
+    "seed:section-images": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/section-images.ts",
+    "seed:apply-placement": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/apply-placement.ts",
+    "seed:move-enquiry": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/move-enquiry.ts",
+    "seed:unit-composition": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/unit-composition.ts",
+    "seed:kg-home": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/kindergarten-home.ts",
+    "seed:nav": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/nav.ts",
     "seed:units": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/units-content.ts",
     "verify:access": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/verify-access.ts",
     "verify:forms": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/verify-forms.ts",
@@ -39,6 +47,7 @@
     "photos:scan": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/photos.ts scan",
     "photos:import": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/photos.ts import",
     "seed:galleries": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/galleries.ts",
+    "seed:portal-hero": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/portal-hero.ts",
     "photos:consent": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/record-photo-consent.ts"
   },
   "dependencies": {

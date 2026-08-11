@@ -56,7 +56,14 @@ export const CardGridBlockView = ({ block }: { block: CardGridBlock }) => {
                 />
               ) : null}
 
-              <div className="flex flex-1 flex-col p-6">
+              {/*
+                Centred inside the card. A three-card row of ranged-left text
+                reads as three fragments pushed to the left of their boxes; the
+                row only looks deliberate when each card is symmetrical about
+                its own middle. Justification is dropped here for the same
+                reason — a two-line card has nothing to distribute.
+              */}
+              <div className="flex flex-1 flex-col p-6 text-center">
                 <h3 className="text-xl">
                   {href && link ? (
                     /*

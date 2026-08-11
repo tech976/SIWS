@@ -3,7 +3,9 @@ import type { Block } from 'payload'
 import { AccordionBlock } from './AccordionBlock'
 import { AnnouncementsBlock } from './AnnouncementsBlock'
 import { CallToActionBlock } from './CallToActionBlock'
+import { BentoBlock } from './BentoBlock'
 import { CardGridBlock } from './CardGridBlock'
+import { DividerBlock } from './DividerBlock'
 import { FacultyBlock } from './FacultyBlock'
 import { FeatureListBlock } from './FeatureListBlock'
 import { GalleryBlock } from './GalleryBlock'
@@ -11,6 +13,7 @@ import { HeroBlock } from './HeroBlock'
 import { HeroCarouselBlock } from './HeroCarouselBlock'
 import { HeroEnquiryBlock } from './HeroEnquiryBlock'
 import { LogoStripBlock } from './LogoStripBlock'
+import { MapBlock } from './MapBlock'
 import { MediaTextBlock } from './MediaTextBlock'
 import { ProgramCardsBlock } from './ProgramCardsBlock'
 import { QuickNavBlock } from './QuickNavBlock'
@@ -35,10 +38,13 @@ export const contentBlocks: Block[] = [
   RichTextBlock,
   MediaTextBlock,
   CardGridBlock,
+  BentoBlock,
   ProgramCardsBlock,
   FeatureListBlock,
   FacultyBlock,
   GalleryBlock,
+  DividerBlock,
+  MapBlock,
   AccordionBlock,
   AnnouncementsBlock,
   QuickNavBlock,
@@ -58,11 +64,14 @@ export {
   FacultyBlock,
   CallToActionBlock,
   CardGridBlock,
+  BentoBlock,
+  DividerBlock,
   ProgramCardsBlock,
   FeatureListBlock,
   GalleryBlock,
   HeroBlock,
   HeroEnquiryBlock,
+  MapBlock,
   MediaTextBlock,
   RichTextBlock,
   StatisticsBlock,
