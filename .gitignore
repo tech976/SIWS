@@ -9,9 +9,17 @@ out/
 build/
 next-env.d.ts
 
-# payload — uploaded files stay out of the repo; importMap.js IS committed,
-# because the production build imports it.
-/media
+# payload — uploads.
+#
+# /media IS committed. It holds the web-sized derivatives the site renders:
+# ~2,000 files, 264 MB, none larger than 1.1 MB. Committing them means a fresh
+# clone shows every photograph without needing the camera originals or a
+# re-import, which is what makes the repository shareable.
+#
+# The camera originals stay out (see /SIWS Content below) — they run to 1.1 GB
+# and include a 216 MB video, past GitHub's 100 MB per-file limit.
+#
+# /protected-media stays out: it is where consent-restricted files live.
 /protected-media
 
 # env — never commit secrets or the DB URI
