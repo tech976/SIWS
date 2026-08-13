@@ -129,7 +129,18 @@ export const BentoBlockView = ({ block }: { block: BentoBlock }) => {
                  */
                 <p
                   className={`siws-justify mt-2 text-sm leading-relaxed ${
-                    inverted ? 'text-white/85' : 'text-ink-muted'
+                    inverted
+                      ? 'text-white/85'
+                      : /*
+                         * An accent tile is yellow, and `text-ink-muted` was
+                         * chosen to sit on white — on #ffaf2a it measures
+                         * 3.58:1, under the 4.5:1 WCAG 2.1 AA needs for body
+                         * text. Brand blue reaches 5.79:1 and matches the tile
+                         * heading, which already inherits it.
+                         */
+                        tone === 'accent'
+                        ? 'text-brand'
+                        : 'text-ink-muted'
                   }`}
                 >
                   {tile.body}

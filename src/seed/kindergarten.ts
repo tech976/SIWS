@@ -144,6 +144,31 @@ const main = async () => {
     childrenTogether: await mediaByFilename(payload, 'kg-children-together.jpg'),
     canteen: await mediaByFilename(payload, 'kg-canteen-meal.jpg'),
     handwashing: await mediaByFilename(payload, 'kg-handwashing.jpg'),
+    // From the school's own Activities set, for the programme cards below.
+    fingerPainting: await mediaByFilename(payload, 'pre-primary-section-activities-photos-1.jpg'),
+    paperLanterns: await mediaByFilename(payload, 'pre-primary-section-activities-photos-4.jpg'),
+    /*
+     * For "Why Parents Choose SIWS". Drawn from sets nothing else on this page
+     * uses — the same photograph twice on one page reads as a school with only
+     * eight of them.
+     *
+     * Chosen for shape as much as for subject. These sit in a portrait frame,
+     * and three of the first picks were 2.17:1 panoramas of the play area: a
+     * frame that tall shows a fifth of a photograph that wide, so the subject
+     * was cropped out and what remained had been enlarged until it was soft.
+     * Everything here is 4:3 or taller.
+     */
+    alphabetLesson: await mediaByFilename(payload, 'pre-primary-section-activities-photos-3.jpg'),
+    readingBoard: await mediaByFilename(
+      payload,
+      'pre-primary-section-classroom-campus-images-4.jpg',
+    ),
+    orderlyClass: await mediaByFilename(
+      payload,
+      'pre-primary-section-classroom-campus-images-2.jpg',
+    ),
+    // Portrait, and the only play-area shot that is — it fills the frame whole.
+    slide: await mediaByFilename(payload, 'pre-primary-section-classroom-campus-images-5.jpg'),
   }
 
   const missing = Object.entries(img).filter(([, id]) => id === null).map(([name]) => name)
@@ -382,41 +407,58 @@ const main = async () => {
             ...shot(img.handwashing, 'Clean and hygienic washrooms'),
           ],
         },
+        /*
+         * Cards rather than a two-column tick list.
+         *
+         * Seven ticks of equal weight gave the eye nothing to land on, so a
+         * parent had to read all seven to find the one they came for. A card
+         * with a picture on it can be recognised before it is read, which is
+         * the whole point of a facilities list.
+         *
+         * Seven items falls as four cards then three, and the renderer widens
+         * the last row so it fills the line rather than trailing off.
+         */
         {
           blockType: 'featureList',
           heading: 'What the campus offers',
           headingLevel: 'h3',
-          marker: 'tick',
-          columns: '2',
+          layout: 'cards',
           background: 'white',
           items: [
             {
               title: 'Spacious & Well-Ventilated Classrooms',
               description: 'Bright, airy rooms designed for young learners.',
-            },
-            {
-              title: 'Safe Play & Activity Area',
-              description: 'Supervised space for games and structured play.',
+              icon: 'classroom',
             },
             {
               title: 'Secure & Child-Friendly Campus',
               description: 'Monitored entry and child-safe infrastructure throughout.',
+              icon: 'security',
+            },
+            {
+              title: 'Safe Play & Activity Area',
+              description: 'Supervised space for games and structured play.',
+              icon: 'play',
             },
             {
               title: 'Dedicated Activity Rooms',
               description: 'Separate spaces for art, music and hands-on learning.',
+              icon: 'activity',
             },
             {
               title: 'Pure Veg Canteen',
               description: 'Hygienic, purely vegetarian food prepared on campus.',
+              icon: 'canteen',
             },
             {
               title: 'Clean & Hygienic Washrooms',
               description: 'Child-height fittings, cleaned and checked through the day.',
+              icon: 'hygiene',
             },
             {
               title: 'Supportive & Trained School Staff',
               description: 'Attentive staff experienced with early years children.',
+              icon: 'staff',
             },
           ],
         },
@@ -431,26 +473,39 @@ const main = async () => {
           intro: richText([
             'SIWS follows the SSC (State Board) curriculum, with a structured approach to foundational learning at the kindergarten and pre-primary levels.',
           ]),
+          layout: 'cards',
+          footnote: 'Building strong foundations today for a brighter tomorrow.',
           items: [
             {
               title: 'Early Literacy and Numeracy',
               description: 'Letters, numbers, reading readiness and writing skills.',
+              icon: 'library',
+              // The blackboard behind this class is counting one to ten.
+              photo: img.classroomActivity,
             },
             {
               title: 'Creative Expression',
               description: 'Art, music, storytelling and activity-based learning.',
+              icon: 'activity',
+              photo: img.fingerPainting,
             },
             {
               title: 'Communication and Social Skills',
               description: 'Speaking, listening, sharing and confidence building.',
+              icon: 'communication',
+              photo: img.childrenTogether,
             },
             {
               title: 'Cognitive and Motor Development',
               description: 'Hands-on activities supporting mental and physical growth.',
+              icon: 'thinking',
+              photo: img.paperLanterns,
             },
             {
               title: 'Physical Activity and Play',
               description: 'Movement, games and structured playtime.',
+              icon: 'sport',
+              photo: img.playArea,
             },
           ],
         },
@@ -490,7 +545,8 @@ const main = async () => {
           accentWord: 'SIWS',
           headingLevel: 'h2',
           marker: 'tick',
-          columns: '2',
+          layout: 'cards',
+          eyebrow: 'Why parents choose us',
           background: 'sea',
           items: [
             /**
@@ -503,29 +559,47 @@ const main = async () => {
               title: 'A pathway from KG to PG',
               description:
                 'One institution from Kindergarten through to postgraduate study, so a child need not change schools to move up.',
+              icon: 'study',
+              photo: img.readingBoard,
             },
             {
+              /*
+               * No photograph. SIWS has sent no picture of the KG digital
+               * board, and the smartboard shots in the library are all Primary
+               * Wadala — putting one here would show a parent a room their
+               * child will not be taught in. The card runs on its icon until
+               * the school sends one.
+               */
               title: 'Digital board and Educom facility',
               description: 'Technology-supported teaching in the early years classroom.',
+              icon: 'computers',
             },
             {
               title: 'Experienced staff',
               description:
                 'Our teachers and staff have between 15 and 25 years of experience with young children.',
-            },
-            {
-              title: 'Sports ground and garden',
-              description: 'Open space for active play, games and outdoor learning.',
+              icon: 'staff',
+              photo: img.teacherWithChildren,
             },
             {
               title: 'A safe and disciplined environment',
               description:
                 'CCTV-monitored entry and exit, and female staff throughout the section.',
+              icon: 'security',
+              photo: img.orderlyClass,
+            },
+            {
+              title: 'Sports ground and garden',
+              description: 'Open space for active play, games and outdoor learning.',
+              icon: 'sport',
+              photo: img.slide,
             },
             {
               title: 'Strong early learning foundation',
               description:
                 'Phonics, letter recognition, pre-writing skills, vocabulary, peer socialisation, motor skills and confidence building.',
+              icon: 'thinking',
+              photo: img.alphabetLesson,
             },
           ],
         },

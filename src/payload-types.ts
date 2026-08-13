@@ -1041,9 +1041,51 @@ export interface FeatureListBlock {
          * A sentence or two explaining the point.
          */
         description?: string | null;
+        /**
+         * Only used by the “Cards” layout, under More options.
+         */
+        icon?:
+          | (
+              | 'classroom'
+              | 'security'
+              | 'play'
+              | 'activity'
+              | 'canteen'
+              | 'hygiene'
+              | 'staff'
+              | 'library'
+              | 'study'
+              | 'communication'
+              | 'thinking'
+              | 'laboratory'
+              | 'computers'
+              | 'music'
+              | 'sport'
+              | 'garden'
+              | 'health'
+              | 'transport'
+              | 'care'
+            )
+          | null;
+        /**
+         * Optional, and only used by the “Cards” layout. A square PNG with a transparent background works best. Overrides the picture chosen above.
+         */
+        illustration?: (number | null) | Media;
+        /**
+         * Optional, and only used by the “Cards” layout. Sits down the side of the card. Use a real photograph of this happening at school — it does more than the picture above.
+         */
+        photo?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
+  /**
+   * Optional. A few words on a pill above the heading, e.g. “Why parents choose us”. Cards layout only.
+   */
+  eyebrow?: string | null;
+  /**
+   * Optional. A single sentence shown on a pill below the cards, e.g. “Building strong foundations today for a brighter tomorrow.” Cards layout only.
+   */
+  footnote?: string | null;
   /**
    * Use “Smaller” when this section sits underneath another heading.
    */
@@ -1053,7 +1095,11 @@ export interface FeatureListBlock {
    */
   accentWord?: string | null;
   /**
-   * Choose numbers when the order matters, otherwise ticks.
+   * Cards suit a handful of facilities a parent should be able to scan. A list suits rules, curricula and anything long.
+   */
+  layout?: ('list' | 'cards') | null;
+  /**
+   * Choose numbers when the order matters, otherwise ticks. On cards, numbers add a coloured badge and rule to each one.
    */
   marker?: ('tick' | 'number') | null;
   /**
@@ -2253,10 +2299,16 @@ export interface FeatureListBlockSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
+        icon?: T;
+        illustration?: T;
+        photo?: T;
         id?: T;
       };
+  eyebrow?: T;
+  footnote?: T;
   headingLevel?: T;
   accentWord?: T;
+  layout?: T;
   marker?: T;
   columns?: T;
   background?: T;

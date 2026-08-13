@@ -75,8 +75,31 @@ export const Media = ({
   const src = toImageSrc(resource.url)
 
   if (fill) {
+    /**
+     * Honour the focal point Payload already stores on every upload.
+     *
+     * A filled image is cropped to its container, and the browser's default is
+     * the centre of the file — which is only the centre of the *subject* by
+     * luck. Wide group photographs in a tall card lose most of their width, and
+     * whoever was standing off to one side goes with it.
+     *
+     * Both default to 50, so this is centre-crop unless someone has moved the
+     * marker in the admin panel. That makes reframing an editor's job rather
+     * than a code change.
+     */
+    const focalX = typeof resource.focalX === 'number' ? resource.focalX : 50
+    const focalY = typeof resource.focalY === 'number' ? resource.focalY : 50
+
     return (
-      <Image src={src} alt={alt} fill sizes={sizes} className={className} priority={priority} />
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes}
+        className={className}
+        priority={priority}
+        style={{ objectPosition: `${focalX}% ${focalY}%` }}
+      />
     )
   }
 

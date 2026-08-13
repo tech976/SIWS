@@ -1,13 +1,111 @@
-import { Check } from 'lucide-react'
+import {
+  BookOpen,
+  Brain,
+  Bus,
+  Check,
+  FlaskConical,
+  GraduationCap,
+  HandHeart,
+  Heart,
+  MessagesSquare,
+  Monitor,
+  Music,
+  Palette,
+  PersonStanding,
+  Salad,
+  School,
+  ShieldCheck,
+  SprayCan,
+  Stethoscope,
+  ToyBrick,
+  Trees,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
 
+import { Media } from '@/components/Media'
 import { RichText } from '@/components/RichText'
 import type { FeatureListBlock } from '@/payload-types'
 
+import { FEATURE_GLYPHS, FEATURE_ILLUSTRATIONS } from './FeatureIllustrations'
 import { Section, SectionHeading, type BlockBackground } from './Section'
+
+/** Keyed by the values in `FEATURE_ICON_OPTIONS`. */
+const FEATURE_ICONS: Record<string, LucideIcon> = {
+  classroom: School,
+  security: ShieldCheck,
+  play: ToyBrick,
+  activity: Palette,
+  canteen: Salad,
+  hygiene: SprayCan,
+  staff: Users,
+  library: BookOpen,
+  study: GraduationCap,
+  communication: MessagesSquare,
+  thinking: Brain,
+  laboratory: FlaskConical,
+  computers: Monitor,
+  music: Music,
+  // Was `Trees`, which is the garden icon — sport is people moving, not foliage.
+  sport: PersonStanding,
+  garden: Trees,
+  health: Stethoscope,
+  transport: Bus,
+  care: HandHeart,
+}
+
+/**
+ * Column span by how many cards share the row, so the last row always fills the
+ * width. Written out rather than built as `lg:col-span-${n}`: Tailwind finds
+ * class names by scanning the source text, so a name assembled at runtime is
+ * never generated and the card silently loses its width.
+ */
+const SPAN_CLASS: Record<number, string> = {
+  1: 'lg:col-span-12',
+  2: 'lg:col-span-6',
+  3: 'lg:col-span-4',
+  4: 'lg:col-span-3',
+}
+
+/**
+ * The tinted washes behind the cards, cycled in order.
+ *
+ * Very pale on purpose. The reference this follows uses saturated pastels, but
+ * SIWS's palette is blue and orange; six competing hues at full pastel strength
+ * would read as a different brand. At this lightness the tints separate one
+ * card from the next without arguing with the blue, and every one of them
+ * clears 4.5:1 against the brand type that sits on it — checked, not assumed.
+ */
+const CARD_TINTS = [
+  { surface: 'bg-[#eef2fc]', disc: 'bg-[#dbe4f8]', mark: 'text-[#2e3192]', accent: 'bg-[#2e3192]' },
+  { surface: 'bg-[#edf7f0]', disc: 'bg-[#d9ecdf]', mark: 'text-[#1f6b3f]', accent: 'bg-[#1f6b3f]' },
+  { surface: 'bg-[#f2f0fb]', disc: 'bg-[#e3def5]', mark: 'text-[#4b3d9c]', accent: 'bg-[#4b3d9c]' },
+  { surface: 'bg-[#fdf3e8]', disc: 'bg-[#f7e3cb]', mark: 'text-[#8a5211]', accent: 'bg-[#8a5211]' },
+  { surface: 'bg-[#ecf6f5]', disc: 'bg-[#d7ecea]', mark: 'text-[#15625c]', accent: 'bg-[#15625c]' },
+  { surface: 'bg-[#eaf4fb]', disc: 'bg-[#d4e8f6]', mark: 'text-[#0f5b85]', accent: 'bg-[#0f5b85]' },
+  { surface: 'bg-[#fbeff4]', disc: 'bg-[#f5dde8]', mark: 'text-[#8c2b56]', accent: 'bg-[#8c2b56]' },
+]
+
+/**
+ * Row sizes for counts where plain chunking reads badly.
+ *
+ * Five is the case that matters: chunks of four give three cards then two,
+ * where the pair on the second row stretch wide and dwarf the trio above them.
+ * Two then three puts the wide cards first, which is also where a photograph
+ * has room to be worth including.
+ */
+const ROW_PLAN: Record<number, number[]> = {
+  5: [2, 3],
+  // Six chunks to four then two, which leaves a pair stretched to half the
+  // section width under a row of four. Three and three is the even split.
+  6: [3, 3],
+}
 
 export const FeatureListBlockView = ({ block }: { block: FeatureListBlock }) => {
   const items = block.items ?? []
   if (items.length === 0) return null
+
+  if (block.layout === 'cards') return <FeatureCards block={block} />
 
   const numbered = block.marker === 'number'
   const twoColumns = block.columns !== '1'
@@ -40,6 +138,356 @@ export const FeatureListBlockView = ({ block }: { block: FeatureListBlock }) => 
           ))}
         </ul>
       )}
+    </Section>
+  )
+}
+
+/**
+ * The card layout: a picture on a tinted card, centred, in a grid whose last
+ * row always fills the width.
+ *
+ * Rows of four, except that a remainder of one would leave a single card
+ * stretched across the full width looking like a mistake — so those counts drop
+ * to rows of three instead. Spans are computed on a 12-column grid, and every
+ * possible row length (1, 2, 3, 4) divides 12 exactly, so no row can ever end
+ * ragged.
+ */
+const FeatureCards = ({ block }: { block: FeatureListBlock }) => {
+  const items = block.items ?? []
+  const perRow = items.length > 4 && items.length % 4 === 1 ? 3 : 4
+  const numbered = block.marker === 'number'
+
+  /*
+   * One card carrying a photograph sets the shape for the section: every card
+   * ranges left with its icon in the corner, and the ones with no photograph
+   * simply leave that column out. Deciding per card instead left a single
+   * centred card sitting in a row of left-aligned ones, looking like a fault.
+   */
+  const withPhotos = items.some((item) => item.photo)
+
+  /*
+   * One level below whatever the section heading turned out to be, so the
+   * outline never skips a rank (WCAG 2.1 SC 1.3.1). Hardcoding h4 was wrong
+   * the moment an editor left the heading at its default h2.
+   */
+  const CardTitle = block.heading && block.headingLevel === 'h3' ? 'h4' : 'h3'
+
+  const rows: (typeof items)[] = []
+  const plan = ROW_PLAN[items.length]
+  if (plan) {
+    let at = 0
+    for (const size of plan) {
+      rows.push(items.slice(at, at + size))
+      at += size
+    }
+  } else {
+    for (let i = 0; i < items.length; i += perRow) rows.push(items.slice(i, i + perRow))
+  }
+
+  /*
+   * A real ordered list when the numbers are the point, so a screen reader
+   * announces "3 of 5" rather than reading a decorative badge. The badge itself
+   * is then hidden from assistive tech — the list already carries the number.
+   */
+  const List = numbered ? 'ol' : 'ul'
+
+  return (
+    <Section background={block.background as BlockBackground}>
+      {block.eyebrow ? (
+        <p className="mx-auto mb-5 flex w-fit items-center gap-2.5 rounded-full bg-white px-5 py-2 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-brand ring-1 ring-line">
+          <Heart aria-hidden="true" size={15} strokeWidth={2.4} fill="currentColor" />
+          {block.eyebrow}
+        </p>
+      ) : null}
+
+      <SectionHeading
+        heading={block.heading}
+        accentWord={block.accentWord}
+        level={block.headingLevel}
+      />
+
+      {block.heading ? (
+        // A rule broken by a dot, echoing the reference. Decorative only, so it
+        // is hidden from screen readers — it carries no meaning to announce.
+        <div aria-hidden="true" className="mt-5 flex items-center justify-center gap-2">
+          <span className="h-px w-14 bg-line" />
+          <span className="size-1.5 rounded-full bg-brand/50" />
+          <span className="h-px w-14 bg-line" />
+        </div>
+      ) : null}
+
+      {block.intro ? <RichText data={block.intro} className="mx-auto mt-6 max-w-3xl" /> : null}
+
+      <List className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-12">
+        {rows.flatMap((row, rowIndex) =>
+          row.map((item, columnIndex) => {
+            /*
+             * Counted across the rows, not within one — the badge has to read
+             * 1…5 down the section, and the tint has to keep cycling rather
+             * than restart on every row.
+             */
+            const index = rows.slice(0, rowIndex).reduce((n, r) => n + r.length, 0) + columnIndex
+            const tint = CARD_TINTS[index % CARD_TINTS.length]!
+            /*
+             * Three ways to fill the disc, in order of how specific they are:
+             * a picture the school uploaded, one of the drawn illustrations,
+             * or — for the choices not yet drawn — the line icon.
+             */
+            const Illustration = item.icon ? FEATURE_ILLUSTRATIONS[item.icon] : undefined
+            const Glyph = item.icon ? FEATURE_GLYPHS[item.icon] : undefined
+            const Icon = item.icon ? FEATURE_ICONS[item.icon] : undefined
+
+            const disc = (
+              <span
+                aria-hidden="true"
+                className={`grid shrink-0 place-items-center rounded-full ${tint.disc} ${
+                  numbered ? 'size-16' : 'size-24 sm:size-28'
+                }`}
+              >
+                {item.illustration ? (
+                  /*
+                   * An uploaded picture wins over everything. The school can
+                   * drop in its own artwork later without anyone touching this
+                   * file.
+                   */
+                  <Media
+                    resource={item.illustration}
+                    sizes="112px"
+                    className={
+                      numbered ? 'size-10 object-contain' : 'size-18 object-contain sm:size-21'
+                    }
+                  />
+                ) : Illustration ? (
+                  <Illustration className={numbered ? 'size-11' : 'size-18 sm:size-21'} />
+                ) : Icon ? (
+                  <Icon size={numbered ? 26 : 40} strokeWidth={1.6} className={tint.mark} />
+                ) : (
+                  <Check size={numbered ? 24 : 38} strokeWidth={2} className={tint.mark} />
+                )}
+              </span>
+            )
+
+            /*
+             * Numbered cards read left-to-right — badge, title, rule, text, and
+             * the photograph down the side. Plain cards stay centred under a
+             * large disc. The two need different internals, not one layout
+             * bent to cover both.
+             */
+            if (numbered) {
+              return (
+                <li
+                  key={item.id ?? index}
+                  className={`relative isolate flex overflow-hidden rounded-2xl bg-white ring-1 ring-line ${
+                    SPAN_CLASS[row.length] ?? SPAN_CLASS[4]
+                  }`}
+                >
+                  {/*
+                    No corner wedge. It was drawn in the same colour as the
+                    badge, so the badge vanished into it and the numeral was
+                    left sitting on a coloured blob rather than in anything.
+                    The badge and the rule already carry the card's colour.
+                  */}
+                  <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
+                    <div className="flex items-start gap-3">
+                      <span
+                        aria-hidden="true"
+                        className={`grid size-9 shrink-0 place-items-center rounded-full text-[0.92rem] font-bold leading-none text-white tabular-nums ${tint.accent}`}
+                      >
+                        {index + 1}
+                      </span>
+                      <CardTitle className="text-balance pt-0.5 text-[1.02rem] font-bold leading-snug text-brand">
+                        {item.title}
+                      </CardTitle>
+                    </div>
+
+                    <span
+                      aria-hidden="true"
+                      className={`ml-12 mt-3.5 block h-1 w-8 rounded-full ${tint.accent}`}
+                    />
+
+                    {item.description ? (
+                      <p className="ml-12 mt-2.5 text-[0.92rem] leading-relaxed text-ink-soft">
+                        {item.description}
+                      </p>
+                    ) : null}
+
+                    {/* No photograph: the icon carries the card instead. */}
+                    {!item.photo ? <div className="ml-12 mt-4">{disc}</div> : null}
+                  </div>
+
+                  {item.photo ? (
+                    /*
+                     * A fixed share of the card rather than an aspect ratio, so
+                     * the picture fills its column however tall the text beside
+                     * it runs. Hidden on a phone, where a third of an
+                     * already-narrow card is a sliver, not a photograph.
+                     */
+                    <div className="relative hidden w-[34%] shrink-0 sm:block">
+                      <Media
+                        resource={item.photo}
+                        fill
+                        sizes="(min-width: 1024px) 20vw, 40vw"
+                        className="absolute inset-0 object-cover"
+                      />
+                      {/*
+                       * The icon rides the seam between photograph and text, so
+                       * the card keeps its icon without the text column giving
+                       * up any width for it.
+                       */}
+                      <span
+                        aria-hidden="true"
+                        className={`absolute -left-6 bottom-4 grid size-12 place-items-center rounded-full ring-4 ring-white ${tint.disc}`}
+                      >
+                        {Illustration ? (
+                          <Illustration className="size-8" />
+                        ) : Icon ? (
+                          <Icon size={20} strokeWidth={1.8} className={tint.mark} />
+                        ) : (
+                          <Check size={18} strokeWidth={2.4} className={tint.mark} />
+                        )}
+                      </span>
+                    </div>
+                  ) : null}
+                </li>
+              )
+            }
+
+            /*
+             * A photograph takes the right of the card, so the text beside it
+             * ranges left and the icon moves to the top-left corner. Centring
+             * the text against a picture pinned to one side would leave it
+             * visibly off-axis.
+             */
+            if (withPhotos) {
+              return (
+                <li
+                  key={item.id ?? index}
+                  className={`flex overflow-hidden rounded-2xl ${
+                    SPAN_CLASS[row.length] ?? SPAN_CLASS[4]
+                  } ${tint.surface}`}
+                >
+                  <div className="flex min-w-0 flex-1 flex-col p-5">
+                    {/*
+                      White, not tinted — the disc sits on a tinted card here,
+                      where the usual tinted disc would barely separate from it.
+                    */}
+                    <span
+                      aria-hidden="true"
+                      className={`grid size-12 shrink-0 place-items-center rounded-full bg-white shadow-sm ${tint.mark}`}
+                    >
+                      {Glyph ? (
+                        <Glyph className="size-6" />
+                      ) : Illustration ? (
+                        <Illustration className="size-8" />
+                      ) : Icon ? (
+                        <Icon size={22} strokeWidth={1.9} />
+                      ) : (
+                        <Check size={20} strokeWidth={2.4} />
+                      )}
+                    </span>
+
+                    <CardTitle className="mt-5 text-balance text-[1.05rem] font-bold leading-snug text-brand">
+                      {item.title}
+                    </CardTitle>
+
+                    <span
+                      aria-hidden="true"
+                      className={`mt-3 block h-1 w-8 rounded-full ${tint.accent}`}
+                    />
+
+                    {item.description ? (
+                      <p className="mt-3 text-[0.92rem] leading-relaxed text-ink-soft">
+                        {item.description}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  {/*
+                    36%, not 44%. At the wider figure the text column left in a
+                    three-across card ran to seven and eight lines, and the
+                    cards grew half as tall again as the design they follow.
+                  */}
+                  {item.photo ? (
+                    /*
+                     * The photograph floats: inset from all four card edges,
+                     * rounded, and lifted on a shadow. Bled to the edges it met
+                     * the text column along a hard vertical seam, and the card
+                     * read as two flat panels pushed together rather than one
+                     * object. Tinted card shows all the way round it now, so
+                     * there is no line left to see.
+                     */
+                    <div className="hidden w-[38%] shrink-0 self-center py-4 pr-4 sm:block">
+                      {/*
+                        A set 3:4 frame, centred against the text, rather than
+                        stretching to the card's full height. A tall card made a
+                        tall thin slot, and a landscape photograph filling it
+                        showed about a fifth of its width — everyone outside
+                        that strip was simply cropped away.
+                      */}
+                      <div className="relative aspect-3/4 overflow-hidden rounded-2xl shadow-[0_6px_20px_-6px_rgba(15,23,42,0.35)]">
+                        <Media
+                          resource={item.photo}
+                          fill
+                          /*
+                            Generous on purpose. The frame is around 150px wide,
+                            but a landscape photograph covering a portrait slot
+                            is scaled up by its height, so the file needs to be
+                            far wider than the slot — at 18vw the browser chose
+                            a derivative that was then enlarged, and the result
+                            was visibly soft.
+                          */
+                          sizes="(min-width: 1024px) 22vw, 45vw"
+                          className="absolute inset-0 object-cover"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                </li>
+              )
+            }
+
+            return (
+              <li
+                key={item.id ?? index}
+                className={`flex flex-col items-center rounded-2xl p-7 text-center sm:p-8 ${
+                  SPAN_CLASS[row.length] ?? SPAN_CLASS[4]
+                } ${tint.surface}`}
+              >
+                {disc}
+
+                <CardTitle className="mt-6 text-balance text-[1.05rem] font-bold text-brand">
+                  {item.title}
+                </CardTitle>
+
+                {item.description ? (
+                  /*
+                   * Centred, unlike body copy elsewhere on the site. Centring
+                   * costs the eye a fixed left edge to return to, which matters
+                   * over a paragraph — but these are one or two lines inside a
+                   * centred card, where ranging left would instead leave the
+                   * text visibly hanging off the icon above it.
+                   */
+                  <p className="mt-2.5 text-pretty text-[0.95rem] leading-relaxed text-ink-soft">
+                    {item.description}
+                  </p>
+                ) : null}
+              </li>
+            )
+          }),
+        )}
+      </List>
+
+      {block.footnote ? (
+        <p className="mx-auto mt-8 flex w-fit items-center gap-3 rounded-full bg-white px-6 py-3 text-center text-[0.95rem] text-ink-soft ring-1 ring-line">
+          <span
+            aria-hidden="true"
+            className="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-white"
+          >
+            <Heart size={16} strokeWidth={2.4} fill="currentColor" />
+          </span>
+          {block.footnote}
+        </p>
+      ) : null}
     </Section>
   )
 }
