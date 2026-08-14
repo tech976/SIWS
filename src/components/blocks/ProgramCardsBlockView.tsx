@@ -40,7 +40,7 @@ export const ProgramCardsBlockView = ({ block }: { block: ProgramCardsBlock }) =
       />
 
       {block.intro ? (
-        <RichText data={block.intro} className="mb-10 max-w-2xl" />
+        <RichText data={block.intro} className="mb-10 siws-centre mx-auto max-w-3xl" />
       ) : null}
 
       <ul className={`grid gap-6 ${columns}`}>

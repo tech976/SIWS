@@ -65,7 +65,7 @@ const PortalHome = async () => {
  */
 const FallbackIntro = ({ unitCount }: { unitCount: number }) => (
   <section className="siws-container py-20">
-    <h1 className="text-4xl sm:text-5xl">
+    <h1>
       South Indians&rsquo; Welfare Society <span className="heading-accent">(SIWS)</span>
     </h1>
     <p className="mt-5 max-w-2xl text-lg text-ink-muted">{TAGLINE}</p>

@@ -112,7 +112,12 @@ export const SectionHeading = ({
    * optically off from a narrower column beneath it.
    */
   const classes = [
-    level === 'h3' ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl',
+    /*
+     * NO SIZE HERE. The h2/h3 sizes come from the global scale in globals.css,
+     * so a section heading is the same size in every block on every page. This
+     * used to set 30px for an h3 and 36px for an h2, which quietly disagreed
+     * with the sizes other blocks chose for the same ranks.
+     */
     /*
      * No width cap. Capping at 3xl forced a heading to wrap before it had run
      * out of room — "About South Indians' Welfare Society" broke onto a second

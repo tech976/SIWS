@@ -27,7 +27,6 @@ import { Media } from '@/components/Media'
 import { RichText } from '@/components/RichText'
 import type { FeatureListBlock } from '@/payload-types'
 
-import { FEATURE_GLYPHS, FEATURE_ILLUSTRATIONS } from './FeatureIllustrations'
 import { Section, SectionHeading, type BlockBackground } from './Section'
 
 /** Keyed by the values in `FEATURE_ICON_OPTIONS`. */
@@ -77,13 +76,12 @@ const SPAN_CLASS: Record<number, string> = {
  * clears 4.5:1 against the brand type that sits on it — checked, not assumed.
  */
 const CARD_TINTS = [
-  { surface: 'bg-[#eef2fc]', disc: 'bg-[#dbe4f8]', mark: 'text-[#2e3192]', accent: 'bg-[#2e3192]' },
-  { surface: 'bg-[#edf7f0]', disc: 'bg-[#d9ecdf]', mark: 'text-[#1f6b3f]', accent: 'bg-[#1f6b3f]' },
-  { surface: 'bg-[#f2f0fb]', disc: 'bg-[#e3def5]', mark: 'text-[#4b3d9c]', accent: 'bg-[#4b3d9c]' },
-  { surface: 'bg-[#fdf3e8]', disc: 'bg-[#f7e3cb]', mark: 'text-[#8a5211]', accent: 'bg-[#8a5211]' },
-  { surface: 'bg-[#ecf6f5]', disc: 'bg-[#d7ecea]', mark: 'text-[#15625c]', accent: 'bg-[#15625c]' },
-  { surface: 'bg-[#eaf4fb]', disc: 'bg-[#d4e8f6]', mark: 'text-[#0f5b85]', accent: 'bg-[#0f5b85]' },
-  { surface: 'bg-[#fbeff4]', disc: 'bg-[#f5dde8]', mark: 'text-[#8c2b56]', accent: 'bg-[#8c2b56]' },
+  {
+    surface: 'bg-white ring-1 ring-line shadow-card',
+    disc: 'bg-brand',
+    mark: 'text-white',
+    accent: 'bg-brand',
+  },
 ]
 
 /**
@@ -106,6 +104,7 @@ export const FeatureListBlockView = ({ block }: { block: FeatureListBlock }) => 
   if (items.length === 0) return null
 
   if (block.layout === 'cards') return <FeatureCards block={block} />
+  if (block.layout === 'compact') return <FeatureCompact block={block} />
 
   const numbered = block.marker === 'number'
   const twoColumns = block.columns !== '1'
@@ -119,7 +118,7 @@ export const FeatureListBlockView = ({ block }: { block: FeatureListBlock }) => 
         className="mb-4"
       />
 
-      {block.intro ? <RichText data={block.intro} className="mb-9 max-w-3xl" /> : null}
+      {block.intro ? <RichText data={block.intro} className="mb-9 siws-centre mx-auto max-w-3xl" /> : null}
 
       {/*
         An ordered list when the marker is a number, so the numbering is real
@@ -138,6 +137,84 @@ export const FeatureListBlockView = ({ block }: { block: FeatureListBlock }) => 
           ))}
         </ul>
       )}
+    </Section>
+  )
+}
+
+/**
+ * The compact layout: a dense grid of labelled tiles.
+ *
+ * WHY IT EXISTS. A subject list is ten short labels. Given a card each, ten
+ * items became ten tall boxes holding one word apiece, most of their area
+ * empty, with the last row stretched across the width because ten does not
+ * divide by four. The same happened to the teaching methods. A card earns its
+ * size when it carries a picture and a sentence; a label does not.
+ *
+ * So: one row per item, icon beside the words rather than above them, three
+ * across on a desktop. The set reads as a syllabus at a glance instead of as a
+ * gallery of near-empty cards, and a ragged last row stops mattering because
+ * the tiles are the same height whatever falls where.
+ */
+const FeatureCompact = ({ block }: { block: FeatureListBlock }) => {
+  const items = block.items ?? []
+
+  /*
+   * One level below whatever the section heading turned out to be, so the
+   * outline never skips a rank (WCAG 2.1 SC 1.3.1).
+   */
+  const ItemTitle = block.heading && block.headingLevel === 'h3' ? 'h4' : 'h3'
+
+  return (
+    <Section background={block.background as BlockBackground}>
+      {block.eyebrow ? (
+        <p className="mx-auto mb-5 flex w-fit items-center gap-2.5 rounded-full bg-white px-5 py-2 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-brand ring-1 ring-line">
+          <Heart aria-hidden="true" size={15} strokeWidth={2.4} fill="currentColor" />
+          {block.eyebrow}
+        </p>
+      ) : null}
+
+      <SectionHeading
+        heading={block.heading}
+        accentWord={block.accentWord}
+        level={block.headingLevel}
+      />
+
+      {block.intro ? (
+        <RichText data={block.intro} className="siws-centre mx-auto mt-6 max-w-3xl" />
+      ) : null}
+
+      <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item, index) => {
+          const Icon = item.icon ? FEATURE_ICONS[item.icon] : undefined
+          return (
+            <li
+              key={item.id ?? index}
+              className="flex items-start gap-4 rounded-[10px] border border-line bg-white p-4"
+            >
+              {/* Solid disc, white mark — the one icon treatment used site-wide. */}
+              <span
+                aria-hidden="true"
+                className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand text-white"
+              >
+                {Icon ? (
+                  <Icon size={19} strokeWidth={1.9} />
+                ) : (
+                  <Check size={18} strokeWidth={2.4} />
+                )}
+              </span>
+
+              <span className="min-w-0">
+                <ItemTitle className="card-title font-semibold text-brand">{item.title}</ItemTitle>
+                {item.description ? (
+                  <span className="mt-1 block text-sm leading-snug text-ink-muted">
+                    {item.description}
+                  </span>
+                ) : null}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
     </Section>
   )
 }
@@ -216,7 +293,7 @@ const FeatureCards = ({ block }: { block: FeatureListBlock }) => {
         </div>
       ) : null}
 
-      {block.intro ? <RichText data={block.intro} className="mx-auto mt-6 max-w-3xl" /> : null}
+      {block.intro ? <RichText data={block.intro} className="mt-6 siws-centre mx-auto max-w-3xl" /> : null}
 
       <List className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-12">
         {rows.flatMap((row, rowIndex) =>
@@ -233,8 +310,6 @@ const FeatureCards = ({ block }: { block: FeatureListBlock }) => {
              * a picture the school uploaded, one of the drawn illustrations,
              * or — for the choices not yet drawn — the line icon.
              */
-            const Illustration = item.icon ? FEATURE_ILLUSTRATIONS[item.icon] : undefined
-            const Glyph = item.icon ? FEATURE_GLYPHS[item.icon] : undefined
             const Icon = item.icon ? FEATURE_ICONS[item.icon] : undefined
 
             const disc = (
@@ -257,8 +332,6 @@ const FeatureCards = ({ block }: { block: FeatureListBlock }) => {
                       numbered ? 'size-10 object-contain' : 'size-18 object-contain sm:size-21'
                     }
                   />
-                ) : Illustration ? (
-                  <Illustration className={numbered ? 'size-11' : 'size-18 sm:size-21'} />
                 ) : Icon ? (
                   <Icon size={numbered ? 26 : 40} strokeWidth={1.6} className={tint.mark} />
                 ) : (
@@ -295,7 +368,7 @@ const FeatureCards = ({ block }: { block: FeatureListBlock }) => {
                       >
                         {index + 1}
                       </span>
-                      <CardTitle className="text-balance pt-0.5 text-[1.02rem] font-bold leading-snug text-brand">
+                      <CardTitle className="card-title text-balance pt-0.5 font-bold text-brand">
                         {item.title}
                       </CardTitle>
                     </div>
@@ -338,9 +411,7 @@ const FeatureCards = ({ block }: { block: FeatureListBlock }) => {
                         aria-hidden="true"
                         className={`absolute -left-6 bottom-4 grid size-12 place-items-center rounded-full ring-4 ring-white ${tint.disc}`}
                       >
-                        {Illustration ? (
-                          <Illustration className="size-8" />
-                        ) : Icon ? (
+                        {Icon ? (
                           <Icon size={20} strokeWidth={1.8} className={tint.mark} />
                         ) : (
                           <Check size={18} strokeWidth={2.4} className={tint.mark} />
@@ -373,20 +444,16 @@ const FeatureCards = ({ block }: { block: FeatureListBlock }) => {
                     */}
                     <span
                       aria-hidden="true"
-                      className={`grid size-12 shrink-0 place-items-center rounded-full bg-white shadow-sm ${tint.mark}`}
+                      className={`grid size-12 shrink-0 place-items-center rounded-full ${tint.disc} ${tint.mark}`}
                     >
-                      {Glyph ? (
-                        <Glyph className="size-6" />
-                      ) : Illustration ? (
-                        <Illustration className="size-8" />
-                      ) : Icon ? (
+                      {Icon ? (
                         <Icon size={22} strokeWidth={1.9} />
                       ) : (
                         <Check size={20} strokeWidth={2.4} />
                       )}
                     </span>
 
-                    <CardTitle className="mt-5 text-balance text-[1.05rem] font-bold leading-snug text-brand">
+                    <CardTitle className="card-title mt-5 text-balance font-bold text-brand">
                       {item.title}
                     </CardTitle>
 
@@ -455,7 +522,7 @@ const FeatureCards = ({ block }: { block: FeatureListBlock }) => {
               >
                 {disc}
 
-                <CardTitle className="mt-6 text-balance text-[1.05rem] font-bold text-brand">
+                <CardTitle className="card-title mt-6 text-balance font-bold text-brand">
                   {item.title}
                 </CardTitle>
 

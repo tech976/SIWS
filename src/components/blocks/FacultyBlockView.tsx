@@ -68,7 +68,7 @@ export const FacultyBlockView = async ({
         className="mb-4"
       />
 
-      {block.intro ? <RichText data={block.intro} className="mb-9 max-w-3xl" /> : null}
+      {block.intro ? <RichText data={block.intro} className="mb-9 siws-centre mx-auto max-w-3xl" /> : null}
 
       <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {teachers.map((teacher) => (

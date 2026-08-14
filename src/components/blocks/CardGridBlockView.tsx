@@ -34,7 +34,7 @@ export const CardGridBlockView = ({ block }: { block: CardGridBlock }) => {
         />
       ) : null}
 
-      {block.intro ? <RichText data={block.intro} className="mb-10 max-w-3xl" /> : null}
+      {block.intro ? <RichText data={block.intro} className="mb-10 siws-centre mx-auto max-w-3xl" /> : null}
 
       <ul className={`grid gap-6 ${COLUMN_CLASS[columns] ?? COLUMN_CLASS['3']}`}>
         {cards.map((card, index) => {
@@ -64,7 +64,7 @@ export const CardGridBlockView = ({ block }: { block: CardGridBlock }) => {
                 reason — a two-line card has nothing to distribute.
               */}
               <div className="flex flex-1 flex-col p-6 text-center">
-                <h3 className="text-xl">
+                <h3 className="card-title">
                   {href && link ? (
                     /*
                      * The link wraps the title rather than the card. A card-wide

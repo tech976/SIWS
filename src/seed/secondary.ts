@@ -39,27 +39,32 @@ const CLASS_OPTIONS = [
   'Standard X',
 ]
 
+/*
+ * Icons are chosen for meaning, not decoration: the three language subjects
+ * share the book mark because that is what they have in common, and nothing
+ * here invents a description SIWS did not give.
+ */
 const SUBJECTS = [
-  { title: 'English' },
-  { title: 'Marathi' },
-  { title: 'Hindi' },
-  { title: 'Sanskrit' },
-  { title: 'Mathematics' },
-  { title: 'Science' },
-  { title: 'Social Science' },
-  { title: 'ICT', description: 'Information and Communication Technology.' },
-  { title: 'PT', description: 'Physical Training.' },
-  { title: 'Art & Craft' },
+  { title: 'English', icon: 'communication' },
+  { title: 'Marathi', icon: 'library' },
+  { title: 'Hindi', icon: 'library' },
+  { title: 'Sanskrit', icon: 'library' },
+  { title: 'Mathematics', icon: 'thinking' },
+  { title: 'Science', icon: 'laboratory' },
+  { title: 'Social Science', icon: 'study' },
+  { title: 'ICT', description: 'Information and Communication Technology.', icon: 'computers' },
+  { title: 'PT', description: 'Physical Training.', icon: 'sport' },
+  { title: 'Art & Craft', icon: 'activity' },
 ]
 
 const METHODOLOGY = [
-  { title: 'Activity-based learning' },
-  { title: 'Peer learning and group learning' },
-  { title: 'Collaborative projects' },
-  { title: 'Experiential learning' },
-  { title: 'Classroom discussions' },
-  { title: 'Technology-integrated instruction' },
-  { title: 'Continuous assessment' },
+  { title: 'Activity-based learning', icon: 'activity' },
+  { title: 'Peer learning and group learning', icon: 'staff' },
+  { title: 'Collaborative projects', icon: 'communication' },
+  { title: 'Experiential learning', icon: 'laboratory' },
+  { title: 'Classroom discussions', icon: 'classroom' },
+  { title: 'Technology-integrated instruction', icon: 'computers' },
+  { title: 'Continuous assessment', icon: 'study' },
   { title: 'Project work and hands-on activities' },
   { title: 'Real-life applications of classroom learning' },
 ]
@@ -313,6 +318,30 @@ const main = async () => {
     return doc.id
   }
 
+  /**
+   * Photographs, by the filename the importer gave them.
+   *
+   * Every one is from SIWS's own Secondary folder — no picture from another
+   * section appears on this site, because a Standard V parent looking at a
+   * kindergarten classroom has been told something untrue about the school
+   * their child would attend.
+   */
+  const photo = async (filename: string) => {
+    const { docs } = await payload.find({
+      collection: 'media',
+      where: { filename: { equals: filename } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    if (!docs[0]) payload.logger.warn(`Photograph missing from the library: ${filename}`)
+    return docs[0]?.id ?? null
+  }
+
+  const classroomAtWork = await photo('secondary-campus-facility-2-3.jpg')
+  const classroomActivity = await photo('secondary-extra-co-curricular-activities-11.jpg')
+  const recognition = await photo('secondary-award-recongnition-recongnition.jpg')
+
   // --------------------------------------------------------------- CONTACT
   /** Seeded before `home`, which links to it — see the note in primary.ts. */
   const contactPageId = await upsert({
@@ -391,7 +420,7 @@ const main = async () => {
         eyebrow: 'Maharashtra State Board | Standards V to X',
         // Plain string: the hero's `intro` is a textarea, not rich text.
         intro:
-          'A learner-centred, competency-based education aligned with NEP 2020 — with smart boards in every classroom, well-equipped science and computer laboratories, and a campus under CCTV surveillance throughout.',
+          'Standards V to X, taught to the Maharashtra State Board curriculum in line with NEP 2020 — on a Wadala campus the Society has run since 1934.',
         links: [
           {
             link: {
@@ -403,6 +432,30 @@ const main = async () => {
           },
         ],
       },
+
+      /*
+       * THE OPENING CLAIM, WITH A PHOTOGRAPH BESIDE IT.
+       *
+       * The section used to open on three prose blocks in a row. A parent
+       * deciding between schools reads the first screen and skims the rest, so
+       * the approach is stated once, plainly, next to a picture of it actually
+       * happening — a Standard V room mid-lesson.
+       */
+      {
+        blockType: 'mediaText',
+        heading: 'A learner-centred secondary school',
+        accentWord: 'learner-centred',
+        headingLevel: 'h2',
+        background: 'white',
+        imagePosition: 'left',
+        imageShape: 'rounded',
+        ...(classroomAtWork ? { image: classroomAtWork } : {}),
+        content: richText([
+          'Standards V to X follow the Maharashtra State Board curriculum, taught in alignment with the National Education Policy 2020. The approach is competency-based: lessons are built to develop conceptual understanding rather than recall, and to give every student regular practice in critical thinking, creativity and problem-solving.',
+          'Continuous assessment, project work and hands-on activity connect what happens in the classroom to life outside it — so a student leaves Standard X able to think, to explain their thinking, and to apply it.',
+        ]),
+      },
+
       {
         blockType: 'statistics',
         heading: 'SSC Examination 2026',
@@ -415,42 +468,141 @@ const main = async () => {
           { value: '60', label: 'Passed with Distinction' },
         ],
       },
+
       {
         blockType: 'featureList',
         heading: 'How the 2026 results broke down',
         headingLevel: 'h2',
+        layout: 'cards',
         marker: 'tick',
-        columns: '2',
         background: 'white',
         intro: richText([
-          'The South Indians’ Welfare Society High School proudly achieved an outstanding 99.53% result in the SSC Examination 2026. This exceptional achievement reflects the hard work of our students, the dedication of our teachers, and the continuous support of our parents.',
+          'Two hundred and fifteen students sat the examination and two hundred and fourteen passed.',
         ]),
         items: SSC_2026.grades,
       },
+
+      /*
+       * The subjects, as a scannable grid rather than a paragraph. This is the
+       * question a parent moving a child between boards asks first, and a list
+       * buried in prose makes them hunt for it.
+       */
       {
-        blockType: 'richText',
-        heading: 'What makes SIWS different',
-        accentWord: 'different',
+        blockType: 'featureList',
+        heading: 'What students study',
+        accentWord: 'study',
         headingLevel: 'h2',
-        width: 'normal',
+        layout: 'compact',
+        marker: 'tick',
         background: 'tint',
-        content: richText([
-          'Our institution stands out through its commitment to holistic education, academic excellence and value-based learning. We provide experienced teachers, well-equipped science and computer laboratories, a supportive learning environment, and a strong focus on sports, arts and co-curricular activities.',
-          'We encourage innovation, leadership, environmental awareness and community service, helping students develop into confident, responsible and future-ready individuals.',
+        intro: richText([
+          'Ten subjects across Standards V to X, as prescribed by the Maharashtra State Board.',
         ]),
+        items: SUBJECTS,
       },
+
       {
-        blockType: 'richText',
-        heading: 'Modern facilities',
-        accentWord: 'Modern',
+        blockType: 'featureList',
+        heading: 'How we teach',
+        accentWord: 'teach',
         headingLevel: 'h2',
-        width: 'narrow',
+        layout: 'compact',
+        marker: 'tick',
         background: 'white',
+        intro: richText([
+          'The methods used across the section, chosen so that understanding is built rather than memorised.',
+        ]),
+        items: METHODOLOGY,
+      },
+
+      /*
+       * Co-curricular life, beside a photograph of it. The paragraph SIWS
+       * supplied credits the teachers who run these programmes, which is worth
+       * keeping — it is the part a prospectus usually leaves out.
+       */
+      {
+        blockType: 'mediaText',
+        heading: 'Beyond the classroom',
+        accentWord: 'Beyond',
+        headingLevel: 'h2',
+        background: 'white',
+        imagePosition: 'right',
+        imageShape: 'rounded',
+        ...(classroomActivity ? { image: classroomActivity } : {}),
         content: richText([
-          'Our institution is committed to providing a modern, safe and technology-enabled learning environment. Every classroom is equipped with smart boards to make learning interactive, engaging and effective. All classrooms and the school premises are under CCTV surveillance, ensuring the safety and security of our students and staff.',
-          'The campus includes well-equipped classrooms, science and computer laboratories, a library and sports facilities. Clean and secure surroundings, along with CCTV surveillance and hygienic infrastructure, support the academic, physical and personal development of every learner.',
+          'Sports, cultural performances, music, dance, art, debates and competitions run through the year, giving students room to find what they are good at outside an examination hall.',
+          'Behind each one is the planning of the teachers who organise it — the encouragement that turns a student who has never entered a competition into one who does.',
         ]),
       },
+
+      /*
+       * The state's own recognition, photographed. SIWS left the
+       * "accreditation" line of their document blank, but the certificate in
+       * their photographs answers it: the wording here is exactly what the
+       * certificate says, and nothing beyond it is claimed.
+       */
+      {
+        blockType: 'mediaText',
+        heading: 'Recognised by the State',
+        accentWord: 'Recognised',
+        headingLevel: 'h2',
+        background: 'tint',
+        imagePosition: 'left',
+        imageShape: 'rounded',
+        ...(recognition ? { image: recognition } : {}),
+        content: richText([
+          'S.I.W.S. High School was certified amongst the 100 Best Schools in Maharashtra under #SwachhtaMonitor 2023, awarded by the School Education and Sports Department, Government of Maharashtra.',
+        ]),
+      },
+
+      {
+        blockType: 'featureList',
+        heading: 'Why families choose SIWS High School',
+        accentWord: 'SIWS High School',
+        headingLevel: 'h2',
+        layout: 'cards',
+        marker: 'tick',
+        background: 'white',
+        items: [
+          {
+            title: 'Experienced faculty',
+            description:
+              'Thirty-nine teachers, qualified to B.Ed., M.Ed., D.Ed. and postgraduate level, who upgrade their practice through regular training.',
+            icon: 'staff',
+          },
+          {
+            title: 'Smart boards in every classroom',
+            description:
+              'Technology-integrated instruction, with digital learning resources used as part of ordinary lessons rather than as an occasional treat.',
+            icon: 'computers',
+          },
+          {
+            title: 'Science and computer laboratories',
+            description:
+              'Well-equipped laboratories, a library and sports facilities on the Wadala campus.',
+            icon: 'laboratory',
+          },
+          {
+            title: 'A campus under CCTV surveillance',
+            description:
+              'Classrooms and premises are monitored throughout, with clean and secure surroundings and hygienic infrastructure.',
+            icon: 'security',
+          },
+          {
+            title: 'Sports, arts and community service',
+            description:
+              'Innovation, leadership, environmental awareness and community service run alongside the academic programme.',
+            icon: 'activity',
+          },
+          {
+            title: 'Ninety years in Wadala',
+            description:
+              'The Society has taught in this city since 1934, and a student can stay within it from Kindergarten to postgraduate study.',
+            icon: 'study',
+          },
+        ],
+      },
+
       {
         blockType: 'richText',
         heading: 'Where our students go next',
@@ -459,10 +611,10 @@ const main = async () => {
         width: 'narrow',
         background: 'sea',
         content: richText([
-          'Our institution provides a strong academic foundation that prepares students for higher education and future success. After successfully completing the SSC examination, students can pursue admission to Junior Colleges in the Science and Commerce streams, according to their interests and career goals.',
-          'The knowledge, skills and values acquired during their school education enable them to progress confidently to degree colleges, professional courses and diverse career opportunities.',
+          'After the SSC examination, students move on to Junior College in the Science and Commerce streams according to their interests — and from there to degree colleges, professional courses and the careers that follow.',
         ]),
       },
+
       {
         blockType: 'callToAction',
         heading: 'Come and see the school for yourself',

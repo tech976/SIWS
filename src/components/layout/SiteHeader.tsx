@@ -108,7 +108,15 @@ export const SiteHeader = ({ unit, units = [], navItems, quickLinks = [], infoTe
       {/* --- Band 3: this section's own navigation ---------------------- */}
       {navItems.length > 0 || cta ? (
         <div className="relative border-y border-line">
-          <div className="siws-container flex items-center gap-6 py-2.5">
+          {/*
+            WRAPS RATHER THAN SQUASHES. A unit with nine top-level items
+            (Primary) left the enquiry button 83px wide, truncated mid-word,
+            while a unit with seven (Kindergarten) gave it 224px. The row now
+            drops the controls to a second line when the menu is long, so the
+            call to action is readable on every section instead of only the
+            short ones.
+          */}
+          <div className="siws-container flex flex-wrap items-center gap-x-6 gap-y-2 py-2.5">
             <PrimaryNav items={navItems} quickLinks={quickLinks} cta={cta} />
           </div>
         </div>

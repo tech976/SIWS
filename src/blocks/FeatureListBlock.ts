@@ -143,10 +143,14 @@ export const FeatureListBlock: Block = {
         options: [
           { label: 'List — a tick or a number beside each point', value: 'list' },
           { label: 'Cards — a picture on a tinted card', value: 'cards' },
+          {
+            label: 'Compact — a dense grid of labelled tiles',
+            value: 'compact',
+          },
         ],
         admin: {
           description:
-            'Cards suit a handful of facilities a parent should be able to scan. A list suits rules, curricula and anything long.',
+            'Cards suit a handful of facilities a parent should be able to scan. A list suits rules, curricula and anything long. Compact suits a set of short labels — a subject list, a set of methods — where a full card per item is mostly empty space.',
         },
       },
       {

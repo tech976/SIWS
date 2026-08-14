@@ -68,7 +68,18 @@ export const HeroBlockView = ({ block }: { block: HeroBlock }) => {
         data-invert={inverted ? "true" : undefined}
         className={`relative isolate ${BACKGROUND_CLASS[variant] ?? BACKGROUND_CLASS.brand}`}
       >
-        <div className="siws-container py-16 sm:py-24">
+        {/*
+          CENTRED, like the banner that has a photograph.
+
+          This branch used to range left while the photographic banner centred,
+          so a visitor moving between a unit's home page and its inner pages
+          met two different openings. The eyebrow is `inline-flex`, which is
+          inline-level, so `text-center` on this container centres the pill
+          itself rather than only the words inside it; the capped columns need
+          `mx-auto` because a max-width block still sits at the left edge of
+          its container however its text is aligned.
+        */}
+        <div className="siws-container py-16 text-center sm:py-24">
           {block.eyebrow ? (
             <p
               className={`inline-flex items-center rounded-pill border px-4 py-1.5 text-xs font-semibold tracking-[0.14em] uppercase ${
@@ -81,20 +92,20 @@ export const HeroBlockView = ({ block }: { block: HeroBlock }) => {
             </p>
           ) : null}
 
-          <h1 className="mt-6 max-w-4xl text-4xl sm:text-5xl lg:text-6xl">
+          <h1 className="mx-auto mt-6 max-w-4xl text-balance">
             {title}
           </h1>
 
           {block.intro ? (
             <p
-              className={`mt-6 max-w-2xl text-balance text-lg ${inverted ? "text-white/85" : "text-ink-soft"}`}
+              className={`mx-auto mt-6 max-w-2xl text-balance text-lg ${inverted ? "text-white/85" : "text-ink-soft"}`}
             >
               {block.intro}
             </p>
           ) : null}
 
           {links.length > 0 ? (
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
               {links.map((entry, i) => (
                 <CMSLink key={entry.id ?? i} link={entry.link} />
               ))}
@@ -140,7 +151,9 @@ export const HeroBlockView = ({ block }: { block: HeroBlock }) => {
           </p>
         ) : null}
 
-        <h1 className="mt-7 text-[2rem] leading-[1.06] tracking-tight text-balance sm:text-4xl lg:text-[2.9rem]">
+        {/* Size from the global h1 scale; the tight leading is this banner's own,
+            so a two-line title stays a block over the photograph. */}
+        <h1 className="mt-7 leading-[1.06] tracking-tight text-balance">
           {title}
         </h1>
 

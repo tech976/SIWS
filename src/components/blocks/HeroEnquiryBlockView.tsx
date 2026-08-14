@@ -119,7 +119,7 @@ export const HeroEnquiryBlockView = ({
 
         {/* --- Right: the enquiry card ----------------------------------- */}
         <div className="siws-card self-start">
-          <h2 className="text-2xl text-brand">
+          <h2 className="card-title text-brand">
             {block.form?.title ?? 'Book a Free Campus Tour'}
           </h2>
 

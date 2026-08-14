@@ -234,7 +234,9 @@ export const PrimaryNav = ({ items, quickLinks = [], cta }: PrimaryNavProps) => 
         <QuickLinks links={quickLinks} />
 
         {cta ? (
-          <Link href={cta.href} className="btn-primary hidden max-w-56 truncate text-sm sm:inline-flex">
+          <Link href={cta.href} // No max-width or truncation: the row above wraps instead, so the label
+          // never has to be cut. `whitespace-nowrap` keeps it on one line.
+          className="btn-primary hidden whitespace-nowrap text-sm sm:inline-flex">
             {cta.label}
           </Link>
         ) : null}

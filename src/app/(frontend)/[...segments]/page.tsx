@@ -60,7 +60,7 @@ const DynamicRoute = async ({ params }: RouteProps) => {
             */}
             {hasOwnHeading(page.layout, page.title) ? null : (
               <header className="siws-container pt-12 pb-2">
-                <h1 className="text-4xl sm:text-5xl">{page.title}</h1>
+                <h1>{page.title}</h1>
                 {page.intro ? (
                   <p className="mt-4 max-w-3xl text-lg text-ink-muted">{page.intro}</p>
                 ) : null}
@@ -84,7 +84,7 @@ const DynamicRoute = async ({ params }: RouteProps) => {
  */
 const UnitPlaceholder = ({ unit }: { unit: Unit }) => (
   <section className="siws-container py-16">
-    <h1 className="text-4xl sm:text-5xl">{unit.name}</h1>
+    <h1>{unit.name}</h1>
     {unit.description ? (
       <p className="mt-5 max-w-2xl text-lg text-ink-muted">{unit.description}</p>
     ) : null}

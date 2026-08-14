@@ -35,6 +35,20 @@ import { Section, SectionHeading, type BlockBackground } from './Section'
  * The circle is exempt: a circle stretched to a text column is an ellipse.
  */
 const SHAPE_CLASS: Record<string, string> = {
+  /*
+   * THE FRAME STRETCHES TO THE ROW ON DESKTOP.
+   *
+   * A fixed ratio was tried here to stop a photograph being cropped, and it
+   * cost too much: on the portal, where these sections carry several
+   * paragraphs, the picture no longer grew with the text and the History and
+   * About bands visibly shrank. The stretch is what makes the image read as
+   * the subject of the band rather than as an illustration beside it.
+   *
+   * The cropping it can cause is fixed at the source instead — by uploading a
+   * LANDSCAPE photograph. A portrait upload stretched into a wide frame loses
+   * its top and bottom, which is where faces are; that is what went wrong on
+   * Primary, and the answer was a better photograph, not a smaller frame.
+   */
   rounded: 'rounded-2xl aspect-[5/4] lg:aspect-auto lg:h-full',
   square: 'rounded-none aspect-[5/4] lg:aspect-auto lg:h-full',
   circle: 'rounded-full aspect-square',
@@ -43,6 +57,59 @@ const SHAPE_CLASS: Record<string, string> = {
 export const MediaTextBlockView = ({ block }: { block: MediaTextBlock }) => {
   const imageFirst = block.imagePosition !== 'right'
   const cta = block.cta?.[0]?.link
+
+  /* ------------------------------------------------------------- image above
+   *
+   * A stacked band: heading, then the photograph across the full measure, then
+   * the words beneath it.
+   *
+   * The side-by-side split is right when the text has enough substance to hold
+   * its own column. When it is two or three lines it does not — the column runs
+   * out halfway down and leaves a pane of empty white beside a tall picture,
+   * which is what "the alignment is not correct" meant. Stacking gives the
+   * photograph the whole width, which is the point of choosing this option, and
+   * the short text sits under it as a caption would.
+   *
+   * The frame keeps a wide ratio rather than stretching: there is no text
+   * column beside it to match a height to.
+   */
+  if (block.imagePosition === 'above') {
+    return (
+      <Section background={block.background as BlockBackground}>
+        <div className="mb-10">
+          <span aria-hidden="true" className="mx-auto mb-5 block h-1 w-12 rounded-full bg-accent" />
+          <SectionHeading
+            heading={block.heading}
+            accentWord={block.accentWord}
+            level={block.headingLevel}
+          />
+        </div>
+
+        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl shadow-card sm:aspect-[21/9]">
+          <Media resource={block.image} sizes="100vw" fill className="object-cover" />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand/45 via-brand/5 to-transparent"
+          />
+        </div>
+
+        {/*
+          A measured column under a full-width picture. Left to the container
+          the line would run the whole 1200px and be unreadable; centred, it
+          sits on the same axis as the heading above it.
+        */}
+        <div className="siws-centre mx-auto mt-10 max-w-3xl">
+          <RichText data={block.content} />
+
+          {cta ? (
+            <div className="mt-7">
+              <CMSLink link={cta} />
+            </div>
+          ) : null}
+        </div>
+      </Section>
+    )
+  }
 
   return (
     <Section background={block.background as BlockBackground}>

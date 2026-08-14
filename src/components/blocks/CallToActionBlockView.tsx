@@ -10,7 +10,7 @@ export const CallToActionBlockView = ({ block }: { block: CallToActionBlock }) =
   return (
     <Section background={block.background as BlockBackground}>
       <div className="siws-centre mx-auto max-w-3xl">
-        <h2 className="text-3xl sm:text-4xl">{block.heading}</h2>
+        <h2>{block.heading}</h2>
 
         {block.text ? (
           <RichText data={block.text} className="mt-4 [&_a]:text-inherit" />

@@ -94,7 +94,7 @@ export const GalleryBlockView = ({ block }: { block: GalleryBlock }) => {
         className="mb-4"
       />
 
-      {block.intro ? <RichText data={block.intro} className="mb-8 max-w-3xl" /> : null}
+      {block.intro ? <RichText data={block.intro} className="mb-8 siws-centre mx-auto max-w-3xl" /> : null}
 
       {isGrid && images.length > perPage ? (
         <GalleryPager items={cards} perPage={perPage} />

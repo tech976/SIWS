@@ -33,6 +33,7 @@ export const MediaTextBlock: Block = {
           options: [
             { label: 'Image on the left', value: 'left' },
             { label: 'Image on the right', value: 'right' },
+            { label: 'Image above the text', value: 'above' },
           ],
           admin: {
             width: '50%',

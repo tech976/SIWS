@@ -75,7 +75,7 @@ export const UnitLinksBlockView = ({
             ) : null}
 
             <div className="flex flex-1 flex-col p-6">
-              <h3 className="text-2xl">
+              <h3 className="card-title">
                 {/* The overlay makes the whole card clickable while keeping the
                     accessible name to just the school. */}
                 <Link

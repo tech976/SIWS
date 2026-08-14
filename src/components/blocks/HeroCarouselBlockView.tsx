@@ -96,7 +96,7 @@ export const HeroCarouselBlockView = ({ block }: { block: HeroCarouselBlock }) =
                   */}
                   <div className="max-w-3xl rounded-xl bg-white/95 p-4 backdrop-blur-sm sm:p-5">
                     {slide.title ? (
-                      <h2 className="text-xl text-brand sm:text-2xl">{slide.title}</h2>
+                      <h2 className="card-title text-brand">{slide.title}</h2>
                     ) : null}
 
                     {slide.caption ? (
