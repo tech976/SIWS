@@ -307,6 +307,48 @@ Without this, a new field exists in the code and not in the database, and the
 page that uses it fails at runtime. Generate the first migration before the
 next schema change rather than in the middle of an incident.
 
+### Until the first migration exists
+
+There is still no `src/migrations/`, so the command above has nothing to build
+on. For an **additive** change — a new collection, a new field, a new value in a
+select — the schema can be reconciled once, deliberately:
+
+```bash
+# on the server, as the app user, in the project directory
+pg_dump "$DATABASE_URI" > ~/backup-before-schema-$(date +%F-%H%M).sql   # always
+
+PAYLOAD_ALLOW_SCHEMA_PUSH=true npm run payload -- migrate:status         # boots once, reconciles
+pm2 restart siws                                                        # back to normal, hatch closed
+```
+
+`PAYLOAD_ALLOW_SCHEMA_PUSH` must **not** be set in `.env` or in the pm2
+environment. It is for one command, and the restart afterwards is what closes
+it again.
+
+This is safe for additions because there is nothing for the reconciler to
+remove. It is **not** safe for a change that drops a column, renames a field or
+narrows a type — those want a reviewed migration, and are the reason the first
+one should be generated soon.
+
+#### The Head of Department release specifically
+
+That release adds eight tables and one enum value, all additive:
+
+| | |
+| --- | --- |
+| New tables | `posts`, `posts_rels`, `_posts_v`, `_posts_v_rels`, `announcements`, `announcements_rels`, `_announcements_v`, `_announcements_v_rels` |
+| Changed type | `enum_users_roles` gains `hod` |
+
+Nothing is dropped or altered. After the schema is in place, create the
+accounts and change their passwords at once:
+
+```bash
+npm run seed:hod
+```
+
+The seed prints the password it used. Those accounts are real logins on a public
+site — change every one of them before handing them out.
+
 ---
 
 ## Sizing notes

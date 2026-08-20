@@ -69,9 +69,21 @@ export default buildConfig({
 
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URI || '' },
-    // Migrations are generated and reviewed rather than applied implicitly, so
-    // a schema change can never surprise the production database.
-    push: process.env.NODE_ENV !== 'production',
+    /**
+     * Development reconciles the schema on boot; production does not, so a
+     * schema change can never surprise the live database.
+     *
+     * The escape hatch exists because this project has no `src/migrations/`
+     * yet, and without it the only way to add a table to the live database is
+     * to improvise during a deploy. It is off unless someone sets the variable
+     * for a single run, and the deployment guide says to unset it immediately
+     * afterwards. Additive changes — a new collection, a new field — are what
+     * it is for; anything that drops or narrows a column still wants a
+     * reviewed migration.
+     */
+    push:
+      process.env.NODE_ENV !== 'production' ||
+      process.env.PAYLOAD_ALLOW_SCHEMA_PUSH === 'true',
   }),
 
   sharp,
