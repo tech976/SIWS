@@ -67,6 +67,8 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    posts: Post;
+    announcements: Announcement;
     pages: Page;
     faculty: Faculty;
     media: Media;
@@ -81,6 +83,8 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    posts: PostsSelect<false> | PostsSelect<true>;
+    announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -128,101 +132,69 @@ export interface UserAuthOperations {
   };
 }
 /**
- * The ordinary pages of the website. Each school keeps its own set, so all four can have their own "Admissions" page.
+ * Fill in the steps below, then use the eye icon at the top to see the page beside your writing, or the arrow to open it in a new tab. Nothing is public until you press Publish.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
+ * via the `definition` "posts".
  */
-export interface Page {
+export interface Post {
   id: number;
   /**
-   * The big heading at the top of the page, and the name shown on the browser tab.
+   * You can change this later and look again.
+   */
+  template: 'story' | 'album' | 'notice';
+  /**
+   * For example: Independence Day Celebrations 2026
    */
   title: string;
   /**
-   * A short introduction shown under the heading. Optional.
+   * The day it happened, or the day it is happening.
    */
-  intro?: string | null;
+  date: string;
   /**
-   * Build your page by adding sections. Drag them by the handle to change the order.
+   * This is what people read first, and what shows up on Google. Plain sentences are best.
    */
-  layout?:
-    | (
-        | HeroBlock
-        | HeroCarouselBlock
-        | RichTextBlock
-        | MediaTextBlock
-        | CardGridBlock
-        | BentoBlock
-        | ProgramCardsBlock
-        | FeatureListBlock
-        | FacultyBlock
-        | GalleryBlock
-        | DividerBlock
-        | MapBlock
-        | AccordionBlock
-        | AnnouncementsBlock
-        | QuickNavBlock
-        | LogoStripBlock
-        | TestimonialsBlock
-        | StatisticsBlock
-        | UnitLinksBlock
-        | CallToActionBlock
-        | HeroEnquiryBlock
-      )[]
-    | null;
+  summary?: string | null;
   /**
-   * A different title just for Google. Keep it under 60 characters or Google will cut it short.
+   * Only if you want to say more. A photo album often needs nothing here at all.
    */
-  metaTitle?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
-   * The grey summary Google shows under the title. About 150 characters works best.
+   * Drag them in, as many as you like. Each one needs a line saying what is in it — that line is what a blind visitor hears instead of the picture.
    */
-  metaDescription?: string | null;
+  photos?: (number | Media)[] | null;
   /**
-   * The picture people see when this page is shared on WhatsApp or Facebook.
+   * Paste a YouTube link, or upload a file. Leave it empty if none.
    */
-  ogImage?: (number | null) | Media;
+  video?: {
+    /**
+     * Paste the address from the browser bar. Leave blank if none.
+     */
+    youtubeUrl?: string | null;
+    file?: (number | null) | Media;
+  };
   /**
-   * The page still works for anyone with the link, but will not show up in Google.
-   */
-  noIndex?: boolean | null;
-  /**
-   * Which school this page belongs to. Only an administrator can leave this empty to put a page on the main SIWS site.
+   * Which school this belongs to. Yours is filled in for you.
    */
   unit?: (number | null) | Unit;
   /**
-   * The last part of the web address. Leave blank and we will create it from the title.
+   * The web address, made from the title. Filled in automatically.
    */
-  slug: string;
-  /**
-   * Adds this page to the menu at the top of the site. Keep the menu short — about seven items reads best.
-   */
-  showInNav?: boolean | null;
-  /**
-   * A shorter name to use in the menu. Leave blank to use the page title.
-   */
-  navLabel?: string | null;
-  /**
-   * Lower numbers appear first in the menu.
-   */
-  navOrder?: number | null;
-  /**
-   * Optional. Puts this page in the drop-down beneath another menu item. Leave blank to make it a top-level item.
-   */
-  navParent?: (number | null) | Page;
-  /**
-   * When your work is ready, choose “Submitted for review”. Your head of school is emailed and can either approve it or send it back with a note.
-   */
-  reviewStatus: 'draft' | 'in_review' | 'changes_requested' | 'approved';
-  /**
-   * The person who wrote this will see your note. Explain what needs changing.
-   */
-  reviewNote?: string | null;
-  submittedBy?: (number | null) | User;
-  submittedAt?: string | null;
-  reviewedBy?: (number | null) | User;
-  reviewedAt?: string | null;
+  slug?: string | null;
   /**
    * Optional. Keeps this hidden until the date and time you choose, even after you publish it.
    */
@@ -234,80 +206,6 @@ export interface Page {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "HeroBlock".
- */
-export interface HeroBlock {
-  /**
-   * Optional. e.g. "Since 1934".
-   */
-  eyebrow?: string | null;
-  title: string;
-  /**
-   * Optional. Type a word from the heading to show it in SIWS accent.
-   */
-  accentWord?: string | null;
-  /**
-   * Optional. One or two sentences below the heading.
-   */
-  intro?: string | null;
-  /**
-   * Optional. Shown as a wide picture beneath the heading, not behind the text — so the photograph stays fully visible and the words stay legible without an overlay dimming it.
-   */
-  image?: (number | null) | Media;
-  /**
-   * Optional. Up to three short facts shown on the picture — e.g. "1934" / "Serving Mumbai since".
-   */
-  highlights?:
-    | {
-        /**
-         * Keep it short — "1934", "KG–PG", "SSC Board".
-         */
-        value: string;
-        /**
-         * Optional. The smaller line beneath.
-         */
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  links?:
-    | {
-        link: {
-          /**
-           * The words people will see and click. Say where it goes — “Download the admission form”, not “Click here”.
-           */
-          label: string;
-          type: 'internal' | 'external';
-          /**
-           * Links to other websites always open in a new tab.
-           */
-          newTab?: boolean | null;
-          /**
-           * If that page is later removed, this link hides itself instead of breaking.
-           */
-          reference?: {
-            relationTo: 'pages';
-            value: number | Page;
-          } | null;
-          url?: string | null;
-          /**
-           * How the link is styled.
-           */
-          appearance?: ('primary' | 'secondary' | 'plain') | null;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Text colour adjusts automatically so it stays readable.
-   */
-  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'hero';
 }
 /**
  * Pictures and PDFs used anywhere on the website. Never upload anything containing someone’s personal details here.
@@ -541,7 +439,7 @@ export interface User {
   /**
    * What this person is allowed to do. You can tick more than one — for example a Content Manager who is also the Data Protection Officer.
    */
-  roles: ('admin' | 'unitHead' | 'contentManager' | 'editor' | 'dpo')[];
+  roles: ('admin' | 'unitHead' | 'contentManager' | 'hod' | 'editor' | 'dpo')[];
   /**
    * Which school this person works in. Administrators can already work in all four, so they do not need one.
    */
@@ -594,6 +492,232 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * Short lines that scroll across the top of the site. Keep each one to a single sentence.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements".
+ */
+export interface Announcement {
+  id: number;
+  /**
+   * For example: SIWS School celebrates India’s 80th Independence Day with grandeur and pride.
+   */
+  message: string;
+  /**
+   * This decides the colour of the label in front of your sentence.
+   */
+  tone: 'news' | 'achievement' | 'event' | 'urgent';
+  /**
+   * Choose one of your write-ups and the sentence becomes clickable. Leave it empty otherwise.
+   */
+  link?:
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null);
+  /**
+   * Which school this is from. Yours is filled in for you. Announcements from every school appear on the main SIWS ticker.
+   */
+  unit?: (number | null) | Unit;
+  /**
+   * Optional. Keeps this hidden until the date and time you choose, even after you publish it.
+   */
+  publishAt?: string | null;
+  /**
+   * Optional. Takes this off the website automatically — useful for a notice that expires.
+   */
+  unpublishAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * The ordinary pages of the website. Each school keeps its own set, so all four can have their own "Admissions" page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  /**
+   * The big heading at the top of the page, and the name shown on the browser tab.
+   */
+  title: string;
+  /**
+   * A short introduction shown under the heading. Optional.
+   */
+  intro?: string | null;
+  /**
+   * Build your page by adding sections. Drag them by the handle to change the order.
+   */
+  layout?:
+    | (
+        | HeroBlock
+        | HeroCarouselBlock
+        | RichTextBlock
+        | MediaTextBlock
+        | CardGridBlock
+        | BentoBlock
+        | ProgramCardsBlock
+        | FeatureListBlock
+        | FacultyBlock
+        | GalleryBlock
+        | DividerBlock
+        | MapBlock
+        | AccordionBlock
+        | AnnouncementsBlock
+        | QuickNavBlock
+        | LogoStripBlock
+        | TestimonialsBlock
+        | StatisticsBlock
+        | UnitLinksBlock
+        | CallToActionBlock
+        | HeroEnquiryBlock
+      )[]
+    | null;
+  /**
+   * A different title just for Google. Keep it under 60 characters or Google will cut it short.
+   */
+  metaTitle?: string | null;
+  /**
+   * The grey summary Google shows under the title. About 150 characters works best.
+   */
+  metaDescription?: string | null;
+  /**
+   * The picture people see when this page is shared on WhatsApp or Facebook.
+   */
+  ogImage?: (number | null) | Media;
+  /**
+   * The page still works for anyone with the link, but will not show up in Google.
+   */
+  noIndex?: boolean | null;
+  /**
+   * Which school this page belongs to. Only an administrator can leave this empty to put a page on the main SIWS site.
+   */
+  unit?: (number | null) | Unit;
+  /**
+   * The last part of the web address. Leave blank and we will create it from the title.
+   */
+  slug: string;
+  /**
+   * Adds this page to the menu at the top of the site. Keep the menu short — about seven items reads best.
+   */
+  showInNav?: boolean | null;
+  /**
+   * A shorter name to use in the menu. Leave blank to use the page title.
+   */
+  navLabel?: string | null;
+  /**
+   * Lower numbers appear first in the menu.
+   */
+  navOrder?: number | null;
+  /**
+   * Optional. Puts this page in the drop-down beneath another menu item. Leave blank to make it a top-level item.
+   */
+  navParent?: (number | null) | Page;
+  /**
+   * When your work is ready, choose “Submitted for review”. Your head of school is emailed and can either approve it or send it back with a note.
+   */
+  reviewStatus: 'draft' | 'in_review' | 'changes_requested' | 'approved';
+  /**
+   * The person who wrote this will see your note. Explain what needs changing.
+   */
+  reviewNote?: string | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
+  /**
+   * Optional. Keeps this hidden until the date and time you choose, even after you publish it.
+   */
+  publishAt?: string | null;
+  /**
+   * Optional. Takes this off the website automatically — useful for a notice that expires.
+   */
+  unpublishAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  /**
+   * Optional. e.g. "Since 1934".
+   */
+  eyebrow?: string | null;
+  title: string;
+  /**
+   * Optional. Type a word from the heading to show it in SIWS accent.
+   */
+  accentWord?: string | null;
+  /**
+   * Optional. One or two sentences below the heading.
+   */
+  intro?: string | null;
+  /**
+   * Optional. Shown as a wide picture beneath the heading, not behind the text — so the photograph stays fully visible and the words stay legible without an overlay dimming it.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Optional. Up to three short facts shown on the picture — e.g. "1934" / "Serving Mumbai since".
+   */
+  highlights?:
+    | {
+        /**
+         * Keep it short — "1934", "KG–PG", "SSC Board".
+         */
+        value: string;
+        /**
+         * Optional. The smaller line beneath.
+         */
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  links?:
+    | {
+        link: {
+          /**
+           * The words people will see and click. Say where it goes — “Download the admission form”, not “Click here”.
+           */
+          label: string;
+          type: 'internal' | 'external';
+          /**
+           * Links to other websites always open in a new tab.
+           */
+          newTab?: boolean | null;
+          /**
+           * If that page is later removed, this link hides itself instead of breaking.
+           */
+          reference?: {
+            relationTo: 'pages';
+            value: number | Page;
+          } | null;
+          url?: string | null;
+          /**
+           * How the link is styled.
+           */
+          appearance?: ('primary' | 'secondary' | 'plain') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Text colour adjusts automatically so it stays readable.
+   */
+  background?: ('white' | 'sea' | 'tint' | 'brand') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1953,6 +2077,14 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'announcements';
+        value: number | Announcement;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
@@ -2021,6 +2153,46 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  template?: T;
+  title?: T;
+  date?: T;
+  summary?: T;
+  body?: T;
+  photos?: T;
+  video?:
+    | T
+    | {
+        youtubeUrl?: T;
+        file?: T;
+      };
+  unit?: T;
+  slug?: T;
+  publishAt?: T;
+  unpublishAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements_select".
+ */
+export interface AnnouncementsSelect<T extends boolean = true> {
+  message?: T;
+  tone?: T;
+  link?: T;
+  unit?: T;
+  publishAt?: T;
+  unpublishAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

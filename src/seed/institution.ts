@@ -68,13 +68,27 @@ const main = async () => {
    * between machines. Absent (media not seeded yet) the banner simply renders
    * without a picture, so this script never fails for want of an upload.
    */
-  const { docs: allMedia } = await payload.find({
-    collection: 'media',
-    limit: 100,
-    depth: 0,
-    overrideAccess: true,
-  })
-  const photo = (filename: string) => allMedia.find((m) => m.filename === filename)?.id ?? null
+  /*
+   * Each named photograph is asked for by name, rather than pulled out of a
+   * page of results in JavaScript.
+   *
+   * This used to fetch 100 rows and search them. That worked while the library
+   * held eight photographs and silently stopped working at 344: the ones this
+   * page names are among the oldest, the default sort returns the newest first,
+   * so every lookup fell off the end of the page and returned null. The banner
+   * and History pictures vanished from the home page and the only symptom was
+   * a warning saying the media had not been seeded, which it had.
+   */
+  const photo = async (filename: string): Promise<number | null> => {
+    const { docs } = await payload.find({
+      collection: 'media',
+      where: { filename: { equals: filename } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    return (docs[0]?.id as number | undefined) ?? null
+  }
 
   /*
    * The banner photograph carries the most weight on the site, so it is the
@@ -82,17 +96,17 @@ const main = async () => {
    * a teacher surrounded by her class says "school" in a way that a good
    * photograph of a tidy classroom cannot.
    */
-  const heroImage = photo('kg-teacher-with-children.jpg')
+  const heroImage = await photo('kg-teacher-with-children.jpg')
   /*
    * The divider photographs are reused from the gallery on purpose. They sit
    * under a 95%-to-70% wash, so what reads is tone and shape, not a
    * recognisable picture — holding two more photographs back from the gallery
    * to avoid a repeat nobody can see would cost more than it saved.
    */
-  const dividerOne = photo('kg-play-area.jpg')
-  const dividerTwo = photo('kg-classroom-group.jpg')
-  const overviewImage = photo('kg-play-area.jpg')
-  const historyImage = photo('kg-classroom-activity.jpg')
+  const dividerOne = await photo('kg-play-area.jpg')
+  const dividerTwo = await photo('kg-classroom-group.jpg')
+  const overviewImage = await photo('kg-play-area.jpg')
+  const historyImage = await photo('kg-classroom-activity.jpg')
 
   /*
    * The gallery takes whatever is left, so the page fills out as SIWS sends
@@ -106,8 +120,21 @@ const main = async () => {
    * is showing the same school the page is describing.
    */
   const usedIds = new Set([heroImage, historyImage].filter(Boolean))
-  const galleryImages = allMedia
-    .filter((m) => !usedIds.has(m.id) && m.withdrawn?.isWithdrawn !== true)
+  /*
+   * Withdrawn photographs are excluded in the query rather than filtered out
+   * afterwards. Filtering a fixed page of results means a run of withdrawals
+   * quietly shrinks the wall below six, and FR-SW-05 has to hold here as much
+   * as anywhere else.
+   */
+  const { docs: galleryPool } = await payload.find({
+    collection: 'media',
+    where: { 'withdrawn.isWithdrawn': { not_equals: true } },
+    limit: 20,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const galleryImages = galleryPool
+    .filter((m) => !usedIds.has(m.id))
     .slice(0, 6)
     .map((m) => ({ image: m.id, caption: '' }))
 

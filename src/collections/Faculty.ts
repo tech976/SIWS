@@ -11,6 +11,7 @@ import { campusField } from '@/fields/campus'
 import { schedulingFields, workflowFields } from '@/fields/publishing'
 import { richTextField } from '@/fields/richText'
 import { auditChange, auditDelete } from '@/hooks/audit'
+import { hiddenFromHod } from '@/access/admin-nav'
 import {
   constrainUnitToScope,
   enforcePublishPermission,
@@ -43,6 +44,7 @@ export const Faculty: CollectionConfig = {
   labels: { singular: 'Teacher', plural: 'Teachers' },
 
   admin: {
+    hidden: hiddenFromHod,
     useAsTitle: 'name',
     defaultColumns: ['name', 'designation', 'unit', 'campus', 'order', '_status'],
     group: 'Content',

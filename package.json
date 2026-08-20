@@ -20,6 +20,7 @@
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/index.ts",
     "seed:media": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/media.ts",
+    "seed:hod": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/hod.ts",
     "seed:kg": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/kindergarten.ts",
     "seed:pages": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/pages-general.ts",
     "seed:unit-home": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/unit-home.ts",

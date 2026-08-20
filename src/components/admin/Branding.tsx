@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { ExternalLink, LifeBuoy } from 'lucide-react'
+import { ExternalLink, Home, LifeBuoy } from 'lucide-react'
+import Link from 'next/link'
 
 /**
  * SIWS branding for the admin panel.
@@ -41,17 +42,46 @@ export const Icon = () => (
   />
 )
 
-/** Brand block at the top of the nav rail (`beforeNavLinks`). */
+/**
+ * Brand block at the top of the nav rail (`beforeNavLinks`), with a way home.
+ *
+ * The dashboard had no link anywhere. Payload's sidebar lists collections and
+ * nothing else, so once an HOD clicked into News & Events the screen with the
+ * two big buttons on it was unreachable short of editing the address — the one
+ * screen written specifically for them, and it was a dead end.
+ *
+ * The subtitle says "Website" rather than "Content manager": the latter is also
+ * the name of a role in this system, and reading it under your own account
+ * suggests it is telling you who you are.
+ */
 export const NavBrand = () => (
-  <div className="siws-brand">
-    <span className="siws-brand__mark">
-      <img src="/brand/logo.png" alt="" width={30} height={30} />
-    </span>
-    <span className="siws-brand__text">
-      <span className="siws-brand__name">SIWS</span>
-      <span className="siws-brand__sub">Content manager</span>
-    </span>
-  </div>
+  <>
+    <div className="siws-brand">
+      <span className="siws-brand__mark">
+        <img src="/brand/logo.png" alt="" width={30} height={30} />
+      </span>
+      <span className="siws-brand__text">
+        <span className="siws-brand__name">SIWS</span>
+        <span className="siws-brand__sub">Website</span>
+      </span>
+    </div>
+
+    <Link
+      href="/admin"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.65rem',
+        padding: '0.55rem 0',
+        marginBottom: '0.35rem',
+        color: 'var(--theme-elevation-800)',
+        textDecoration: 'none',
+      }}
+    >
+      <Home size={17} strokeWidth={2} aria-hidden="true" />
+      Home
+    </Link>
+  </>
 )
 
 /**

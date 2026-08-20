@@ -1,4 +1,4 @@
-import type { Field } from 'payload'
+import type { Field, Condition } from 'payload'
 
 import { approverFieldOnly } from '@/access'
 
@@ -94,6 +94,21 @@ export const workflowFields: Field[] = [
  * as by the scheduling task, so an unpublish date is honoured to the second
  * even if a background job is delayed.
  */
+/**
+ * The same two fields, shown only when `condition` says so.
+ *
+ * A factory rather than mapping over `schedulingFields` and spreading each one:
+ * `Field` is a discriminated union, and spreading a member widens it back to
+ * the union, so TypeScript stops being able to tell a date field from a
+ * collapsible and rejects the result. Building them here keeps each literal
+ * intact and the type check meaningful.
+ */
+export const scheduledUnless = (condition: Condition): Field[] =>
+  schedulingFields.map((field) => {
+    if (field.type !== 'date') return field
+    return { ...field, admin: { ...field.admin, condition } }
+  })
+
 export const schedulingFields: Field[] = [
   {
     name: 'publishAt',

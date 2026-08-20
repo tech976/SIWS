@@ -9,6 +9,7 @@ import {
   updateScoped,
 } from '@/access'
 import type { AccessUser } from '@/access'
+import { hiddenFromHod } from '@/access/admin-nav'
 import { contentBlocks } from '@/blocks'
 import { schedulingFields, workflowFields } from '@/fields/publishing'
 import { slugField } from '@/fields/slug'
@@ -38,6 +39,7 @@ export const Pages: CollectionConfig = {
   labels: { singular: 'Page', plural: 'Pages' },
 
   admin: {
+    hidden: hiddenFromHod,
     useAsTitle: 'title',
     defaultColumns: ['title', 'unit', '_status', 'reviewStatus', 'updatedAt'],
     group: 'Content',

@@ -18,9 +18,11 @@ import {
 import Link from 'next/link'
 import type { Payload, TypedUser } from 'payload'
 
-import { ROLES, hasRole, isAdmin, isDPO, unitIdsOf } from '@/access'
+import { ROLES, hasRole, isAdmin, isDPO, isHod, unitIdsOf } from '@/access'
 import type { AccessUser } from '@/access'
 import { REVIEW_STATUS } from '@/fields/publishing'
+
+import { HodDashboard } from './HodDashboard'
 
 /**
  * The SIWS admin dashboard, replacing Payload's default collection grid.
@@ -120,6 +122,32 @@ interface Delta {
 
 export const Dashboard = async ({ payload, user }: DashboardProps) => {
   const accessUser = (user ?? null) as AccessUser | null
+
+  /*
+   * An HOD gets a different screen entirely, not a trimmed version of this one.
+   * Every panel below — the review queue, the enquiry inbox, page counts — is
+   * something they cannot act on, and a dashboard of figures a person is not
+   * responsible for is precisely the complexity the trustees objected to.
+   */
+  if (!isAdmin(accessUser) && isHod(accessUser)) {
+    const unitIds = unitIdsOf(accessUser)
+    let unitName: string | null = null
+    if (unitIds[0]) {
+      try {
+        const unit = await payload.findByID({
+          collection: 'units',
+          id: unitIds[0],
+          depth: 0,
+          overrideAccess: true,
+        })
+        unitName = (unit as { name?: string }).name ?? null
+      } catch {
+        unitName = null
+      }
+    }
+    return <HodDashboard payload={payload} user={user} unitName={unitName} />
+  }
+
   const name = typeof (user as { name?: unknown })?.name === 'string'
     ? String((user as { name: string }).name)
     : 'Team member'

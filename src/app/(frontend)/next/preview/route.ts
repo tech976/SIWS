@@ -7,7 +7,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 
 import { buildPagePath, isSafeInternalPath, unitSlugFrom } from '@/lib/preview-path'
-import type { Page } from '@/payload-types'
+import type { Page, Post } from '@/payload-types'
 
 /**
  * BR-EDIT-04 — "Content managers shall preview changes before publishing."
@@ -43,9 +43,20 @@ export const GET = async (req: NextRequest): Promise<Response> => {
     return new NextResponse('Invalid preview request.', { status: 401 })
   }
 
-  if (collection !== 'pages' || !id) {
+  /*
+   * Posts preview through the same gate as pages. A department write-up is
+   * unpublished content like any other, and the trustees asked specifically
+   * that an HOD "be able to preview the page, make any necessary changes, and
+   * then click the Publish button" — so it needs draft mode, and it needs the
+   * same three checks below rather than a shortcut of its own.
+   */
+  const PREVIEWABLE = ['pages', 'posts'] as const
+  type Previewable = (typeof PREVIEWABLE)[number]
+
+  if (!id || !PREVIEWABLE.includes(collection as Previewable)) {
     return new NextResponse('Missing or unsupported preview parameters.', { status: 400 })
   }
+  const target = collection as Previewable
 
   let payload: Awaited<ReturnType<typeof getPayload>>
   try {
@@ -69,27 +80,34 @@ export const GET = async (req: NextRequest): Promise<Response> => {
   // Typed to `Page` explicitly: `findByID`'s return is a union across every
   // collection, so the narrowing has to be stated even though `collection` is
   // already checked to be 'pages' above.
-  let page: Page | null = null
+  let doc: Page | Post | null = null
   try {
-    page = (await payload.findByID({
-      collection: 'pages',
+    doc = (await payload.findByID({
+      collection: target,
       id,
       depth: 1,
       draft: true,
       overrideAccess: false,
       user,
-    })) as Page
+    })) as Page | Post
   } catch {
     return new NextResponse('You do not have permission to preview this page.', { status: 403 })
   }
 
-  if (!page) {
+  if (!doc) {
     return new NextResponse('That page could not be found.', { status: 404 })
   }
 
+  /*
+   * A post's slug is generated from its title, so on a document saved before a
+   * title was typed it is still absent. `buildPagePath` already returns null
+   * for an empty slug, which produces the "no web address yet" message below —
+   * the coalesce is only here because Post types it as optional and Page does
+   * not.
+   */
   const path = buildPagePath(
-    { slug: page.slug, unit: page.unit },
-    unitSlugFrom(page.unit ?? null),
+    { slug: doc.slug ?? '', unit: doc.unit },
+    unitSlugFrom(doc.unit ?? null),
   )
 
   // Derived rather than taken from the query string, so it cannot be an open

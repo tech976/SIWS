@@ -5,7 +5,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 
 import type { NavItem } from '@/components/layout/PrimaryNav'
-import type { Page, Unit } from '@/payload-types'
+import type { Announcement, Page, Post, Unit } from '@/payload-types'
 
 /**
  * Read-side queries for the public website.
@@ -215,9 +215,11 @@ export const getInstitutionPage = cache(
 )
 
 export interface ResolvedRoute {
-  kind: 'unit-home' | 'page'
+  kind: 'unit-home' | 'page' | 'post'
   unit: Unit | null
   page: Page | null
+  /** Set only when `kind` is 'post' — a department write-up on a template. */
+  post?: Post | null
 }
 
 /**
@@ -296,6 +298,50 @@ export const resolveRoute = cache(
       ...common,
     })
 
-    return docs[0] ? { kind: 'page', unit, page: docs[0] } : null
+    if (docs[0]) return { kind: 'page', unit, page: docs[0] }
+
+    /*
+     * Falls through to a department write-up, so `/primary/independence-day-2026`
+     * resolves without anyone having built a page for it.
+     *
+     * Pages are tried first deliberately. A hand-built page is the more
+     * specific thing and somebody chose its address; a post's address is
+     * generated from its title, so on the rare collision the page wins and the
+     * post is the one that gets renamed.
+     */
+    const { docs: posts } = await payload.find({
+      collection: 'posts',
+      where: { and: [{ slug: { equals: second } }, { unit: { equals: unit.id } }] },
+      limit: 1,
+      ...common,
+    })
+
+    return posts[0] ? { kind: 'post', unit, page: null, post: posts[0] } : null
   },
 )
+
+
+/**
+ * The lines currently running in the news ticker.
+ *
+ * A unit page shows its own school's announcements; the main portal shows every
+ * school's, which is what makes the ticker worth having on the front page —
+ * the trustees asked for one place where a visitor sees that the institution is
+ * busy, not four.
+ *
+ * `overrideAccess: false` keeps the scheduling window honest: an announcement
+ * outside its dates is filtered by the same rule the rest of the site uses,
+ * rather than by anything written here.
+ */
+export const getAnnouncements = cache(async (unitId: number | null): Promise<Announcement[]> => {
+  const payload = await payloadClient()
+  const { docs } = await payload.find({
+    collection: 'announcements',
+    where: unitId === null ? {} : { or: [{ unit: { equals: unitId } }, { unit: { exists: false } }] },
+    sort: '-publishAt',
+    limit: 12,
+    depth: 1,
+    overrideAccess: false,
+  })
+  return docs as Announcement[]
+})

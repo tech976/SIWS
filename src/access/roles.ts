@@ -13,6 +13,16 @@ export const ROLES = {
   unitHead: 'unitHead',
   /** Designated staff member who adds, edits and removes content in their unit. */
   contentManager: 'contentManager',
+  /**
+   * Head of Department. Publishes their own department's news, events and
+   * announcements and nothing else.
+   *
+   * Separate from `unitHead`, which approves anything within a unit. An HOD is
+   * deliberately narrower: the trustees asked for people who "manage content
+   * only and should not have to design or create web pages", so the role is
+   * defined by the short list of sections below rather than by a unit alone.
+   */
+  hod: 'hod',
   /** Staff with limited rights over specific sections (e.g. news, gallery). */
   editor: 'editor',
   /** Data Protection Officer / grievance contact. Cross-unit, data-only access. */
@@ -25,6 +35,7 @@ export const ROLE_OPTIONS: { label: string; value: Role }[] = [
   { label: 'Administrator', value: ROLES.admin },
   { label: 'Unit Head (Approver)', value: ROLES.unitHead },
   { label: 'Unit Content Manager', value: ROLES.contentManager },
+  { label: 'Head of Department (HOD)', value: ROLES.hod },
   { label: 'Editor / Staff', value: ROLES.editor },
   { label: 'Data Protection Officer', value: ROLES.dpo },
 ]
@@ -71,4 +82,19 @@ export const SECTION_OPTIONS: { label: string; value: SectionKey }[] = [
   { label: 'Pages', value: SECTIONS.pages },
   { label: 'Facilities & Campus', value: SECTIONS.facilities },
   { label: 'Transport', value: SECTIONS.transport },
+]
+
+/**
+ * Everything an HOD may work in, whatever else is assigned to them.
+ *
+ * Fixed rather than per-user, because the point of the role is that nobody has
+ * to configure it: give someone `hod` plus their unit and they can publish that
+ * department's news and nothing else. `pages` is absent on purpose — an HOD
+ * writes content, and the page it lands on is built by a template.
+ */
+export const HOD_SECTIONS: SectionKey[] = [
+  SECTIONS.news,
+  SECTIONS.events,
+  SECTIONS.gallery,
+  SECTIONS.achievements,
 ]

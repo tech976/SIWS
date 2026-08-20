@@ -1,4 +1,4 @@
-import { ROLES, type Role, type SectionKey } from './roles'
+import { HOD_SECTIONS, ROLES, type Role, type SectionKey } from './roles'
 
 /**
  * The subset of the authenticated user that access decisions are made from.
@@ -59,6 +59,9 @@ export const isAdmin = (user: AccessUser | null | undefined): boolean => hasRole
 
 export const isDPO = (user: AccessUser | null | undefined): boolean => hasRole(user, ROLES.dpo)
 
+/** True when the user is a Head of Department. */
+export const isHod = (user: AccessUser | null | undefined): boolean => hasRole(user, ROLES.hod)
+
 /** IDs of the units a user is assigned to, de-duplicated and normalised. */
 export const unitIdsOf = (user: AccessUser | null | undefined): string[] => {
   if (!isActiveUser(user) || !Array.isArray(user.units)) return []
@@ -85,6 +88,13 @@ export const canTouchSection = (
 ): boolean => {
   if (!isActiveUser(user)) return false
   if (hasRole(user, ROLES.admin, ROLES.unitHead, ROLES.contentManager)) return true
+  /*
+   * An HOD's sections are fixed by the role, not configured per user. Checked
+   * before the editor branch so that holding both roles cannot narrow an HOD
+   * below their own list, and so that an HOD with no `editableSections` set —
+   * which is every HOD, since nobody has to configure them — still works.
+   */
+  if (hasRole(user, ROLES.hod)) return HOD_SECTIONS.includes(section)
   if (!hasRole(user, ROLES.editor)) return false
   const assigned = user.editableSections
   return Array.isArray(assigned) && assigned.includes(section)

@@ -2,11 +2,55 @@ import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
+import { PostView } from '@/components/blocks/PostView'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
+import { NewsTicker, type TickerItem } from '@/components/layout/NewsTicker'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
-import { getNavItems, getQuickLinks, getUnits, resolveRoute } from '@/lib/site'
-import type { Media, Page, Unit } from '@/payload-types'
+import {
+  getAnnouncements,
+  getNavItems,
+  getQuickLinks,
+  getUnits,
+  resolveRoute,
+} from '@/lib/site'
+import type { Announcement, Media, Page, Unit } from '@/payload-types'
+
+/**
+ * Turns announcement documents into the plain rows the ticker renders.
+ *
+ * Done on the server because working out an address needs the unit slug, and
+ * because a client component cannot be handed a function to call — the first
+ * attempt passed one and crashed every page with "Functions cannot be passed
+ * directly to Client Components".
+ */
+const toTickerItems = (items: Announcement[], units: Unit[]): TickerItem[] =>
+  items.map((item) => {
+    const link = item.link
+    let href: string | null = null
+
+    if (link && typeof link === 'object' && 'value' in link) {
+      const target = link.value
+      if (target && typeof target === 'object') {
+        const slug = 'slug' in target && typeof target.slug === 'string' ? target.slug : null
+        if (slug) {
+          const unitRef = 'unit' in target ? target.unit : null
+          const unitSlug =
+            typeof unitRef === 'object' && unitRef !== null && 'slug' in unitRef
+              ? (unitRef.slug as string)
+              : (units.find((u) => u.id === unitRef)?.slug ?? null)
+          href = unitSlug ? `/${unitSlug}/${slug}` : `/${slug}`
+        }
+      }
+    }
+
+    return {
+      id: String(item.id),
+      message: item.message,
+      tone: item.tone ?? 'news',
+      href,
+    }
+  })
 
 interface RouteProps {
   params: Promise<{ segments: string[] }>
@@ -28,12 +72,13 @@ const DynamicRoute = async ({ params }: RouteProps) => {
   const resolved = await resolveRoute(segments, draft)
   if (!resolved) notFound()
 
-  const { unit, page, kind } = resolved
+  const { unit, page, post, kind } = resolved
   const units = await getUnits()
   const navItems = await getNavItems(unit?.id ?? null, unit?.slug ?? null)
   const quickLinks = await getQuickLinks(unit?.id ?? null, unit?.slug ?? null)
 
   const footerUnits = units.map(({ id, slug, shortName }) => ({ id, slug, shortName }))
+  const announcements = await getAnnouncements(unit?.id ?? null)
 
   return (
     <>
@@ -48,7 +93,12 @@ const DynamicRoute = async ({ params }: RouteProps) => {
         cta={unit ? { label: 'Enquire about admission', href: `/${unit.slug}` } : null}
       />
 
+      <NewsTicker items={toTickerItems(announcements, units)} />
+
       <main id="main-content">
+        {/* A department write-up, laid out by the template its author chose. */}
+        {kind === 'post' && post ? <PostView post={post} /> : null}
+
         {/* Only shown when a unit has no landing page published yet. */}
         {kind === 'unit-home' && unit && !page ? <UnitPlaceholder unit={unit} /> : null}
 
@@ -100,7 +150,28 @@ export const generateMetadata = async ({ params }: RouteProps): Promise<Metadata
 
   if (!resolved) return { title: 'Page not found' }
 
-  const { unit, page, kind } = resolved
+  const { unit, page, post, kind } = resolved
+
+  /*
+   * A write-up carries no `page`, so without this it would fall through to the
+   * branch below and inherit the unit's title and description — every news item
+   * in the school appearing in search results as "Primary School".
+   */
+  if (kind === 'post' && post) {
+    return {
+      title: post.title,
+      description: post.summary ?? undefined,
+      alternates: {
+        canonical: unit?.slug ? `/${unit.slug}/${post.slug}` : `/${post.slug}`,
+      },
+      openGraph: {
+        title: post.title,
+        description: post.summary ?? undefined,
+        type: 'article',
+        publishedTime: post.date ?? undefined,
+      },
+    }
+  }
 
   if (!page) {
     return {

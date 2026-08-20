@@ -1,0 +1,54 @@
+{
+  // Same memory guards as ../.vscode/settings.json, so the excludes apply
+  // whether you open SIWS/ or siws-platform/ as the workspace folder.
+  // See that file for why each entry is here.
+
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/.git/**": true,
+    "**/photos-inbox/**": true,
+    "**/media/**": true,
+    "**/SIWS Content/**": true,
+    "**/protected-media/**": true,
+    "**/*.tsbuildinfo": true
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/photos-inbox": true,
+    "**/media": true,
+    "**/SIWS Content": true,
+    "**/protected-media": true,
+    "**/package-lock.json": true
+  },
+  "search.followSymlinks": false,
+  "search.useIgnoreFiles": true,
+
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/photos-inbox": true,
+    "**/.git": true
+  },
+
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "useFsEvents",
+    "watchDirectory": "useFsEvents",
+    "fallbackPolling": "dynamicPriority"
+  },
+  "typescript.disableAutomaticTypeAcquisition": true,
+
+  "terminal.integrated.scrollback": 2000,
+  "terminal.integrated.enablePersistentSessions": false,
+
+  "git.autofetch": false,
+  "git.autorefresh": false,
+
+  "editor.largeFileOptimizations": true,
+  "workbench.editor.limit.enabled": true,
+  "workbench.editor.limit.value": 12,
+  "workbench.editor.limit.perEditorGroup": true
+}

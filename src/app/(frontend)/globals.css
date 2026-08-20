@@ -541,3 +541,61 @@
     text-underline-offset: 4px;
   }
 }
+
+/* ==========================================================================
+   NEWS TICKER
+
+   The animation lives here rather than in Tailwind utilities because it needs
+   a keyframe and a reduced-motion rule, and because pausing must be a single
+   declaration the component can toggle with a data attribute.
+
+   Translating by -50% works because the track holds the list twice: at the
+   halfway point the second copy sits exactly where the first began, so the
+   loop restarts with no visible jump.
+   ========================================================================== */
+
+@keyframes siws-ticker-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.siws-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: siws-ticker-scroll 45s linear infinite;
+}
+
+.siws-ticker-track[data-paused='true'] {
+  animation-play-state: paused;
+}
+
+/*
+  WCAG 2.1 SC 2.3.3 and the vestibular case behind it: someone who has asked
+  their operating system for less movement should never see the first frame,
+  not merely be able to stop it afterwards. The headlines stay readable — they
+  simply sit still and wrap onto their own lines.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .siws-ticker-track {
+    animation: none;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .siws-ticker-track > ul[aria-hidden='true'] {
+    display: none;
+  }
+
+  .siws-ticker {
+    overflow: visible;
+  }
+
+  .siws-ticker-track > ul {
+    white-space: normal;
+    flex-wrap: wrap;
+  }
+}

@@ -549,6 +549,232 @@ const main = async () => {
         }
       },
     })
+
+    // ---- Head of Department --------------------------------------------
+    //
+    // The trustees' requirement in one line: "Primary School HOD can only
+    // upload content in the Primary section." Everything below is that
+    // sentence, tested from both directions.
+    const hod = await makeUser('hod', ['hod'], { units: [primary.id] })
+    const createdPosts: number[] = []
+    const createdAnnouncements: number[] = []
+
+    await check({
+      name: 'An HOD can publish a news item in their own unit',
+      run: async () => {
+        const post = await payload.create({
+          collection: 'posts',
+          data: {
+            title: `Verify HOD post ${stamp}`,
+            date: new Date().toISOString(),
+            template: 'story',
+            unit: primary.id,
+          } as never,
+          overrideAccess: false,
+          user: hod,
+        })
+        createdPosts.push(post.id as number)
+      },
+    })
+
+    await check({
+      name: 'An HOD CANNOT publish into another unit',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.create({
+              collection: 'posts',
+              data: {
+                title: `Verify cross-unit ${stamp}`,
+                date: new Date().toISOString(),
+                template: 'story',
+                unit: kg.id,
+              } as never,
+              overrideAccess: false,
+              user: hod,
+            }),
+          'an HOD wrote a news item into a unit they do not belong to',
+        ),
+    })
+
+    await check({
+      name: 'An HOD can raise a ticker announcement for their own unit',
+      run: async () => {
+        const item = await payload.create({
+          collection: 'announcements',
+          data: {
+            message: `Verify announcement ${stamp}`,
+            tone: 'news',
+            unit: primary.id,
+          } as never,
+          overrideAccess: false,
+          user: hod,
+        })
+        createdAnnouncements.push(item.id as number)
+      },
+    })
+
+    await check({
+      name: 'An HOD CANNOT create a page — layout is not their job',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.create({
+              collection: 'pages',
+              data: {
+                title: `Verify HOD page ${stamp}`,
+                slug: `verify-hod-page-${stamp}`,
+                unit: primary.id,
+                layout: [],
+              } as never,
+              overrideAccess: false,
+              user: hod,
+            }),
+          'an HOD built a page, which the design brief reserves to templates',
+        ),
+    })
+
+    await check({
+      name: 'An HOD CANNOT edit faculty records',
+      run: () =>
+        expectRejection(
+          () =>
+            payload.create({
+              collection: 'faculty',
+              data: {
+                name: `Verify HOD faculty ${stamp}`,
+                unit: primary.id,
+              } as never,
+              overrideAccess: false,
+              user: hod,
+            }),
+          'an HOD reached a collection outside their four sections',
+        ),
+    })
+
+    await check({
+      name: 'A deactivated HOD immediately loses the ability to publish',
+      run: async () => {
+        await payload.update({
+          collection: 'users',
+          id: hod.id,
+          data: { isActive: false } as never,
+          overrideAccess: true,
+        })
+
+        const frozen = await payload.findByID({
+          collection: 'users',
+          id: hod.id,
+          overrideAccess: true,
+          depth: 0,
+        })
+
+        await expectRejection(
+          () =>
+            payload.create({
+              collection: 'announcements',
+              data: {
+                message: `Verify suspended ${stamp}`,
+                tone: 'news',
+                unit: primary.id,
+              } as never,
+              overrideAccess: false,
+              user: frozen,
+            }),
+          'a deactivated HOD could still publish (BR-USER-04)',
+        )
+      },
+    })
+
+    await check({
+      name: 'An HOD can delete their own announcement, but not a page',
+      run: async () => {
+        const doomed = await payload.create({
+          collection: 'announcements',
+          data: {
+            message: `Verify deletable ${stamp}`,
+            tone: 'news',
+            unit: primary.id,
+          } as never,
+          overrideAccess: false,
+          user: hod,
+        })
+
+        await payload.delete({
+          collection: 'announcements',
+          id: doomed.id,
+          overrideAccess: false,
+          user: hod,
+        })
+
+        // The same right must not reach a page — deletion is still scoped by
+        // section, and `pages` is not one of an HOD's.
+        const page = await payload.create({
+          collection: 'pages',
+          data: {
+            title: `Verify hod-delete ${stamp}`,
+            slug: `verify-hod-delete-${stamp}`,
+            unit: primary.id,
+            layout: [],
+          } as never,
+          overrideAccess: true,
+        })
+        createdPages.push(page.id as number)
+
+        await expectRejection(
+          () =>
+            payload.delete({
+              collection: 'pages',
+              id: page.id,
+              overrideAccess: false,
+              user: hod,
+            }),
+          'an HOD deleted a page',
+        )
+      },
+    })
+
+    await check({
+      name: 'Every staff role can actually open the admin panel',
+      run: async () => {
+        /*
+         * Payload gates the panel with its own `access.admin`, which is checked
+         * nowhere else. An HOD once passed every permission test here and was
+         * still met with "this user does not have access to the admin panel"
+         * on login, because the role had been added to the model and not to
+         * that list. Reading the config directly is the only way to catch it.
+         */
+        const { Users } = await import('@/collections/Users')
+        const gate = Users.access?.admin
+        if (typeof gate !== 'function') throw new Error('Users has no admin-panel gate.')
+
+        const staffRoles = ['admin', 'unitHead', 'contentManager', 'hod', 'editor', 'dpo']
+
+        for (const role of staffRoles) {
+          const allowed = await gate({
+            req: { user: { id: 1, roles: [role], isActive: true } },
+          } as never)
+          if (!allowed) {
+            throw new Error(`Role "${role}" can sign in but cannot open the admin panel.`)
+          }
+        }
+
+        // And the gate still refuses someone who has been deactivated.
+        const deactivated = await gate({
+          req: { user: { id: 1, roles: ['hod'], isActive: false } },
+        } as never)
+        if (deactivated) throw new Error('A deactivated user could open the admin panel.')
+      },
+    })
+
+    for (const id of createdPosts) {
+      await payload.delete({ collection: 'posts', id, overrideAccess: true }).catch(() => undefined)
+    }
+    for (const id of createdAnnouncements) {
+      await payload
+        .delete({ collection: 'announcements', id, overrideAccess: true })
+        .catch(() => undefined)
+    }
   } finally {
     for (const id of createdPages) {
       await payload

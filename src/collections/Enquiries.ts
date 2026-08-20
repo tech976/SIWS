@@ -5,6 +5,7 @@ import { exportEnquiriesEndpoint } from '@/endpoints/export-enquiries'
 import { campusField } from '@/fields/campus'
 import { auditChange, auditDelete, auditPersonalDataReads } from '@/hooks/audit'
 import type { AccessUser } from '@/access'
+import { hiddenFromHod } from '@/access/admin-nav'
 
 /**
  * SRS 5.3 — admission enquiries submitted from a unit's website.
@@ -30,6 +31,7 @@ export const Enquiries: CollectionConfig = {
   labels: { singular: 'Admission enquiry', plural: 'Admission enquiries' },
 
   admin: {
+    hidden: hiddenFromHod,
     useAsTitle: 'childName',
     defaultColumns: ['childName', 'gradeApplyingFor', 'unit', 'campus', 'status', 'createdAt'],
     group: 'Enquiries & forms',

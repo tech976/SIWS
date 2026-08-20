@@ -11,6 +11,7 @@ import {
   isAdmin,
 } from '@/access'
 import type { AccessUser, Role } from '@/access'
+import { hiddenFromHod } from '@/access/admin-nav'
 import { checkPasswordStrength } from '@/auth/password-policy'
 import { auditChange, auditDelete } from '@/hooks/audit'
 
@@ -61,6 +62,13 @@ export const Users: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'roles', 'units', 'isActive'],
     group: 'Configuration',
+    /*
+     * Hidden from HODs. Account administration is not theirs, the access rules
+     * already refuse it, and a "Staff & permissions" link under a heading called
+     * CONFIGURATION is exactly the kind of thing that makes a teacher think the
+     * panel is not for them.
+     */
+    hidden: hiddenFromHod,
   },
 
   access: {
@@ -88,11 +96,19 @@ export const Users: CollectionConfig = {
     admin: ({ req }) => {
       const user = req.user as AccessUser | null
       if (!user || user.isActive === false) return false
+      /*
+       * Every staff role that has anything to do inside the panel. This list is
+       * the door, and it is separate from what a role may then touch — adding
+       * `hod` to the role model without adding it here let an HOD sign in and
+       * then meet "this user does not have access to the admin panel", which
+       * reads like a broken account rather than a missing line.
+       */
       return hasRole(
         user,
         ROLES.admin,
         ROLES.unitHead,
         ROLES.contentManager,
+        ROLES.hod,
         ROLES.editor,
         ROLES.dpo,
       )

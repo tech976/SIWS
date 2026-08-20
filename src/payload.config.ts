@@ -6,11 +6,13 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
+import { Announcements } from './collections/Announcements'
 import { AuditLogs } from './collections/AuditLogs'
 import { Enquiries } from './collections/Enquiries'
 import { Faculty } from './collections/Faculty'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
+import { Posts } from './collections/Posts'
 import { Units } from './collections/Units'
 import { Users } from './collections/Users'
 
@@ -61,7 +63,7 @@ export default buildConfig({
     },
   },
 
-  collections: [Pages, Faculty, Media, Enquiries, Units, Users, AuditLogs],
+  collections: [Posts, Announcements, Pages, Faculty, Media, Enquiries, Units, Users, AuditLogs],
 
   editor: lexicalEditor(),
 

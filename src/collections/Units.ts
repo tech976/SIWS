@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { ROLES, adminFieldOnly, adminOnly, hasRole, isAdmin, unitIdsOf } from '@/access'
 import type { AccessUser } from '@/access'
+import { hiddenFromHod } from '@/access/admin-nav'
 import { auditChange, auditDelete } from '@/hooks/audit'
 import { slugField } from '@/fields/slug'
 import { UNIT_ACCENTS } from '@/theme/tokens'
@@ -24,6 +25,7 @@ export const Units: CollectionConfig = {
   labels: { singular: 'School', plural: 'Schools' },
 
   admin: {
+    hidden: hiddenFromHod,
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'order', 'isActive'],
     group: 'Configuration',

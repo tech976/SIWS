@@ -138,7 +138,15 @@ export const deleteScoped =
     const user = asUser(req.user)
     if (!isActiveUser(user)) return false
     if (isAdmin(user)) return true
-    if (!hasRole(user, ROLES.unitHead, ROLES.contentManager)) return false
+    /*
+     * HODs may remove their own department's work. `deleteScoped` originally
+     * stopped at Content Manager, which is right for a page — but an HOD who
+     * publishes a ticker line with a typo in it, or a write-up of an event that
+     * was cancelled, had no way to take it down and had to ask an administrator.
+     * The section check below still confines them to their four sections, so
+     * this does not reach pages or faculty.
+     */
+    if (!hasRole(user, ROLES.unitHead, ROLES.contentManager, ROLES.hod)) return false
     if (!canTouchSection(user, section)) return false
     return withinAssignedUnits(user)
   }
